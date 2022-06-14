@@ -25,3 +25,4 @@ apk_decompiled/
 ipa_unzipped/
 *.apk
 *.ipa
+test.sh

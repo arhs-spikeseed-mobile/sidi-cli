@@ -28,6 +28,7 @@
   "include": [
     "src/*",
     "src/**/*",
+    "src/translations/locales/*.json",
     "SIDI/*",
     "SIDI/**/*",
     "i18n.config.ts"
