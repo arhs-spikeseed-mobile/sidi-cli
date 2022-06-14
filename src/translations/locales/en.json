@@ -1,0 +1,181 @@
+{
+    "alert": {
+        "warning": "⚠️   ⚠️"
+    },
+    "commandDescription": {
+        "init": "Command to generate the CICD (Bitrise or CodeMagic) YAML file",
+        "edit": "Command to edit your config and generate a new YAML",
+        "language": "Command to change sidi-cli's language",
+        "update": "Command to update your YAML file based on your config created during init command, to use latest updates/improvements on SIDI sides."
+    },
+    "autoDetect": {
+        "title": "SIDI AUTO DETECTION",
+        "result": "Config detected:\nProject type: {{projectType}}",
+        "useAutoDetection": "Do you want use the config detected by SIDI?"
+    },
+    "edit": {
+        "title": "What do you want to do?",
+        "step": {
+            "title": "What do you want to do to {{workflowName}} workflow?",
+            "delete": "Which step do you want delete?",
+            "pushTriggerPattern": "Provide the pattern of branch to catch push event and launch {{workflowName}} workflow [More info](https://github.com/imranMnts/sidi-cli/blob/master/docs/buildTriggers.md)",
+            "androidSigningName": "Provide keystore's registered on CodeMagic reference name for the worklfow {{workflowName}}",
+            "add": "Which step do you want add?"
+        },
+        "updateWorkflow": {
+            "title": "Edit an existing Workflow",
+            "question": "Which workflow do you want to edit?",
+            "addStep": "Add a new Step",
+            "deleteStep": "Delete a Step",
+            "editPushTrigger": "Edit push event trigger branch pattern of this workflow",
+            "editAndroidSigning": "Set android signing key [More info](https://docs.codemagic.io/yaml-code-signing/signing-android/#set-up-code-signing-with-user-specified-keys)",
+            "deleteCustomStep": "Delete a Custom Step",
+            "deletePublishingCustomStep": "Delete a Custom Step from publishing section"
+        },
+        "duplicateWorkflow": {
+            "title": "Duplicate a workflow",
+            "question": "Which workflow do you want to duplicate?"
+        },
+        "changeCICD": {
+            "title": "Switch CI/CD // Will generate a YAML from your config file to use on {{cicd}}",
+            "question": "Select true to generate a YAML file for {{cicd}}"
+        },
+        "deleteWorkflow": {
+            "title": "Delete an existing Workflow",
+            "question": "Which workflow do you want to delete?"
+        },
+        "addWorkflow": {
+            "title": "Add a new Workflow"
+        }
+    },
+    "language": {
+        "availables": "Available languages: {{availableLanguages}}",
+        "current": "Current language: {{currentLanguage}}",
+        "change": "Do you want change the current language?",
+        "select": "Select language:",
+        "updated": "Sidi-cli's language has been updated"
+    },
+    "sidiConfig": {
+        "projectType": "Is it a Native or Hybrid (React-Native) project?",
+        "platform": "Which platform?",
+        "appOrLib": "Is it an App or Library project?",
+        "whichCICD": "Which CICD are you using?",
+        "hasVersionedBranches": "Are you using versioned branch in your repository?  [More info](https://github.com/imranMnts/sidi-cli/blob/master/docs/versionedBranches.md)",
+        "updateGitStatus": "Do you want link the CICD to your repository? (to update git pipeline status .eg)",
+        "started": "Let's start the generation of your wonderful YAML..",
+        "searchConfig": "Sidi is searching your config file created during init command..",
+        "configuring": "Configuring {{workflowName}}...",
+        "newCustomStep": "Do you want add a custom step to {{workflowName}}",
+        "newPublishingCustomStep": "Do you want add a custom step to {{workflowName}}'s publishing section?",
+        "defaultValue": "// Default value:"
+    },
+    "workflow": {
+        "title": "SETUP WORKFLOWS",
+        "newWorkflow": {
+            "title": "NEW WORKFLOW?",
+            "question": "Do you have a new workflow to add?",
+            "name": "What's the name of your workflow? (without any space) ",
+            "step": "Please select the step to add:\n{{printableSteps}}"
+        },
+        "newStep": {
+            "question": "Do you want add another step into {{wokrflowName}}?"
+        },
+        "duplicateWorkflow": "Do you want to use same steps as another workflow?",
+        "selectWorkflow": "Select the workflow to duplicate"
+    },
+    "checker": {
+        "androidManifest": {
+            "multipleFiles": "Sidi found multiple manifest files.\nPlease select yours in the list.",
+            "notFound": "Sidi didn't find any manifest file, please field your AndroidManifest.xml file path",
+            "error": "ERROR: AndroidManifest.xml file not found, please check the path you set",
+            "alone": "Sidi found one manifest file\nPath: {{path}}",
+            "success": "AndroidManifest.xml is configured correctly to update version during the build",
+            "setKeys": "ERROR: Add `versionCode` and `versionName` keys in your manifest file and press Enter\nValues are not important, they will be updated during the build, but we should have at least these keys in your AndroidManifest.xml"
+        },
+        "packageJson": {
+            "title": "We are searching: {{fileName}}",
+            "notFound": "Sidi didn't find any file, please field your file path.\nFile searched: {{fileName}}",
+            "multipleFiles": "Sidi found multiple files.\nPlease select yours in the list.",
+            "error": "ERROR: File not found, please check the path you set.\nFile searched: {{fileName}}",
+            "alone": "Sidi found one file\nPath: {{path}}"
+        },
+        "jest": {
+            "success": "package.json is configured correctly to run jest",
+            "setKeys": "ERROR: jest is not set properly in your package.json.\nPlease check if you have the jest package and the configuration object and press enter"
+        },
+        "customCommand": {
+            "success": "package.json is configured correctly to run {{command}}",
+            "setKeys": "ERROR: package.json's scripts is not set properly.\nPlease check if you have the command in scripts object (in the package.json) and press enter\nKey to set in package.json's scripts: {{command}}"
+        },
+        "customSteps": {
+            "title": "Custom steps [More info](https://github.com/imranMnts/sidi-cli/blob/master/docs/customSteps.md)",
+            "notFound": "Sidi didn't find any customSteps.. Continue to the next task",
+            "selectedStep": "Selected step:",
+            "whereInsert": "Where do you want insert the step? (it will inject it just above the selected step)\n{{printableSteps}}"
+        },
+        "publishingCustomSteps": {
+            "title": "Publishing custom steps [More info](https://github.com/imranMnts/sidi-cli/blob/master/docs/customSteps.md)",
+            "notFound": "Sidi didn't find any customSteps.. Continue to the next task",
+            "selectedStep": "Selected step:",
+            "whereInsert": "Where do you want insert the step? (it will inject it just above the selected step)\n{{printableSteps}}"
+        }
+    },
+    "request": {
+        "hasVersionedBranches": "Are you using versioned branch in your repository?  [More info](https://github.com/imranMnts/sidi-cli/blob/master/docs/versionedBranches.md)",
+        "updateGitStatus": "Do you want link the CICD to your repository? (to update git pipeline status .eg)",
+        "podOrCarthage": "Do you want install dependencies via Cocoapods or Carthage?",
+        "_android_run_ut": "Do you want launch native Android unit tests?",
+        "_android_run_lint": "Do you want launch native Android lint?",
+        "_sourcemap_to_artifact": "Do you export application's sourcemap?",
+        "_ios_run_ut": "Do you want launch native iOS unit tests?",
+        "_android_build_aab": "Do you want build an AAB too?",
+        "_deploy_to_firebase_android": "Do you want to deploy the Android app to Firebase?",
+        "_deploy_to_firebase_ios": "Do you want to deploy the iOS app to Firebase?",
+        "_audit_app_decompile": "Do you want launch native app quality checks?",
+        "_audit_app_permissions": "Do you want check applications permissions?",
+        "_audit_app_sizes": "Do you want check applications size?",
+        "_audit_app_logs": "Do you want check if you have any logs in your final application?",
+        "_deploy_to_play_store": "Do you want to deploy the app to PlayStore?",
+        "_deploy_to_itunes": "Do you want to deploy the app to ItunesConnect?",
+        "_send_teams_message": "Do you want send Teams notification at the end of the build?",
+        "_send_slack_message": "Do you want send Slack notification at the end of the build?",
+        "useAndroidCache": "Do you want use android cache?",
+        "usePodCache": "Do you want use iOS pod cache?",
+        "_react_native_jest": "Do you want run Jest unit tests?",
+        "auditPackages": "Do you want run audit packages/app?",
+        "runSonar": "Do you want run Sonar?",
+        "nativeDependency": "Do you have native iOS dependency manager (Cocoapods/Carthage)?",
+        "_setup_app_assets": "Do you want run assets overlayer to customize your app icons? [More info](https://github.com/imranMnts/sidi-cli/blob/master/docs/steps.md#setup_app_assets)",
+        "yarnOrNpm": "Do you want use YARN or NPM?",
+        "_react_native_yarn_install": "Do you want install dependencies with YARN?",
+        "_react_native_npm_install": "Do you want install dependencies with NPM?",
+        "_git_send_tag": "Do you want send a git tag at the end of the build?",
+        "_npm_private_login": "Do you have any private npm package?",
+        "_react_native_lint": "Do you want run Lint?",
+        "_react_native_tsc": "Do you want run TSC?",
+        "_react_native_prettier": "Do you want run Prettier?",
+        "selectStack": "\nPlease select the machine to use",
+        "selectMachineType": "Please select the machine type"
+    },
+    "error": {
+        "sidiConfigSave": "ERROR: Not able to create .sidi/, please create it at the root level and press ENTER",
+        "selectCorrectStep": "ERROR: Please pay attention to provide a valid step id or name",
+        "badWorkflowName": "ERROR: Please provide a correct workflow name",
+        "customStep": {
+            "title": "ERROR: We detected a bad yaml structure in your .sidi/customSteps. Please check logs above to have more details.",
+            "detail": "ERROR: Structure error detected into {{filename}}"
+        }
+    },
+    "newVersion": {
+        "npmPackageUrl": "https://registry.npmjs.org/-/package/sidi-cli/dist-tags",
+        "updateAvailable": "Update available {{currentVersion}} -> {{latestVersion}}",
+        "changelog": "Changelog: https://github.com/odemolliens/react-native-netwatch/releases/tag/{{latestVersion}}",
+        "command": "Run **yarn add -g sidi-cli** to update!"
+    },
+    "end": {
+        "title": "END",
+        "success": "Your YAML file has been generated successfully!\nPlease check {{cicd}}{{endYaml}} & .{{cicd}}{{endSecretYaml}}\nSidi created a sidiConfig file in .sidi folder, Do not delete it be able to use the update feature.",
+        "helper": "Please open generated secret file and set keys' values [More info about keys can be found here](https://github.com/imranMnts/sidi-cli/blob/master/docs/steps.md)",
+        "failure": "Error during the creation of your CICD files"
+    }
+}

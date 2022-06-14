@@ -1,0 +1,6 @@
+steps:
+ - google-play-deploy@3.7.2:
+    title: "[ANDROID] - Deploy to google play"
+    inputs:
+     - package_name: "$ANDROID_PACKAGE_NAME"
+     - service_account_json_key_path: "$SERVICE_ACCOUNT_PATH"

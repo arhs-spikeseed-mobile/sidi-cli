@@ -1,0 +1,8 @@
+steps:
+  - cocoapods-install@2.2.1:
+      title: "[iOS] - Install pods"
+      inputs:
+        - source_root_path: "$IOS_PROJECT_ROOT"
+envs:
+ - IOS_FILE_EXEC_TYPE: ".xcworkspace"
+ - IOS_XCODEPROJ_PATH: "$IOS_PROJECT_ROOT/$IOS_PROJECT_FILE_NAME$IOS_FILE_EXEC_TYPE"

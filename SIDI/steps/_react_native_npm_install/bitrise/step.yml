@@ -1,0 +1,5 @@
+steps:
+  - npm@0.9.1:
+      inputs:
+        - command: install
+      title: "[REACT-NATIVE] - NPM install"

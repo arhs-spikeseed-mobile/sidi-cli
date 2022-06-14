@@ -1,0 +1,54 @@
+name: "[POST] - Generate changelog"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+  
+  # Get all tags linked to current versions - sort by build number
+  PROJECT_TAGS=$(git tag -l --sort=v:refname "$WORKFLOW_MAJ-$SIDI_TRAIN-$APP_VERSION*")
+  PROJECT_TAGS_WITH_SHA=$(git show-ref --tags)
+  
+  if [[ ${PROJECT_TAGS} == "" ]]; then
+    # No tags for current version
+    GIT_LOG="First build for $WORKFLOW_MAJ-$APP_VERSION"
+  else
+    echo "PROJECT_TAGS_WITH_SHA: ${PROJECT_TAGS_WITH_SHA}"
+    PROJECT_TAGS_WITH_SHA=$(git show-ref --tags)
+  
+    LAST_TAG=$(echo "$PROJECT_TAGS" | tail -n1)
+    LAST_TAG_SHA=$(echo "$PROJECT_TAGS_WITH_SHA" | grep "$LAST_TAG" | grep -o "^\w*\b")
+  
+    echo "Current SHA: ${CM_COMMIT}"
+    echo "Last tag SHA: ${LAST_TAG_SHA}"
+  
+    if [[ ${LAST_TAG_SHA} != ${CM_COMMIT} ]]; then
+        GIT_LOG=$(git log ${LAST_TAG_SHA}..${CM_COMMIT} --pretty=format:'%s')
+    fi
+  
+    # remove useless branch merge messages
+    GIT_LOG=$(echo "$GIT_LOG" | sed -e 's/.*Merge branch.*//g')
+    GIT_LOG=$(echo "$GIT_LOG" | sed '/^[[:space:]]*$/d')
+  fi
+  
+  echo "Selected train for release note: $TRAIN_NAME"
+  
+  # add train informations - TRAIN_NAME set into sh_configure from trains's .env file
+  if [[ ${TRAIN_NAME} != "" && ${TRAIN_NAME} != "\$TRAIN_NAME" ]]; then
+    TRAIN_INFO="$TRAIN_ICON $TRAIN_NAME - $WORKFLOW_MAJ\n####################\n\n"
+    GIT_LOG=$(printf "$TRAIN_INFO$GIT_LOG")
+  fi
+  
+  echo "Final GIT_LOG = ${GIT_LOG}"
+  # echo ${GIT_LOG} > ./android/release_notes.txt
+  ENV_FIREBASE_RELEASE_NOTES=${GIT_LOG}
+  
+  # Install gsed
+  brew install gnu-sed
+  
+  # sanitise log
+  ENV_FIREBASE_RELEASE_NOTES="$(echo "$ENV_FIREBASE_RELEASE_NOTES" | tr -d "\"\`'")"
+  ENV_FIREBASE_RELEASE_NOTES=$(echo "$ENV_FIREBASE_RELEASE_NOTES" | gsed -e 's/\'\''//g')
+  
+  # for firebase
+  printf "$ENV_FIREBASE_RELEASE_NOTES" > release_notes.txt
+  # for artifacts
+  printf "$ENV_FIREBASE_RELEASE_NOTES" > $CM_EXPORT_DIR/release_notes.txt

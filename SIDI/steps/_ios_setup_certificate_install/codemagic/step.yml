@@ -1,0 +1,49 @@
+name: "[iOS] - Install certificates and profiles"
+script: |
+ #!/usr/bin/env bash
+
+ # init keychain
+ printf "initialize keychain\n"
+ keychain initialize
+
+ # Certificates
+ printf "\nSetup certificates\n"
+ CERTS_HOME="$HOME/Library/MobileDevice/Certificates"
+ mkdir -p "$CERTS_HOME"
+ for cert in "${!CM_CERTIFICATE_@}"; do
+   if [[ "$cert" == *"_PASSWORD"* ]]; then
+     echo "PASSWORD in key name, not need to install it"
+     continue
+   fi
+
+   CERT_PATH="$(mktemp "$CERTS_HOME"/ios_$(uuidgen).p12)"
+   echo ${!cert} | base64 --decode > "$CERT_PATH"
+   CERT_PSW="${cert}_PASSWORD"
+
+   if [ -z ${CERT_PSW+x} ]; then
+     # when using a certificate that is not password-protected
+     echo "certificate without password.."
+     keychain add-certificates --certificate "$CERT_PATH"
+   else
+     # when using a password-protected certificate
+     echo "certificate with password.."
+     keychain add-certificates --certificate "$CERT_PATH" --certificate-password ${!CERT_PSW}
+   fi
+
+   echo "Saved certificate $CERT_PATH"
+ done
+
+
+ # Provisioning profiles
+ printf "\nSetup provisioning profiles\n"
+ PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
+ mkdir -p "$PROFILES_HOME"
+ for profile in "${!CM_PROVISIONING_PROFILE_@}"; do
+   PROFILE_PATH="$(mktemp "$PROFILES_HOME"/ios_$(uuidgen).mobileprovision)"
+   echo ${!profile} | base64 --decode > "$PROFILE_PATH"
+   echo "Saved provisioning profile $PROFILE_PATH"
+ done
+
+ # Set up code signing settings on Xcode project
+ printf "\nSet up code signing settings on Xcode project\n"
+ xcode-project use-profiles --archive-method "$IOS_EXPORT_METHOD" --project="ios/$IOS_PROJECT_FILE_NAME.xcodeproj" --warn-only

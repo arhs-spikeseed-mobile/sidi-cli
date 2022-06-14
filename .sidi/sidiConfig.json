@@ -1,0 +1,71 @@
+{
+  "version": "3.0.0",
+  "_workflowConfigs": {
+    "prodlike": {
+      "requestedStepsNames": [
+        "_build_android_and_deploy",
+        "_build_ios_and_deploy"
+      ],
+      "artifacts": [
+        "$TARGET_ANDROID/build/outputs/**/**/*.apk",
+        "build/ios/ipa/*.ipa",
+        "/tmp/xcodebuild_logs/*.log",
+        "$HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app",
+        "$HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM"
+      ],
+      "stepsNames": [
+        "_get_variables_from_file",
+        "_setup_general_default_values",
+        "_setup_react_native_default_values",
+        "_setup_ios_default_values",
+        "_setup_android_default_values",
+        "_check_versioned_branch_step",
+        "_setup_app_assets",
+        "_react_native_pre_build",
+        "_npm_private_login",
+        "_react_native_yarn_install",
+        "_android_set_manifest_version",
+        "_android_set_version_code_name",
+        "_android_build_apk",
+        "_ios_setup_build_number",
+        "_ios_setup_certificate_install",
+        "_ios_archive",
+        "_deploy_generate_changelogs"
+      ],
+      "customSteps": [],
+      "cicd": "codemagic",
+      "name": "prodlike",
+      "projectType": "react-native",
+      "hasVersionedBranches": "true",
+      "_setup_app_assets": "true",
+      "_npm_private_login": "true",
+      "_react_native_yarn": "false",
+      "_react_native_lint": "false",
+      "_react_native_tsc": "false",
+      "_react_native_prettier": "false",
+      "_react_native_jest": "false",
+      "_android_run_lint": "false",
+      "_android_run_ut": "false",
+      "_android_build_aab": "false",
+      "_git_send_tag": "false",
+      "iosExecutableType": "xcodeproj",
+      "nativeDependency": "false",
+      "meta": "mac_pro",
+      "_deploy_to_firebase_android": "true",
+      "_deploy_to_play_store": "true",
+      "_send_slack_message": "true",
+      "_deploy_to_firebase_ios": "true",
+      "_deploy_to_itunes": "true",
+      "_send_teams_message": "false",
+      "_sourcemap_to_artifact": "false",
+      "updateGitStatus": "false",
+      "yarnOrNpm": "yarn",
+      "_react_native_yarn_install": "true"
+    }
+  },
+  "iosExecutableType": "xcodeproj",
+  "projectType": "react-native",
+  "cicd": "codemagic",
+  "updateGitStatus": "false",
+  "hasVersionedBranches": "true"
+}

@@ -1,0 +1,7 @@
+steps:
+ - deploy-to-itunesconnect-application-loader@1.3.4:
+    title: "[iOS] - Deploy to iTunes"
+    inputs:
+     - password: "$IOS_DEPLOY_PWD"
+     - app_password: "$APPLE_APP_SPECIFIC_PASSWORD"
+     - itunescon_user: "$IOS_DEPLOY_USERNAME"

@@ -1,0 +1,11 @@
+steps:
+   - script@1.1.6:
+        inputs:
+           - content: |-
+                #!/usr/bin/env bash
+                set -e
+                cp /Users/vagrant/git/yarn-audit.html /Users/vagrant/deploy/yarn-audit.html || true
+                cp /Users/vagrant/git/yarn-audit.txt /Users/vagrant/deploy/yarn-audit.txt || true
+                cp /Users/vagrant/git/jest_html_reporters.html /Users/vagrant/deploy/jest_html_reporters.html || true
+                cp /Users/vagrant/git/test-report.html /Users/vagrant/deploy/test-report.html || true
+        title: "[AUDIT] - Export reports"

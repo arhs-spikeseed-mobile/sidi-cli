@@ -1,0 +1,8 @@
+name: "[iOS] - Carthage"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  cd $FCI_BUILD_DIR/$IOS_PROJECT_ROOT
+  
+  carthage update --platform iOS

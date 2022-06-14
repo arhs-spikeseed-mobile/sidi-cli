@@ -1,0 +1,55 @@
+name: "[AUDIT] - Audit yarn packages"
+ignore_failure: true
+script: |
+   #!/bin/sh
+   set -ex
+   
+   # hack to fix yarn version issue (temporary!)
+   brew upgrade yarn || true
+   
+   # install html report too
+   yarn global add yarn-audit-html
+   
+   # create JSON report
+   rm -f yarn-audit.json
+   yarn audit --groups dependencies --json > yarn-audit.json || true # ignore return code
+   
+   # create HTML report
+   rm -f yarn-audit.html
+   cat yarn-audit.json | yarn-audit-html -o yarn-audit.html
+   
+   AUDIT_RESUME=$(tail -1 yarn-audit.json)
+   
+   LOW_REGEX="\"low\":([0-9]+)"
+   if [[ ${AUDIT_RESUME} =~ ${LOW_REGEX} ]]; then
+      LOW_COUNT=${BASH_REMATCH[1]}
+   fi
+
+   MODERATE_REGEX="\"moderate\":([0-9]+)"
+   if [[ ${AUDIT_RESUME} =~ ${MODERATE_REGEX} ]]; then
+      MODERATE_COUNT=${BASH_REMATCH[1]}
+   fi
+
+   HIGH_REGEX="\"high\":([0-9]+)"
+   if [[ ${AUDIT_RESUME} =~ ${HIGH_REGEX} ]]; then
+      HIGH_COUNT=${BASH_REMATCH[1]}
+   fi
+
+   CRITICAL_REGEX="\"critical\":([0-9]+)"
+   if [[ ${AUDIT_RESUME} =~ ${CRITICAL_REGEX} ]]; then
+      CRITICAL_COUNT=${BASH_REMATCH[1]}
+   fi
+
+   rm -f yarn-audit.txt
+   echo -e "Audit - vulnerabilities: \n\tlow: ${LOW_COUNT}\n\tmoderate: ${MODERATE_COUNT}\n\thigh: ${HIGH_COUNT}\n\tcritical: ${CRITICAL_COUNT}" > yarn-audit.txt
+   
+   cat yarn-audit.txt
+   
+   cp ./yarn-audit.html "$CM_EXPORT_DIR/yarn-audit.html"
+   cp ./yarn-audit.txt "$CM_EXPORT_DIR/yarn-audit.txt"
+   
+   # export vulnerability count for further use
+   echo "HIGH_COUNT=$HIGH_COUNT" >> $CM_ENV
+   echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $CM_ENV
+
+   echo "Audit yarn packages finished successfully"

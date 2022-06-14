@@ -1,0 +1,17 @@
+steps:
+  - script@1.1.6:
+      title: "[PRE] - Setup ReactNative default values"
+      inputs:
+        - content: |-
+            #!/bin/bash
+            if [ "$NODE_VERSION" == "" ]
+            then
+            envman add --key NODE_VERSION --value "14.19.1"
+            fi
+            envman run bash -c 'echo NODE_VERSION: $NODE_VERSION'
+
+            if [ "$NVM_VERSION" == "" ]
+            then
+            envman add --key NVM_VERSION --value "0.39.0"
+            fi
+            envman run bash -c 'echo NVM_VERSION: $NVM_VERSION'

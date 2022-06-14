@@ -1,0 +1,8 @@
+name: "[PRE] - GitLab status - Update build status"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+  
+  SEND_RUNNING_STATUS=$(curl -H "Content-Type: application/json" -H "Authorization: Bearer $GITLAB_TOKEN" --data "{\"state\": \"running\",\"target_url\": \"https://codemagic.io/app/$CM_PROJECT_ID/build/$CM_BUILD_ID\",\"name\": \"ci/codemagic/$WORKFLOW\"}"  -X POST "https://gitlab.com/api/v4/projects/$GITLAB_REPOSITORY_ID/statuses/$CM_COMMIT")
+
+  echo "SEND_RUNNING_STATUS: $SEND_RUNNING_STATUS"

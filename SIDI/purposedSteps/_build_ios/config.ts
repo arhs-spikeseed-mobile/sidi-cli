@@ -1,0 +1,37 @@
+import { IConfig } from '../../../src/models/SidiModel';
+import { commonConfig, rnConfig, iosConfig } from '../configs';
+
+const config: IConfig = {
+  mandatoryKeys: [],
+  conditionalSteps: [...commonConfig, ...rnConfig, ...iosConfig],
+  stepsFamily: [
+    '_setup_app_assets',
+    '_react_native_pre_build',
+    '_npm_private_login',
+    '_react_native_yarn_install',
+    '_react_native_lint',
+    '_react_native_tsc',
+    '_react_native_prettier',
+    '_react_native_jest',
+    '_react_native_npm_install',
+    '_react_native_npm_lint',
+    '_react_native_npm_tsc',
+    '_react_native_npm_prettier',
+    '_react_native_npm_jest',
+    '_ios_setup_file_type',
+    '_ios_setup_build_number',
+    '_ios_setup_certificate_install',
+    '_ios_setup_pod_install',
+    '_ios_setup_carthage_install',
+    '_ios_archive',
+    '_sourcemap_to_artifact',
+    '_ios_run_ut',
+    '_deploy_to_cicd',
+    '_git_send_tag',
+    '_send_slack_message',
+    '_send_teams_message',
+    '_git_status_ending',
+  ],
+};
+
+export default config;

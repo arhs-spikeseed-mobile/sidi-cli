@@ -1,0 +1,7 @@
+name: "[PRE] - Set NMPJS token for private repo"
+script: |
+  #!/bin/bash
+
+  # write your script here
+  echo "NPM_TOKEN: $NPM_TOKEN"
+  npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}

@@ -1,0 +1,27 @@
+# General
+.DS_Store
+npm-debug.log
+coverage
+.nyc_output
+dist
+build
+.vscode
+
+# IntelliJ
+#
+build/
+.idea
+*.iml
+*.hprof
+
+# Sidi
+**/node_modules
+bitrise.yml
+*.conf
+*.yaml
+**/*.xml
+**/debug.ts
+apk_decompiled/
+ipa_unzipped/
+*.apk
+*.ipa

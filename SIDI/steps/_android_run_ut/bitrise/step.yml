@@ -1,0 +1,10 @@
+steps:
+  - gradle-runner@1.9.3:
+     title: "[ANDROID] - Run unit tests"
+     inputs:
+      - gradle_file: "$ANDROID_GRADLE_PATH"
+      - gradle_task: "$ANDROID_MODULE_NAME:$ANDROID_UNIT_TEST_CMD"
+      - gradlew_path: "$ANDROID_GRADLEW_PATH"
+envs:
+ - ANDROID_GRADLEW_PATH: "$GRADLEW_PATH/gradlew"
+ - ANDROID_GRADLE_PATH: "$TARGET_ANDROID/build.gradle"

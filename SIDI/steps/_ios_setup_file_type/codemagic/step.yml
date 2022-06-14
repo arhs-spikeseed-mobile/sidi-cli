@@ -1,0 +1,9 @@
+name: "[iOS] - Setup executable file type"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  IOS_FILE_EXEC_TYPE=".xcworkspace"
+  echo "IOS_FILE_EXEC_TYPE=$IOS_FILE_EXEC_TYPE" >> $CM_ENV
+  
+  echo "Set iOS executable file type to xcworkspace"

@@ -1,0 +1,4 @@
+app_id: $FIREBASE_ANDROID_APP_ID
+artifact_type: 'apk'
+groups:
+ - $DEPLOYMENT_GROUP

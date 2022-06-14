@@ -1,0 +1,53 @@
+steps:
+  - script@1.1.6:
+      title: "[PRE] - Setup iOS default values"
+      inputs:
+        - content: |-
+            #!/bin/bash
+            if [ "$IOS_PROJECT_ROOT" == "" ]
+            then
+            envman add --key IOS_PROJECT_ROOT --value "ios"
+            fi
+            envman run bash -c 'echo IOS_PROJECT_ROOT: $IOS_PROJECT_ROOT'
+
+            if [ "$IOS_COMPILE_BITCODE" == "" ]
+            then
+            envman add --key IOS_COMPILE_BITCODE --value "yes"
+            fi
+            envman run bash -c 'echo IOS_COMPILE_BITCODE: $IOS_COMPILE_BITCODE'
+
+            if [ "$IOS_UPLOAD_BITCODE" == "" ]
+            then
+            envman add --key IOS_UPLOAD_BITCODE --value "yes"
+            fi
+            envman run bash -c 'echo IOS_UPLOAD_BITCODE: $IOS_UPLOAD_BITCODE'
+
+            if [ "$IOS_EXPORT_ALL_DSYM" == "" ]
+            then
+            envman add --key IOS_EXPORT_ALL_DSYM --value "no"
+            fi
+            envman run bash -c 'echo IOS_EXPORT_ALL_DSYM: $IOS_EXPORT_ALL_DSYM'
+
+            if [ "$IOS_FILE_EXEC_TYPE" == "" ]
+            then
+            envman add --key IOS_FILE_EXEC_TYPE --value ".xcodeproj"
+            fi
+            envman run bash -c 'echo IOS_FILE_EXEC_TYPE: $IOS_FILE_EXEC_TYPE'
+
+            if [ "$IOS_EXPORT_METHOD" == "" ]
+            then
+            envman add --key IOS_EXPORT_METHOD --value "development"
+            fi
+            envman run bash -c 'echo IOS_EXPORT_METHOD: $IOS_EXPORT_METHOD'
+
+            if [ "$IOS_TEST_DEVICE" == "" ]
+            then
+            envman add --key IOS_TEST_DEVICE --value "iPhone 12"
+            fi
+            envman run bash -c 'echo IOS_TEST_DEVICE: $IOS_TEST_DEVICE'
+
+            if [ "$IOS_TEST_OS" == "" ]
+            then
+            envman add --key IOS_TEST_OS --value "14.3"
+            fi
+            envman run bash -c 'echo IOS_TEST_OS: $IOS_TEST_OS'

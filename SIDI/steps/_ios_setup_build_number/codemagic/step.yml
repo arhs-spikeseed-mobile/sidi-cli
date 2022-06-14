@@ -1,0 +1,11 @@
+name: "[iOS] - Set build number"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  cd $FCI_BUILD_DIR/$IOS_PROJECT_ROOT
+  
+  if [[ $INCREMENT_VERSION != "" && ${INCREMENT_VERSION} != "\$INCREMENT_VERSION" ]]; then
+    agvtool new-marketing-version $APP_VERSION
+    agvtool new-version -all $(($PROJECT_BUILD_NUMBER))
+  fi

@@ -1,0 +1,29 @@
+name: "[PRE] - Set variables from .codemagic-secret.conf file"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  if [ ! -f ".codemagic-secret.conf" ]; then
+    echo "ERROR: Cannot find .codemagic-secret.conf"
+    exit 1
+  fi
+
+  source ".codemagic-secret.conf"
+  for item in "${!P_@}"
+  do
+    value=$(echo "${!item}")
+
+    # Remove P_ at the begining of the key
+    FORMATTED_KEY=$(echo $item| sed -r 's/^.{2}//')
+    VALUE=$(echo "${!item}")
+
+    if [[ $FORMATTED_KEY == *_${WORKFLOW_MAJ} ]]; then
+      # Remove workflow name from the end of the key
+      FORMATTED_KEY=${FORMATTED_KEY%"_$WORKFLOW_MAJ"}
+    fi
+
+    echo "$FORMATTED_KEY=${value}" >> $CM_ENV
+  done
+
+  echo "Variables saved in CM_ENV successfully"
+  printenv

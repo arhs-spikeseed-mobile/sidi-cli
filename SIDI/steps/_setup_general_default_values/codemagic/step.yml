@@ -1,0 +1,16 @@
+name: "[PRE] - Setup general default values"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  if [[ $GITLAB_STATUS_URL == "" || $GITLAB_STATUS_URL == "\$GITLAB_STATUS_URL" ]]; then
+    GITLAB_STATUS_URL="https://gitlab.com/api/v4"
+    echo "GITLAB_STATUS_URL=$GITLAB_STATUS_URL" >> $CM_ENV
+  fi
+  echo "GITLAB_STATUS_URL: $GITLAB_STATUS_URL"
+
+  if [[ $CODEMAGIC_BUILD_CONTEXT == "" || $CODEMAGIC_BUILD_CONTEXT == "\$CODEMAGIC_BUILD_CONTEXT" ]]; then
+    CODEMAGIC_BUILD_CONTEXT="CodeMagicFullBuild"
+    echo "CODEMAGIC_BUILD_CONTEXT=$CODEMAGIC_BUILD_CONTEXT" >> $CM_ENV
+  fi
+  echo "CODEMAGIC_BUILD_CONTEXT: $CODEMAGIC_BUILD_CONTEXT"

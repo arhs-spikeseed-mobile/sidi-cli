@@ -1,0 +1,31 @@
+name: "[ANDROID] - Set version code and name"
+script: |
+  #!/bin/sh
+  set -ex
+
+  new_version_code="$PROJECT_BUILD_NUMBER"
+  new_version_name="$APP_VERSION"
+  gradle_file_path="$TARGET_ANDROID/build.gradle"
+  
+  
+  if [ ! -f "${gradle_file_path}" ] ; then
+    echo " [!] File doesn't exist at specified build.gradle path: ${gradle_file_path}"
+    exit 1
+  fi
+  
+  
+  if [ -z "${new_version_name}" ] ; then
+    echo " [!] Could not find current Version name!"
+    exit 1
+  fi
+  
+  echo "new_version_name=$new_version_name" >> $CM_ENV
+  echo "new_version_code=$new_version_code" >> $CM_ENV
+
+  echo "new_version_code: $new_version_code"
+  echo "new_version_name: $new_version_name"
+  
+  perl -i -pe 'BEGIN{undef $/;} s/(\{.*?versionName +)("[^"]*")/$1"$ENV{new_version_name}"/smg' "$gradle_file_path"
+  perl -i -pe 'BEGIN{undef $/;} s/(\{.*?versionCode +)([0-9]*)/$1$ENV{new_version_code}/smg' "$gradle_file_path"
+
+  # ==> Build Version changed

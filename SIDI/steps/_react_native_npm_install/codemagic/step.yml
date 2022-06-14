@@ -1,0 +1,6 @@
+name: "[REACT-NATIVE] - NPM install"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  npm install

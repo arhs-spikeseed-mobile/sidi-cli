@@ -1,0 +1,6 @@
+name: "[REACT-NATIVE] - Run Lint"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  npm run lint

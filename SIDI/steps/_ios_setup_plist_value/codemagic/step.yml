@@ -1,0 +1,58 @@
+name: "[iOS] - Set Plist value"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+# Code from https://github.com/Reedyuk/set-xcode-plist-value
+
+# Required parameters
+  if [ -z "${IOS_PLIST_PATH}" ] ; then
+    echo " [!] Missing required input: IOS_PLIST_PATH"
+    exit 1
+  fi
+  if [ ! -f "${IOS_PLIST_PATH}" ] ; then
+    echo " [!] File doesn't exist at specified Info.plist path: ${IOS_PLIST_PATH}"
+    exit 1
+  fi
+  
+  if [ -z "${PLIST_KEY}" ] ; then
+    echo " [!] No key for plist specified!"
+    exit 1
+  fi
+  
+  if [ -z "${PLIST_VALUE}" ] ; then
+    echo " [!] No value for plist specified!"
+    exit 1
+  fi
+  
+  if [ -z "${plist_add_missing_keys}" ] ; then
+    echo " [!] Missing required input: plist_add_missing_keys (true or false)!"
+    exit 1
+  fi
+  
+  # ---------------------
+  # --- Configs:
+  
+  CONFIG_project_info_plist_path="${IOS_PLIST_PATH}"
+  CONFIG_PLIST_KEY_string="${PLIST_KEY}"
+  CONFIG_PLIST_VALUE_string="${PLIST_VALUE}"
+  CONFIG_plist_add_missing_keys="${plist_add_missing_keys}"
+
+  echo " (i) Provided Info.plist path: ${CONFIG_project_info_plist_path}"
+  echo " (i) Plist Key: ${CONFIG_PLIST_KEY_string}"
+  echo " (i) Plist value: ${CONFIG_PLIST_VALUE_string}"
+  echo " (i) Add missing keys: ${CONFIG_plist_add_missing_keys}"
+
+# ---------------------
+# --- Main:
+
+# verbose / debug print commands
+  set -v
+  
+  # ---- Change Plist Value:
+  if [[ "${CONFIG_plist_add_missing_keys}" == "true" ]] ; then
+    /usr/libexec/PlistBuddy -c "Add :${CONFIG_PLIST_KEY_string} string ${CONFIG_PLIST_VALUE_string}" "${CONFIG_project_info_plist_path}"
+  else
+    /usr/libexec/PlistBuddy -c "Set :${CONFIG_PLIST_KEY_string} ${CONFIG_PLIST_VALUE_string}" "${CONFIG_project_info_plist_path}"
+  fi
+# ==> Plist value changed

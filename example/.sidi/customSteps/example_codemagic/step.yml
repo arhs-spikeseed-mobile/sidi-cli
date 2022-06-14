@@ -1,0 +1,8 @@
+name: 'Example CodeMagic'
+script: |
+  #!/bin/bash
+
+  echo "Random bash script"
+  
+  echo "How to create and set value to a environement variable?"
+  echo "VARIABLE_ONE=value" >> $CM_ENV

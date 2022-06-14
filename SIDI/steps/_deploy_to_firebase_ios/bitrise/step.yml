@@ -1,0 +1,11 @@
+steps:
+  - firebase-app-distribution@0.10.0:
+      title: "[POST] - Deploy iOS to Firebase (BETA)"
+      inputs:
+        - app: "$FIREBASE_IOS_APP_ID"
+        - groups: "$DEPLOYMENT_GROUP"
+        - firebase_token: "$FIREBASE_TOKEN"
+        - app_path: "$BITRISE_IPA_PATH"
+        - release_notes: "$ENV_FIREBASE_RELEASE_NOTES"
+        - release_notes_length: 16379
+      is_always_run: false

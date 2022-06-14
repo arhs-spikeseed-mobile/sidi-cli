@@ -1,0 +1,16 @@
+name: "[PRE] - Setup iOS default values"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  if [[ $IOS_PROJECT_ROOT == "" || $IOS_PROJECT_ROOT == "\$IOS_PROJECT_ROOT" ]]; then
+    IOS_PROJECT_ROOT="ios"
+    echo "IOS_PROJECT_ROOT=$IOS_PROJECT_ROOT" >> $CM_ENV
+  fi
+  echo "NODE_VERSION: $NODE_VERSION"
+
+  if [[ $IOS_FILE_EXEC_TYPE == "" || $IOS_FILE_EXEC_TYPE == "\$IOS_FILE_EXEC_TYPE" ]]; then
+    IOS_FILE_EXEC_TYPE=".xcodeproj"
+    echo "IOS_FILE_EXEC_TYPE=$IOS_FILE_EXEC_TYPE" >> $CM_ENV
+  fi
+  echo "IOS_FILE_EXEC_TYPE: $IOS_FILE_EXEC_TYPE"

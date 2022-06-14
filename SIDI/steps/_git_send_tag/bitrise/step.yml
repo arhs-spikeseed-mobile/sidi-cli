@@ -1,0 +1,5 @@
+steps:
+  - git-tag@1.1.0:
+      title: "[GIT] - Push tags on git"
+      inputs:
+        - tag: "$WORKFLOW-$SIDI_TRAIN-$APP_VERSION($BITRISE_BUILD_NUMBER)"

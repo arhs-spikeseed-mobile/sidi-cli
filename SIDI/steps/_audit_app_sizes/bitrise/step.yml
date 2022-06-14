@@ -1,0 +1,6 @@
+steps:
+ - git::https://github.com/odemolliens/bitrise-step-monitoring-apps-sizes.git@develop:
+    title: "[QUALITY] - Check applications size"
+    inputs:
+     - config_file_path: $CONFIG_FILE_PATH
+    is_always_run: true

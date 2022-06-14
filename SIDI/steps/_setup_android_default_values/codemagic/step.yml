@@ -1,0 +1,43 @@
+name: "[PRE] - Setup Android default values"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  if [[ $GRADLEW_PATH == "" || $GRADLEW_PATH == "\$GRADLEW_PATH" ]]; then
+    GRADLEW_PATH="android"
+    echo "GRADLEW_PATH=$GRADLEW_PATH" >> $CM_ENV
+  fi
+  echo "GRADLEW_PATH: $GRADLEW_PATH"
+
+  if [[ $TARGET_ANDROID == "" || $TARGET_ANDROID == "\$TARGET_ANDROID" ]]; then
+    TARGET_ANDROID="android/app"
+    echo "TARGET_ANDROID=$TARGET_ANDROID" >> $CM_ENV
+  fi
+  echo "TARGET_ANDROID: $TARGET_ANDROID"
+
+  if [[ $ANDROID_MODULE_NAME == "" || $ANDROID_MODULE_NAME == "\$ANDROID_MODULE_NAME" ]]; then
+    ANDROID_MODULE_NAME=":app"
+    echo "ANDROID_MODULE_NAME=$ANDROID_MODULE_NAME" >> $CM_ENV
+  fi
+  echo "ANDROID_MODULE_NAME: $ANDROID_MODULE_NAME"
+
+  if [[ $AAB_SPECIFIC_BUILD_VARIANT == "" || $AAB_SPECIFIC_BUILD_VARIANT == "\$AAB_SPECIFIC_BUILD_VARIANT" ]]; then
+    AAB_SPECIFIC_BUILD_VARIANT="$ANDROID_BUILD_VARIANT"
+    echo "AAB_SPECIFIC_BUILD_VARIANT=$AAB_SPECIFIC_BUILD_VARIANT" >> $CM_ENV
+  fi
+  echo "AAB_SPECIFIC_BUILD_VARIANT: $GRAAB_SPECIFIC_BUILD_VARIANTADLEW_PATH"
+
+  if [[ $ANDROID_UNIT_TEST_CMD == "" || $ANDROID_UNIT_TEST_CMD == "\$ANDROID_UNIT_TEST_CMD" ]]; then
+    ANDROID_UNIT_TEST_CMD="testReleaseUnitTest"
+    echo "ANDROID_UNIT_TEST_CMD=$ANDROID_UNIT_TEST_CMD" >> $CM_ENV
+  fi
+  echo "ANDROID_UNIT_TEST_CMD: $ANDROID_UNIT_TEST_CMD"
+
+  if [[ $ANDROID_LINT_CMD == "" || $ANDROID_LINT_CMD == "\$ANDROID_LINT_CMD" ]]; then
+    ANDROID_LINT_CMD="lint"
+    echo "ANDROID_LINT_CMD=$ANDROID_LINT_CMD" >> $CM_ENV
+  fi
+  echo "ANDROID_LINT_CMD: $ANDROID_LINT_CMD"
+
+  echo "Set Android SDK location"
+  echo "sdk.dir=$ANDROID_SDK_ROOT" > "$FCI_BUILD_DIR/android/local.properties"

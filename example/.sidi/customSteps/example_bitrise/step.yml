@@ -1,0 +1,10 @@
+steps:
+  - script@1.1.6:
+      title: Example Bitrise
+      inputs:
+        - content: |
+            #!/bin/bash
+            echo "Random bash script"
+            
+            echo "How to create and set value to a environement variable?"
+            envman add --key VARIABLE_ONE --value "value"

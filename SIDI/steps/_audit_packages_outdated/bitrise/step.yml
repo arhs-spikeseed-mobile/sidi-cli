@@ -1,0 +1,26 @@
+steps:
+ - script@1.1.6:
+    inputs:
+     - content: |-
+        #!/usr/bin/env bash
+        set -ex
+        
+        # hack to fix yarn version issue (temporary!)
+        brew upgrade yarn || true
+        
+        # install yarn-outdated-formatter and markdown-to-html utils
+        yarn global add yarn-outdated-formatter
+        yarn global add markdown-to-html
+        
+        # create MARKDOWN report
+        rm -f yarn-outdated.md
+        yarn outdated --json | format-yarn-outdated > yarn-outdated.md || true # ignore return code
+        
+        # create HTML report
+        rm -f yarn-outdated.html
+        markdown yarn-outdated.md > yarn-outdated.html
+        
+        cp /Users/vagrant/git/yarn-outdated.md /Users/vagrant/deploy/yarn-outdated.md
+        cp /Users/vagrant/git/yarn-outdated.html /Users/vagrant/deploy/yarn-outdated.html
+    title: "[AUDIT] - Search outdated packages"
+    is_always_run: true

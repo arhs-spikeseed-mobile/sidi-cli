@@ -1,0 +1,12 @@
+steps:
+  - xcode-archive@4.2.7:
+      title: "[iOS] - Create archive"
+      inputs:
+        - scheme: "$IOS_SCHEME"
+        - export_all_dsyms: "$IOS_EXPORT_ALL_DSYM"
+        - compile_bitcode: "$IOS_COMPILE_BITCODE"
+        - upload_bitcode: "$IOS_UPLOAD_BITCODE"
+        - project_path: "$IOS_XCODEPROJ_PATH"
+        - distribution_method: "$IOS_EXPORT_METHOD"
+envs:
+ - IOS_XCODEPROJ_PATH: "$IOS_PROJECT_ROOT/$IOS_PROJECT_FILE_NAME$IOS_FILE_EXEC_TYPE"

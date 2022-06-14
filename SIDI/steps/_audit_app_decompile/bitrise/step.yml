@@ -1,0 +1,8 @@
+steps:
+   - apps-decompiler@1.0.3:
+        title: "[AUDIT] - Decompile applications"
+        inputs:
+           - decompile_android: $DECOMPILE_ANDROID
+           - decompile_ios: $DECOMPILE_IOS
+           - outside_build_slug: $MAIN_BUILD_SLUG
+        is_always_run: true

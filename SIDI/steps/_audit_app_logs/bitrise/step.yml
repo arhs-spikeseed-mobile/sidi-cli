@@ -1,0 +1,6 @@
+steps:
+ - monitoring-apps-logs@1.0.4:
+    title: "[QUALITY] - Check applications logs (Android)"
+    is_always_run: true
+    inputs:
+     - filter_path: $FILTER_PATH

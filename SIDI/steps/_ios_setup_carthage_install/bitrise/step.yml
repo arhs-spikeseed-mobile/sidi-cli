@@ -1,0 +1,7 @@
+steps:
+  - carthage@3.2.4:
+      title: "[iOS] - Carthage"
+      inputs:
+        - carthage_options: "$IOS_CARTHAGE_OPTIONS"
+envs:
+ - IOS_CARTHAGE_OPTIONS: "--platform ios --project-directory $IOS_PROJECT_ROOT"

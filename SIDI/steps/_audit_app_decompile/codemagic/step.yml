@@ -1,0 +1,53 @@
+name: "[AUDIT] - Decompile applications"
+script: |
+ #!/bin/sh
+ set -ex
+
+ if [ ${ANDROID_ARTIFACT_URL} == "" ] || [ ${ANDROID_ARTIFACT_URL} == "\$ANDROID_ARTIFACT_URL" ] && ([ ${IOS_ARTIFACT_URL} == "" ] || [ ${IOS_ARTIFACT_URL} == "\$IOS_ARTIFACT_URL" ]); then
+  echo "Error: Cannot find iOS and Android artifacts url, so don't have anything to do"
+  exit 1
+ fi
+ 
+ if [[ ${ANDROID_ARTIFACT_URL} != "" && ${ANDROID_ARTIFACT_URL} != "\$ANDROID_ARTIFACT_URL" ]]; then
+  if [[ ${ANDROID_APK_PATH} != "" && ${ANDROID_APK_PATH} != "\$ANDROID_APK_PATH" ]]; then
+   cp "$ANDROID_APK_PATH" android.apk
+  else
+   # download android apk
+   ANDROID_APK_ARTIFACT=$(curl -L --max-redirs 1 "$ANDROID_ARTIFACT_URL" -o android.apk)
+   echo "ANDROID_APK_ARTIFACT: $ANDROID_APK_ARTIFACT"
+  fi
+  
+  if [ ! -f "android.apk" ]; then
+   echo "ERROR: Cannot find any APK"
+   exit 1
+  fi
+ 
+  brew install apktool
+   
+  # decompile the apk
+  apktool d android.apk -o apk_decompiled
+  echo "SUCCESS: Android apk decompiled successfully"
+ fi
+ 
+ if [[ ${IOS_ARTIFACT_URL} != "" && ${IOS_ARTIFACT_URL} != "\$IOS_ARTIFACT_URL" ]]; then
+  if [[ ${IOS_IPA_PATH} != "" && ${IOS_IPA_PATH} != "\$IOS_IPA_PATH" ]]; then
+   cp "$ios_ipa_path" ios.ipa
+  else
+   # download android apk
+   IOS_IPA_ARTIFACT=$(curl -L --max-redirs 1 "$IOS_ARTIFACT_URL" -o ios.ipa)
+   echo "IOS_IPA_ARTIFACT: $IOS_IPA_ARTIFACT"
+  fi
+ 
+  if [ ! -f "ios.ipa" ]; then
+   echo "ERROR: Cannot find any ipa"
+   exit 1
+  fi
+  
+  # decompile the ipa
+  mkdir ipa_unzipped
+  unzip ios.ipa
+  mv Payload ipa_unzipped/
+  echo "SUCCESS: iOS ipa decompiled successfully"
+ fi
+ 
+ exit 0

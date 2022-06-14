@@ -1,0 +1,8 @@
+steps:
+ - slack@3.2.1:
+    title: "[POST] - Sending slack notification"
+    inputs:
+     - is_debug_mode: "yes"
+     - webhook_url: "$SLACK_WEBHOOCKS"
+     - message: "Yay! Build was successful! \U0001F4AA $SLACK_IDS_SUCCESS"
+     - message_on_error: "Ah! Something went wrong \U0001F631 $SLACK_IDS_ERROR"

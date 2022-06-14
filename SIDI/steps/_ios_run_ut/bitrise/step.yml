@@ -1,0 +1,12 @@
+steps:
+  - xcode-test@4.0.4:
+     title: "[iOS] - Run unit tests"
+     inputs:
+      - project_path: "$IOS_XCODEPROJ_PATH"
+      - scheme: "$IOS_TEST_SCHEME_NAME"
+      - simulator_os_version: "$IOS_TEST_OS"
+      - generate_code_coverage_files: "$IOS_TEST_GENERATE_COVERAGE"
+      - simulator_device: "$IOS_TEST_DEVICE"
+      - verbose: 'yes'
+envs:
+ - IOS_XCODEPROJ_PATH: "$IOS_PROJECT_ROOT/$IOS_PROJECT_FILE_NAME$IOS_FILE_EXEC_TYPE"

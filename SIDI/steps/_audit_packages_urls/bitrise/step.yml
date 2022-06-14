@@ -1,0 +1,4 @@
+steps:
+ - urls-scanner@1.0.7:
+    title: "[AUDIT] - Scan http URLs"
+    is_always_run: true

@@ -1,0 +1,16 @@
+name: "[PRE] - Setup ReactNative default values"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  if [[ $NODE_VERSION == "" || $NODE_VERSION == "\$NODE_VERSION" ]]; then
+    NODE_VERSION="12.19.0"
+    echo "NODE_VERSION=$NODE_VERSION" >> $CM_ENV
+  fi
+  echo "NODE_VERSION: $NODE_VERSION"
+
+  if [[ $NVM_VERSION == "" || $NVM_VERSION == "\$NVM_VERSION" ]]; then
+    NVM_VERSION="0.39.0"
+    echo "NVM_VERSION=$NVM_VERSION" >> $CM_ENV
+  fi
+  echo "NVM_VERSION: $NVM_VERSION"

@@ -1,0 +1,44 @@
+steps:
+  - script@1.1.6:
+      title: "[PRE] - Setup Android default values"
+      inputs:
+        - content: |-
+            #!/bin/bash
+            if [ "$GRADLEW_PATH" == "" ]
+            then
+            envman add --key GRADLEW_PATH --value "android"
+            fi
+            envman run bash -c 'echo GRADLEW_PATH: $GRADLEW_PATH'
+
+            if [ "$TARGET_ANDROID" == "" ]
+            then
+            envman add --key TARGET_ANDROID --value "android/app"
+            fi
+            envman run bash -c 'echo TARGET_ANDROID: $TARGET_ANDROID'
+
+            if [ "$ANDROID_MODULE_NAME" == "" ]
+            then
+            envman add --key ANDROID_MODULE_NAME --value ":app"
+            fi
+            envman run bash -c 'echo ANDROID_MODULE_NAME: $ANDROID_MODULE_NAME'
+
+            if [ "$AAB_SPECIFIC_BUILD_VARIANT" == "" ]
+            then
+            envman add --key AAB_SPECIFIC_BUILD_VARIANT --value "$ANDROID_BUILD_VARIANT"
+            fi
+            envman run bash -c 'echo AAB_SPECIFIC_BUILD_VARIANT: $AAB_SPECIFIC_BUILD_VARIANT'
+
+            if [ "$ANDROID_UNIT_TEST_CMD" == "" ]
+            then
+            envman add --key ANDROID_UNIT_TEST_CMD --value "testReleaseUnitTest"
+            fi
+            envman run bash -c 'echo ANDROID_UNIT_TEST_CMD: $ANDROID_UNIT_TEST_CMD'
+
+            if [ "$ANDROID_LINT_CMD" == "" ]
+            then
+            envman add --key ANDROID_LINT_CMD --value "lint"
+            fi
+            envman run bash -c 'echo ANDROID_LINT_CMD: $ANDROID_LINT_CMD'
+envs:
+  - ANDROID_BUNDLE: ":bundle"
+  - ANDROID_ASSEMBLE: ":assemble"

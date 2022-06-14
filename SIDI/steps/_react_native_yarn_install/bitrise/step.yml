@@ -1,0 +1,5 @@
+steps:
+  - yarn@0.1.1:
+      title: "[REACT-NATIVE] - Yarn install"
+      inputs:
+        - command: install

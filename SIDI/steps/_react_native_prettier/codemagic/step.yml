@@ -1,0 +1,6 @@
+name: "[REACT-NATIVE] - Run Prettier"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  yarn run prettier

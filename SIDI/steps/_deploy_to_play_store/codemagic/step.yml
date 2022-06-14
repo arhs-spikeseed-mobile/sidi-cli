@@ -1,0 +1,6 @@
+credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+track: alpha
+in_app_update_priority: 3
+rollout_fraction: 1
+changes_not_sent_for_review: true
+submit_as_draft: true

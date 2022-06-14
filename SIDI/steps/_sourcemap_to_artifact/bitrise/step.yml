@@ -1,0 +1,7 @@
+steps:
+ - script@1.1.6:
+    title: "POST - Copy sourcemaps files to artifacts folder"
+    inputs:
+     - content: |-
+        zip -j $BITRISE_DEPLOY_DIR/sourcemaps.zip ./build/sourcemaps/*
+    is_always_run: true

@@ -1,0 +1,7 @@
+steps:
+ - set-xcode-plist-value@1.0.0:
+    title: "[iOS] - Set Plist value"
+    inputs:
+     - plist_key: "$PLIST_KEY"
+     - plist_value: "$PLIST_VALUE"
+     - plist_path: "$IOS_PLIST_PATH"

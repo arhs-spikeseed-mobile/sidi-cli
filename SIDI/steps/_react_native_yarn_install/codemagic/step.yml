@@ -1,0 +1,6 @@
+name: "[REACT-NATIVE] - Yarn install"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  yarn install

@@ -1,0 +1,9 @@
+name: "[AUDIT] - Export reports"
+script: |
+   #!/bin/sh
+   set -ex
+
+   cp ./yarn-audit.html "$CM_EXPORT_DIR/yarn-audit.html" || true
+   cp ./yarn-audit.txt "$CM_EXPORT_DIR/yarn-audit.txt" || true
+   cp ./jest_html_reporters.html "$CM_EXPORT_DIR/jest_html_reporters.html" || true
+   cp ./test-report.html "$CM_EXPORT_DIR/test-report.html" || true

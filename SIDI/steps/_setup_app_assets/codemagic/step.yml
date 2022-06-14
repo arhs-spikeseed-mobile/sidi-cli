@@ -1,0 +1,92 @@
+name: "[PRE] - Generate app icons"
+script: |
+  #!/bin/bash
+  set -ex
+
+  source_image="$IMAGE_OVERLAYER_SOURCE_IMAGE"
+  left_icon="$IMAGE_OVERLAYER_LEFT_ICON"
+  text_color="$IMAGE_OVERLAYER_TEXT_COLOR"
+  right_icon="$IMAGE_OVERLAYER_RIGHT_ICON"
+  center_icon="$IMAGE_OVERLAYER_CENTER_IMAGE"
+  export_results="$IMAGE_OVERLAYER_EXPORT_RESULT"
+  archive_result="$IMAGE_OVERLAYER_ARCHIVE_RESULT"
+  generator_path="$IMAGE_OVERLAYER_PATH_GENERATOR"
+
+  if [ "$source_image" == "" ]; then
+    echo "Error: Please provide the source image's path"
+    exit 1
+  fi
+
+  if [ "$generator_path" == "" ]; then
+    echo "Error: Please provide the generator's path"
+    echo "Put '.' if it is at the root level"
+    exit 1
+  fi
+
+  if [ "$left_icon" == "" ] && [ "$right_icon" == "" ]; then
+    echo "Error: Please provide at least left or right icon's path/text"
+  exit 1
+  fi
+
+  if [ "$center_icon" == "" ]; then
+    center_icon="True"
+  fi
+  if [ "$export_results" == "" ]; then
+    export_results="True"
+  fi
+  if [ "$archive_result" == "" ]; then
+    archive_result="True"
+  fi
+  
+  # curl -sSL "${script_url}" | bash
+  echo "Running Image Generator"
+
+  pip3 install Pillow
+
+  if [[ "$source_image" == *","* ]]; then
+    IFS=', ' read -r -a sources <<< "$source_image"
+    for element in "${sources[@]}"
+    do
+      output_path="$element"
+      python3 "$generator_path/generator.py3" "$generator_path/" "$element" "$left_icon" "$right_icon" "$output_path" "$text_color" "$center_icon"
+  
+      mkdir "image_overlayer_results" || true
+  
+      if [ "${output_path: -1}" == "/" ]; then
+        output_path_without_slash=${output_path%?}
+        output_name=$(basename $output_path_without_slash)
+  
+        cp -r "$output_path_without_slash" "image_overlayer_results"
+      else
+        cp -r "$output_path" "image_overlayer_results"
+      fi
+    done
+  else
+    if [ "$output_path" == "" ]; then
+      output_path="$source_image"
+    fi
+
+    python3 "$generator_path/generator.py3" "$generator_path/" "$source_image" "$left_icon" "$right_icon" "$output_path" "$text_color" "$center_icon"
+
+    mkdir "image_overlayer_results" || true
+
+    if [ "${output_path: -1}" == "/" ]; then
+      output_path_without_slash=${output_path%?}
+      output_name=$(basename $output_path_without_slash)
+  
+      cp -r "$output_path_without_slash" "image_overlayer_results"
+    else
+      cp -r "$output_path" "image_overlayer_results"
+    fi
+  fi
+
+  if [ "$export_results" == "True" ]; then
+    if [ "$archive_result" == "True" ]; then
+      zip -r "image_overlayer_results.zip" "image_overlayer_results"
+      cp "image_overlayer_results.zip" "$CM_EXPORT_DIR/image_overlayer_results.zip"
+    else
+      cp "image_overlayer_results" "$CM_EXPORT_DIR/image_overlayer_results"
+    fi
+  fi
+
+  exit 0

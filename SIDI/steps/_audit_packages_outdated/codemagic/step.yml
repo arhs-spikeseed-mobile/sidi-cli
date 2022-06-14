@@ -1,0 +1,25 @@
+name: "[AUDIT] - Search outdated packages"
+ignore_failure: true
+script: |
+   #!/bin/sh
+   set -ex
+
+   # hack to fix yarn version issue (temporary!)
+   brew upgrade yarn || true
+
+   # install yarn-outdated-formatter and markdown-to-html utils
+   yarn global add yarn-outdated-formatter
+   yarn global add markdown-to-html
+
+   # create MARKDOWN report
+   rm -f yarn-outdated.md
+   yarn outdated --json | format-yarn-outdated > yarn-outdated.md || true # ignore return code
+
+   # create HTML report
+   rm -f yarn-outdated.html
+   markdown yarn-outdated.md > yarn-outdated.html
+
+   cp ./yarn-outdated.md "$CM_EXPORT_DIR/yarn-outdated.md"
+   cp ./yarn-outdated.html "$CM_EXPORT_DIR/yarn-outdated.html"
+
+   echo "Audit outdated packages finished successfully"

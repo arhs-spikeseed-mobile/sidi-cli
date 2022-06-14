@@ -1,0 +1,8 @@
+steps:
+  - set-android-manifest-versions@1.0.5:
+      title: "[ANDROID] - Set version code in manifest"
+      inputs:
+        - manifest_file: "$TARGET_ANDROID/src/main/AndroidManifest.xml"
+        - version_name: "$APP_VERSION"
+      is_always_run: false
+      run_if: '{{getenv "INCREMENT_VERSION" | eq "1"}}'

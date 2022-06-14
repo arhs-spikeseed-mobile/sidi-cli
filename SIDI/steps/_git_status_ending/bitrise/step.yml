@@ -1,0 +1,10 @@
+steps:
+ - gitlab-status@0.12.6:
+    inputs:
+     - private_token: "$GITLAB_TOKEN"
+     - description: End of the build
+     - context: "$BITRISE_BUILD_CONTEXT"
+     - api_base_url: "$GITLAB_STATUS_URL"
+     - target_url: "$BITRISE_BUILD_URL"
+    title: "[POST] - GitLab status - Close job"
+    is_always_run: true

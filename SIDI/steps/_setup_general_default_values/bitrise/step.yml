@@ -1,0 +1,16 @@
+steps:
+  - script@1.1.6:
+      title: "[PRE] - Setup general default values"
+      inputs:
+        - content: |-
+            if [ "$GITLAB_STATUS_URL" == "" ]
+            then
+            envman add --key GITLAB_STATUS_URL --value "https://gitlab.com/api/v4"
+            fi
+            envman run bash -c 'echo GITLAB_STATUS_URL: $GITLAB_STATUS_URL'
+
+            if [ "$BITRISE_BUILD_CONTEXT" == "" ]
+            then
+            envman add --key BITRISE_BUILD_CONTEXT --value "BitriseFullBuild"
+            fi
+            envman run bash -c 'echo BITRISE_BUILD_CONTEXT: $BITRISE_BUILD_CONTEXT'

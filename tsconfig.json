@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "lib": [
+      "es2020",
+      "scripthost",
+      "es2015.promise",
+      "es2015.generator",
+      "es2015.iterable",
+      "dom"
+    ],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "noImplicitThis": true,
+    "noUnusedLocals": false,
+    "sourceMap": false,
+    "inlineSourceMap": true,
+    "outDir": "build",
+    "strict": false,
+    "target": "es5",
+    "declaration": true,
+    "declarationDir": "build/types",
+    "downlevelIteration": true
+  },
+  "include": [
+    "src/*",
+    "src/**/*",
+    "SIDI/*",
+    "SIDI/**/*",
+    "i18n.config.ts"
+  ],
+  "exclude": ["node_modules"]
+}

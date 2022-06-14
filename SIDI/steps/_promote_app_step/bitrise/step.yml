@@ -1,0 +1,17 @@
+steps:
+  - script@1.1.6:
+      title: "[PROMOTE] - Promote app"
+      inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+
+            if [[ "$INCREMENT_VERSION" != "" ]]; then
+              npx --yes devops-helper promote-app $REPOSITORY_URL $BRANCHES $APP_VERSION
+            else
+              if [ ${IS_VERSIONED_BRANCH} == "true" ]; then
+                npx --yes devops-helper promote-app $REPOSITORY_URL $BRANCHES $APP_VERSION
+              else
+                npx --yes devops-helper promote-app $REPOSITORY_URL $BRANCHES --noVersionedBranch
+              fi
+            fi

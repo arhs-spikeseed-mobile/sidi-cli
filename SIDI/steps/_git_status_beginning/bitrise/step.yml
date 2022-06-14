@@ -1,0 +1,11 @@
+steps:
+ - gitlab-status@0.12.6:
+    inputs:
+     - private_token: "$GITLAB_TOKEN"
+     - description: Start build on Bitrise
+     - context: "$BITRISE_BUILD_CONTEXT"
+     - preset_status: running
+     - api_base_url: "$GITLAB_STATUS_URL"
+     - target_url: "$BITRISE_BUILD_URL"
+    title: "[PRE] - GitLab status - Update build status"
+    is_always_run: true

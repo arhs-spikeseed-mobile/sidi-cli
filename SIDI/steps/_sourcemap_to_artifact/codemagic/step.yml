@@ -1,0 +1,5 @@
+name: "[POST] - Copy sourcemaps files to artifacts folder"
+script: |
+  #!/bin/bash
+  
+  zip -j $CM_EXPORT_DIR/sourcemaps.zip ./build/sourcemaps/*

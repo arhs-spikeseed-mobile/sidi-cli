@@ -1,0 +1,8 @@
+name: "[ANDROID] - Run unit tests"
+script: |
+  #!/bin/sh
+  set -ex
+  
+  cd $GRADLEW_PATH
+  
+  ./gradlew "$ANDROID_UNIT_TEST_CMD"

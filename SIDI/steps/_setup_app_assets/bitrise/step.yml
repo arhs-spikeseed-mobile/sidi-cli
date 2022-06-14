@@ -1,0 +1,10 @@
+steps:
+  - image-overlayer@1.0.7:
+      title: "[PRE] - Generate app icons"
+      inputs:
+        - source_image: "$IMAGE_OVERLAYER_SOURCE_IMAGE"
+        - left_icon: "$IMAGE_OVERLAYER_LEFT_ICON"
+        - text_color: "$IMAGE_OVERLAYER_TEXT_COLOR"
+        - right_icon: "$IMAGE_OVERLAYER_RIGHT_ICON"
+        - center_icon: "$IMAGE_OVERLAYER_CENTER_IMAGE"
+      is_always_run: true

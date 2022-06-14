@@ -1,0 +1,66 @@
+name: "[AUDIT] - Scan http URLs"
+ignore_failure: true
+script: |
+   #!/bin/sh
+   set -ex
+
+   black_list="$BLACK_LIST"
+   ssl_labs_scan="$SSL_LABS_SCAN"
+
+   if [ "$black_list" == "" ]
+   then
+      black_list="apache.org;cloudflare.com;bintray.com;w3.org;apple-mapkit.com;apple.com;mzstatic.com;mozilla.org;github.io;github.com;youtube.com;withgoogle.com;android.com;google.com;jitpack.io;microsoft.com;firebaseio.com"
+      echo "black_list set per default to $black_list"
+   fi
+
+   if [ "$ssl_labs_scan" == "" ]
+   then
+      ssl_labs_scan="no"
+      echo "ssl_labs_scan set per default to $ssl_labs_scan"
+   fi
+
+   mkdir $CM_EXPORT_DIR/urls-scanner
+   mkdir $CM_EXPORT_DIR/urls-scanner/urls-found
+   mkdir $CM_EXPORT_DIR/urls-scanner/ssllabs-scans
+
+   #Find all domains used in the code
+   #Rules for iOS/Android/React native application
+   grep -RHIEo --exclude=.gitignore --exclude=\*.sh --exclude=\*.yml --exclude=\*-lock.json --exclude=\*.lock --exclude=\*.md --exclude=\*.gradle --exclude-dir=git --exclude-dir=build --exclude-dir=buildscripts --exclude-dir=mocks --exclude-dir=node_modules --exclude-dir=__mocks__ --exclude-dir=__tests__ --exclude-dir=__snapshots__ --exclude-dir=Carthage --exclude=cartfile --exclude-dir=Pods --exclude=Podfile --exclude-dir=\*.framework --exclude=gradlew --exclude=\*.resolved --exclude-dir=idea '(https)://[^/"]+.(com|net|org|uk|fr|nl|be|de|se|io)' . | sort -u | uniq > $CM_EXPORT_DIR/urls-scanner/urls-found/domains-https-with-filesname.txt
+   grep -RHIEo --exclude=.gitignore --exclude=\*.sh --exclude=\*.yml --exclude=\*-lock.json --exclude=\*.lock --exclude=\*.md --exclude=\*.gradle --exclude-dir=git --exclude-dir=build --exclude-dir=buildscripts --exclude-dir=mocks --exclude-dir=node_modules --exclude-dir=__mocks__ --exclude-dir=__tests__ --exclude-dir=__snapshots__ --exclude-dir=Carthage --exclude=cartfile --exclude-dir=Pods --exclude=Podfile --exclude-dir=\*.framework --exclude=gradlew --exclude=\*.resolved --exclude-dir=idea '(http)://[^/"]+.(com|net|org|uk|fr|nl|be|de|se|io)' . | sort -u | uniq > $CM_EXPORT_DIR/urls-scanner/urls-found/domains-http-with-filesname.txt
+
+   grep -RhIEo --exclude=.gitignore --exclude=\*.sh --exclude=\*.yml --exclude=\*-lock.json --exclude=\*.lock --exclude=\*.md --exclude=\*.gradle --exclude-dir=git --exclude-dir=build --exclude-dir=buildscripts --exclude-dir=mocks --exclude-dir=node_modules --exclude-dir=__mocks__ --exclude-dir=__tests__ --exclude-dir=__snapshots__ --exclude-dir=Carthage --exclude=cartfile --exclude-dir=Pods --exclude=Podfile --exclude-dir=\*.framework --exclude=gradlew --exclude=\*.resolved --exclude-dir=idea '(https)://[^/"]+.(com|net|org|uk|fr|nl|be|de|se|io)' . | sort -u | uniq > $CM_EXPORT_DIR/urls-scanner/urls-found/domains-https.txt
+   grep -RhIEo --exclude=.gitignore --exclude=\*.sh --exclude=\*.yml --exclude=\*-lock.json --exclude=\*.lock --exclude=\*.md --exclude=\*.gradle --exclude-dir=git --exclude-dir=build --exclude-dir=buildscripts --exclude-dir=mocks --exclude-dir=node_modules --exclude-dir=__mocks__ --exclude-dir=__tests__ --exclude-dir=__snapshots__ --exclude-dir=Carthage --exclude=cartfile --exclude-dir=Pods --exclude=Podfile --exclude-dir=\*.framework --exclude=gradlew --exclude=\*.resolved --exclude-dir=idea '(http)://[^/"]+.(com|net|org|uk|fr|nl|be|de|se|io)' . | sort -u | uniq > $CM_EXPORT_DIR/urls-scanner/urls-found/domains-http.txt
+
+   if [ "$ssl_labs_scan" = true ] ; then
+      #Transform result to be compliant with ssllabs -hostfile command
+      cp $CM_EXPORT_DIR/urls-scanner/urls-found/domains-https.txt $CM_EXPORT_DIR/urls-scanner/ssllabs-scans/domains-https-ssllabs.txt
+      sed -i '' 's#https://##g' $CM_EXPORT_DIR/urls-scanner/ssllabs-scans/domains-https-ssllabs.txt
+
+      while read -r website; do
+      echo "$website" | cut -f1 -d"/"
+      clean_url=$(echo "$website" | cut -f1 -d "/")
+      clean_url="${clean_url#*.}"
+      clean_url="${clean_url#www.}"
+
+      echo "clean url is $clean_url"
+      #https://github.com/ssllabs/ssllabs-scan/blob/a7f3d492cc1d025fcb268763ed8909cace1e7d14/ssllabs-api-docs-v3.md
+      #https://formulae.brew.sh/formula/ssllabs-scan
+
+      if echo "$black_list" | grep -q "$clean_url"
+      then
+         echo "$website is blacklisted and will be not analyzed by SSLLabs"
+      else
+         #hostcheck to false for invalid urls
+
+         brew install ssllabs-scan
+
+         RESULT=$(ssllabs-scan -usecache=true -quiet=true -hostcheck=false $clean_url)
+         echo $RESULT > $CM_EXPORT_DIR/urls-scanner/ssllabs-scans/$clean_url.json
+      fi
+
+      done < "$CM_EXPORT_DIR/urls-scanner/ssllabs-scans/domains-https-ssllabs.txt"
+   fi
+
+   zip -r $CM_EXPORT_DIR/urls-scanner.zip $CM_EXPORT_DIR/urls-scanner/*
+
+   echo "Audit urls packages finished successfully"

@@ -1,0 +1,9 @@
+name: "[ANDROID] - Building the app (APK)"
+script: |
+  #!/bin/sh
+  set -ex
+  
+  cd $GRADLEW_PATH
+  chmod 777 gradlew
+  
+  ./gradlew "assemble$ANDROID_BUILD_VARIANT"

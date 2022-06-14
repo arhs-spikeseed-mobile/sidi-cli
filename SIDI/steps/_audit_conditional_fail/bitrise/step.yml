@@ -1,0 +1,17 @@
+steps:
+ - script@1.1.6:
+    title: "[AUDIT] - Fail on high/critical vulnerabilities"
+    inputs:
+     - content: |-
+        #!/usr/bin/env bash
+        set -e
+        
+        # export vulnerability count for further use
+        # envman add --key HIGH_COUNT --value $HIGH_COUNT
+        # envman add --key CRITICAL_COUNT --value $CRITICAL_COUNT
+        if [[ ${CRITICAL_COUNT} != "0" || ${HIGH_COUNT} != "0"  ]]; then
+          echo "/!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\\"
+          echo "/!\ /!\ /!\ You have critical/high vulnerabilities ! Fix them ASAP ! /!\ /!\ /!\\"
+          echo "/!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\\"
+          exit 1
+        fi

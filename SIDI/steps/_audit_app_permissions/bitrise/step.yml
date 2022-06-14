@@ -1,0 +1,7 @@
+steps:
+ - git::https://github.com/odemolliens/bitrise-step-monitoring-apps-permissions.git@develop:
+    title: "[QUALITY] - Check applications permissions"
+    inputs:
+     - config_file_path: $CONFIG_FILE_PATH
+     - ios_app_name: $IOS_SCHEME
+    is_always_run: true

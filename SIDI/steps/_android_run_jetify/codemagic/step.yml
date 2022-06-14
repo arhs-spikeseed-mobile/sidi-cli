@@ -1,0 +1,6 @@
+name: "[REACT-NATIVE] - Jetify"
+script: |
+  #!/bin/sh
+  set -ex
+  
+  npx jetify

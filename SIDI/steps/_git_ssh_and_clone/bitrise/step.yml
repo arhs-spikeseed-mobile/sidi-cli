@@ -1,0 +1,8 @@
+steps:
+  - activate-ssh-key@4.1.0:
+      title: "[PRE] - activate SSH key"
+      run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+  - git-clone@6.1.2:
+      inputs:
+        - fetch_tags: "yes"
+      title: "[PRE] - Git Clone"

@@ -1,0 +1,6 @@
+name: "[REACT-NATIVE] - Run TSC"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  yarn run tsc

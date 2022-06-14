@@ -1,0 +1,12 @@
+steps:
+ - cocoapods-dependency-check@0.0.2:
+      title: "[AUDIT] - Check iOS 3rd parties dependencies"
+      inputs:
+        - podfile_lock_path: "./$IOS_PROJECT_ROOT/Podfile.lock"
+        - fail_on_cvss_level: "9"
+    is_always_run: true
+ - gradle-dependency-checker@1.0.1:
+    inputs:
+        - source_root_path: "./$GRADLEW_PATH"
+    title: "[AUDIT] - Audit Android 3rd parties dependencies"
+    is_always_run: true

@@ -1,0 +1,15 @@
+image: node:latest
+
+stages:
+- test
+
+Code quality and test:
+  stage: test
+  script:
+    - yarn
+    - yarn link
+    - yarn run lint
+    - yarn run prettier
+    - sidi-cli u
+    - yarn global add yaml-validator
+    - yaml-validator codemagic.yaml

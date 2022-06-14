@@ -1,0 +1,16 @@
+name: "[POST] - Sending teams notification"
+script: |
+ #!/bin/bash
+ set -ex
+
+ BUILD_STATUS=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" https://api.codemagic.io/builds/$CM_BUILD_ID  | jq '.build.status')
+ echo "Buils status: $BUILD_STATUS"
+
+ if [ "$BUILD_STATUS" = "\"building\"" ]
+ then
+    curl -H 'Content-Type: application/json' --data "{\"text\": \"Build Succeeded!<br>Branch: $CM_BRANCH<br>Workflow: $WORKFLOW_MAJ<br>https://codemagic.io/app/$CM_PROJECT_ID/build/$CM_BUILD_ID\"}" "$TEAMS_BUILDS_WEBHOOCKS"
+ else
+    curl -H 'Content-Type: application/json' --data "{\"text\": \"Build Failed!<br>Branch: $CM_BRANCH<br>Workflow: $WORKFLOW_MAJ<br>https://codemagic.io/app/$CM_PROJECT_ID/build/$CM_BUILD_ID\"}" "$TEAMS_BUILDS_WEBHOOCKS"
+ fi
+
+ exit 0

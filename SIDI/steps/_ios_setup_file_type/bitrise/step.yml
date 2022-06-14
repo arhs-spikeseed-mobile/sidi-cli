@@ -1,0 +1,11 @@
+steps:
+  - script@1.1.6:
+      title: "[iOS] - Setup executable file type"
+      inputs:
+       - content: |-
+          #!/bin/bash
+          
+          echo "Set iOS executable file type to xcworkspace"
+envs:
+ - IOS_FILE_EXEC_TYPE: ".xcworkspace"
+ - IOS_XCODEPROJ_PATH: "$IOS_PROJECT_ROOT/$IOS_PROJECT_FILE_NAME$IOS_FILE_EXEC_TYPE"

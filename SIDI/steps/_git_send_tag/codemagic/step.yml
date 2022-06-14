@@ -1,0 +1,16 @@
+name: "[GIT] - Push tags on git"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+  
+  git tag -fa "$WORKFLOW_MAJ-$SIDI_TRAIN-$APP_VERSION($PROJECT_BUILD_NUMBER)" -m "Sidi tag"
+  git push --tags
+  if (( $? )); then
+    echo "Failure" >&2
+    exit 1
+  else
+    echo "Success, new tags are :"
+    echo "$(git tag)"
+    # code block that is dependent on success of previous command
+  fi
+  exit 0

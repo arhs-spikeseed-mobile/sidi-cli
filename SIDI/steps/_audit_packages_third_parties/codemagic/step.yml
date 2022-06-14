@@ -1,0 +1,36 @@
+name: "[AUDIT] - Check 3rd parties dependencies"
+ignore_failure: true
+script: |
+   #!/bin/sh
+   set -ex
+   
+   fail_on_cvss_level="$FAIL_ON_CVSS_LEVEL"
+   podfile_lock_path="./$IOS_PROJECT_ROOT/Podfile.lock"
+
+   if [ "$fail_on_cvss_level" == "" ]
+   then
+      fail_on_cvss_level="9"
+      echo "fail_on_cvss_level set per default to $fail_on_cvss_level"
+   fi
+
+   echo "[AUDIT] - Audit iOS 3rd parties dependencies"
+   
+   brew install dependency-check
+   
+   dependency-check --failOnCVSS=$fail_on_cvss_level --enableExperimental --project $CM_PROJECT_ID --out $CM_EXPORT_DIR --scan $podfile_lock_path
+   # Rename file to allow other dependency checker to be executed and stored in the artifact folder
+   mv $CM_EXPORT_DIR/dependency-check-report.html $CM_EXPORT_DIR/cocoapods-dependency-check-report.html
+
+   echo "Audit IOS dependencies done successfully"
+   
+   echo "--------------------------------------------------------------------"
+   echo "[AUDIT] - Audit Android 3rd parties dependencies"
+   
+   cd $GRADLEW_PATH
+   #Run analyze
+   ./gradlew $ANDROID_MODULE_NAME:dependencyCheckAggregate
+   cd $CM_EXPORT_DIR
+   # Rename file to allow other dependency checker to be executed and stored in the artifact folder
+   mv $CM_EXPORT_DIR/dependency-check-report.html $CM_EXPORT_DIR/gradle-dependency-check-report.html
+   
+   echo "Audit packages finished successfully"

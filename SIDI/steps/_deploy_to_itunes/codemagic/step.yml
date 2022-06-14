@@ -1,0 +1,9 @@
+app_store_connect:
+ api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+ key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+ issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+
+ # Configuration related to TestFlight (optional)
+ submit_to_testflight: true # Optional boolean, defaults to false. Whether or not to submit the uploaded build to TestFlight beta review. Required for distributing to beta groups. Note: This action is performed during post-processing.
+ beta_groups: # Specify the names of beta tester groups that will get access to the build once it has passed beta review.
+  - $TESTFLIGHT_GROUP_NAME

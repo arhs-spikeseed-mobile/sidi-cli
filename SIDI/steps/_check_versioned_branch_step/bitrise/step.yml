@@ -1,0 +1,51 @@
+steps:
+  - script@1.1.6:
+      title: "[PRE] - Check VERSIONED BRANCHES"
+      inputs:
+        - content: |-
+            #!/bin/bash
+            GIT_BRANCH=${BITRISE_GIT_BRANCH}
+
+            if [[ ${GIT_BRANCH} =~ ^(prodlike|master|uat|develop|lut)\/([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+                # get version from branch
+                BRANCH_TYPE="${BASH_REMATCH[1]}"
+                APP_VERSION="${BASH_REMATCH[2]}"
+
+                if [ "$APP_VERSION" == "" ]
+                then
+                    APP_VERSION="0.0.0"
+                fi
+
+                envman add --key BRANCH_TYPE --value "${BRANCH_TYPE}"
+                envman run bash -c 'echo BRANCH_TYPE: $BRANCH_TYPE'
+
+                envman add --key APP_VERSION --value "${APP_VERSION}"
+                envman run bash -c 'echo APP_VERSION: $APP_VERSION'
+
+                envman add --key INCREMENT_VERSION --value "1"
+                envman run bash -c 'echo INCREMENT_VERSION: $INCREMENT_VERSION'
+            elif [[ ${GIT_BRANCH} =~ ^(fix|feat|feature)\/([0-9]+\.[0-9]+\.[0-9]+)\/[A-Za-z]+-[0-9]+\/.+$ ]]; then
+                # get version from branch
+                BRANCH_TYPE="${BASH_REMATCH[1]}"
+                APP_VERSION="${BASH_REMATCH[2]}"
+
+                if [ "$APP_VERSION" == "" ]
+                then
+                    APP_VERSION="0.0.0"
+                fi
+
+                envman add --key BRANCH_TYPE --value "${BRANCH_TYPE}"
+                envman run bash -c 'echo BRANCH_TYPE: $BRANCH_TYPE'
+
+                envman add --key APP_VERSION --value "${APP_VERSION}"
+                envman run bash -c 'echo APP_VERSION: $APP_VERSION'
+
+                envman add --key INCREMENT_VERSION --value "1"
+                envman run bash -c 'echo INCREMENT_VERSION: $INCREMENT_VERSION'
+            else
+                envman add --key BRANCH_TYPE --value "${GIT_BRANCH}"
+                envman run bash -c 'echo BRANCH_TYPE: $BRANCH_TYPE'
+              
+                envman add --key APP_VERSION --value "0.0.0"
+                envman run bash -c 'echo APP_VERSION: $APP_VERSION'
+            fi
