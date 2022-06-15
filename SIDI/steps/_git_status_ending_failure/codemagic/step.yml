@@ -1,0 +1,8 @@
+name: "[PRE] - GitLab status - Failure job"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+  
+  if [[ $BUILD_STATUS != "success" ]]; then
+    SEND_FAILURE_STATUS=$(curl -H "Content-Type: application/json" -H "Authorization: Bearer $GITLAB_TOKEN" --data "{\"state\": \"failed\",\"target_url\": \"https://codemagic.io/app/$CM_PROJECT_ID/build/$CM_BUILD_ID\",\"name\": \"ci/codemagic/$WORKFLOW\"}"  -X POST "https://gitlab.com/api/v4/projects/$GITLAB_REPOSITORY_ID/statuses/$CM_COMMIT")
+  fi

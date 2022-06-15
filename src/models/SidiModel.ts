@@ -62,6 +62,7 @@ export interface IConfig {
   mandatoryKeys: IKey[];
   conditionalSteps?: IConditionalStep[];
   stepsFamily?: string[];
+  publishingSteps?: string[];
   artifacts?: string[];
   checks?: ICheck[];
   replaceIfDuplicate?: boolean;

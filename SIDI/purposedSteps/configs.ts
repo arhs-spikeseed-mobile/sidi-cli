@@ -11,7 +11,7 @@ export const commonConfig: IConditionalStep[] = [
   },
   {
     conditions: [{ key: 'updateGitStatus', expectedValues: ['true'], choices: ['true', 'false'] }],
-    stepsNames: ['_git_status_beginning', '_git_status_ending'],
+    stepsNames: ['_git_status_beginning', '_git_status_ending', '_git_status_ending_failure'],
   },
   {
     conditions: [{ key: '_send_slack_message', expectedValues: ['true'], choices: ['true', 'false'] }],

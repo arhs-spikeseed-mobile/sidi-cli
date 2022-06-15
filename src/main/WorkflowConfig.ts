@@ -19,15 +19,15 @@ export class WorkflowConfig {
   customSteps: ICustomSteps[];
   triggerPattern: string[];
   androidSigningReferenceName: string[];
-  codemagicSpecialCases: ICodeMagicSpecialCase[]; // to add a step in publishing section
+  codemagicSpecialCases: ICodeMagicSpecialCase[]; // to add a special step in publishing section
+  codemagicPublishingSteps: string[]; // to add a step in publishing section
   publishingCustomSteps: ICustomSteps[]; // to add a custom step in publishing section
 
   requiredKeys?: IKey[]; // List of envs need to be set by user for this workflow -> will be in final secret file
   envs: Array<IEnv>; // List of envs which ill be set for the workflow
   artifacts: string[]; // Codemagic artifacts to export
   cicd: string;
-  // Stack/machine used for the workflow
-  meta: any;
+  meta: any; // Stack/machine used for the workflow
 
   constructor(cicd: string, workflowConfig?: WorkflowConfig) {
     this.requestedStepsNames = [];
@@ -37,6 +37,7 @@ export class WorkflowConfig {
     this.stepsNames = [];
     this.customSteps = [];
     this.codemagicSpecialCases = [];
+    this.codemagicPublishingSteps = [];
     this.cicd = cicd;
 
     // update scenario
@@ -144,12 +145,14 @@ export class WorkflowConfig {
    * @param conditions: conditions to check/request to user to add or not the step
    * @param stepName: step name
    * @param sidiConfig: sidi config object
+   * @param isPublishingStep: to add or not on publishing section - codemagic only
    */
   async checkConditionsAddStep(
     toolbox: GluegunToolbox,
     conditions: ICondition[],
     stepName: string,
-    sidiConfig: SidiConfig
+    sidiConfig: SidiConfig,
+    isPublishingStep = false
   ) {
     const { selectExtension } = toolbox;
     let addThisStep = true;
@@ -180,7 +183,7 @@ export class WorkflowConfig {
         this.addSpecialStep(stepConfig.codemagicSpecialCase);
         stepAdded = true;
       } else {
-        stepAdded = this.addStep(stepName);
+        stepAdded = this.addStep(stepName, isPublishingStep);
       }
     }
 
@@ -199,8 +202,9 @@ export class WorkflowConfig {
    * and add required keys to set in future variables
    *
    * @param stepName step's name
+   * @param isPublishingStep: to add or not on publishing section - codemagic only
    */
-  addStep(stepName: string): boolean {
+  addStep(stepName: string, isPublishingStep = false): boolean {
     let stepAdded = false;
     if (stepName && this[stepName] !== 'false') {
       const stepConfigPath = `${DEPENDENCE_STEPS_PATH}/${stepName}/${this.cicd}/${CONFIG_TS}`;
@@ -211,12 +215,22 @@ export class WorkflowConfig {
 
       const stepConfig: IConfig = require(stepConfigPath).default;
 
-      if (this.stepsNames.includes(stepName) && stepConfig.replaceIfDuplicate)
-        this.stepsNames.splice(this.stepsNames.indexOf(stepName), 1);
+      if (isPublishingStep == true) {
+        if (this.codemagicPublishingSteps.includes(stepName) && stepConfig.replaceIfDuplicate)
+          this.codemagicPublishingSteps.splice(this.codemagicPublishingSteps.indexOf(stepName), 1);
 
-      if (!this.stepsNames.includes(stepName)) {
-        this.stepsNames.push(stepName);
-        stepAdded = true;
+        if (!this.codemagicPublishingSteps.includes(stepName)) {
+          this.codemagicPublishingSteps.push(stepName);
+          stepAdded = true;
+        }
+      } else {
+        if (this.stepsNames.includes(stepName) && stepConfig.replaceIfDuplicate)
+          this.stepsNames.splice(this.stepsNames.indexOf(stepName), 1);
+
+        if (!this.stepsNames.includes(stepName)) {
+          this.stepsNames.push(stepName);
+          stepAdded = true;
+        }
       }
 
       this.addRequiredKeys(stepName, this.cicd);

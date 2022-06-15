@@ -142,7 +142,6 @@ export class SidiConfig {
     @param toolbox: GluegunToolbox
     @param workflowName: workflow's name where it will add steps
     @param configFile: config file of the step
-    @param isMandatoryStep: to know if it part of mandatory steps (mandatorySteps folder), to add steps at the top
    */
   async setWorkflowSteps(toolbox: GluegunToolbox, workflowName: string, configFile: IConfig) {
     for (const stepName of configFile.stepsFamily) {
@@ -167,6 +166,35 @@ export class SidiConfig {
         );
       } else {
         this._workflowConfigs[workflowName].addStep(stepName);
+      }
+    }
+    console.log('<<>> workflow = ', workflowName);
+    console.log('<<>> configFile.publishingSteps = ', configFile.publishingSteps);
+    if (arrayNotEmpty(configFile.publishingSteps)) {
+      for (const stepName of configFile.publishingSteps) {
+        const dependenceYamlPath = `${DEPENDENCE_STEPS_PATH}/${stepName}/${this.cicd}/${STEP_YAML}`;
+        if (!FS.existsSync(dependenceYamlPath)) {
+          print(toolbox, `${stepName} not found for ${this.cicd}, let's continue to the next step..`, 'warning');
+          continue;
+        }
+
+        // Check if parent step has condition and if array contain stepName
+        if (arrayNotEmpty(configFile.conditionalSteps)) {
+          const stepCondition = configFile.conditionalSteps.find((item) => item.stepsNames.includes(stepName));
+          if (!stepCondition) {
+            this._workflowConfigs[workflowName].addStep(stepName, true);
+            continue;
+          }
+          await this._workflowConfigs[workflowName].checkConditionsAddStep(
+            toolbox,
+            stepCondition.conditions,
+            stepName,
+            this,
+            true
+          );
+        } else {
+          this._workflowConfigs[workflowName].addStep(stepName, true);
+        }
       }
     }
   }
