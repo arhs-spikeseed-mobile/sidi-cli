@@ -11,6 +11,7 @@ const config: IConfig = {
   ],
   artifacts: [
     'build/ios/ipa/*.ipa',
+    'build/ios/xcarchive/*.xcarchive',
     '/tmp/xcodebuild_logs/*.log',
     '$HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app',
     '$HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM',
