@@ -7,7 +7,7 @@ import { print } from '../../utils/Printer';
 import Translator from '../../translations/Translator';
 import { checkNewVersion } from '../../utils/Version';
 import { findFileInProject } from '../../utils/FileHelpers';
-import { userEditWorkflow } from '../../utils/Workflow';
+import { userEditWorkflow } from '../../editors/editManager';
 import checkCustomSteps from '../../customChecks/CustomSteps';
 
 module.exports = {
