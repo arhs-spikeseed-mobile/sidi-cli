@@ -61,7 +61,7 @@ At the end, **SIDI** will generate two file:
 ### Installation
 
 ```bash
-yarn add global sidi-cli
+yarn global add sidi-cli
 
 OR
 
