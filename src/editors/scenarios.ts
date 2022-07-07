@@ -55,6 +55,10 @@ export async function editScenario(
       key: 'editAndroidSigning',
       choice: Translator.translate('edit.updateWorkflow.editAndroidSigning'),
     });
+    stepChoices.push({
+      key: 'editMaxDuration',
+      choice: Translator.translate('edit.updateWorkflow.editMaxDuration'),
+    });
   }
 
   // Delete a custom step
@@ -77,34 +81,46 @@ export async function editScenario(
   const userStepChoice = stepChoices.find((item) => item.choice === userInputChoice);
 
   if (userStepChoice.key === 'deleteStep') {
+    // DELETE STEP
     const selectedStepName = await selectExtension(
       Translator.translate('edit.step.delete', { workflowName: selectedWorkflowName }),
       [...sidiConfig._workflowConfigs[selectedWorkflowName].stepsNames]
     );
     sidiConfig._workflowConfigs[selectedWorkflowName].deleteRequestedStep(selectedStepName);
-  } else if (userStepChoice.key === 'editPushTrigger') {
-    const pattern = await inputExtension(
-      Translator.translate('edit.step.pushTriggerPattern', { workflowName: selectedWorkflowName })
-    );
-    sidiConfig._workflowConfigs[selectedWorkflowName].setCustomTriggerPattern(pattern);
-  } else if (userStepChoice.key === 'editAndroidSigning') {
-    const referenceName = await inputExtension(
-      Translator.translate('edit.step.androidSigningName', { workflowName: selectedWorkflowName })
-    );
-    sidiConfig._workflowConfigs[selectedWorkflowName].setAndroidSigningKeystoreRef(referenceName);
   } else if (userStepChoice.key === 'deleteCustomStep') {
+    // DELETE CUSTOM STEP
     const selectedStepName = await selectExtension(
       Translator.translate('edit.step.delete', { workflowName: selectedWorkflowName }),
       [...sidiConfig._workflowConfigs[selectedWorkflowName].customSteps.map((item) => item.stepName)]
     );
     sidiConfig._workflowConfigs[selectedWorkflowName].deleteCustomStep(selectedStepName);
   } else if (userStepChoice.key === 'deletePublishingCustomStep') {
+    // DELETE PUBLISHING STEP
     const selectedStepName = await selectExtension(
       Translator.translate('edit.step.delete', { workflowName: selectedWorkflowName }),
       [...sidiConfig._workflowConfigs[selectedWorkflowName].publishingCustomSteps.map((item) => item.stepName)]
     );
     sidiConfig._workflowConfigs[selectedWorkflowName].deletePublishingCustomStep(selectedStepName);
+  } else if (userStepChoice.key === 'editPushTrigger') {
+    // CONFIG PUSH EVENT BRANCH
+    const pattern = await inputExtension(
+      Translator.translate('edit.step.pushTriggerPattern', { workflowName: selectedWorkflowName })
+    );
+    sidiConfig._workflowConfigs[selectedWorkflowName].setCustomTriggerPattern(pattern);
+  } else if (userStepChoice.key === 'editAndroidSigning') {
+    // EDIT ANDROID SIGNING
+    const referenceName = await inputExtension(
+      Translator.translate('edit.step.androidSigningName', { workflowName: selectedWorkflowName })
+    );
+    sidiConfig._workflowConfigs[selectedWorkflowName].setAndroidSigningKeystoreRef(referenceName);
+  } else if (userStepChoice.key === 'editMaxDuration') {
+    // EDIT MAX DURATION TIME
+    const maxDuration = await inputExtension(
+      Translator.translate('edit.step.maxDuration', { workflowName: selectedWorkflowName })
+    );
+    sidiConfig._workflowConfigs[selectedWorkflowName].setBuildDurationTime(maxDuration);
   } else {
+    // DEFAULT - JUST UPDATE
     await sidiConfig.updateWorkflow(toolbox, selectedWorkflowName);
   }
   return sidiConfig;

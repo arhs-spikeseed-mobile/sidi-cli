@@ -7,7 +7,7 @@ import { requestWorkflow } from '../../main/PrepareWorkflows';
 import iosProjectType from '../../customChecks/IOSProjectType';
 import { print, printSeparator } from '../../utils/Printer';
 import autoDetectProjectType from '../../customChecks/AutoDetect';
-import { requestStack } from '../../utils/Workflow';
+import { requestStack } from '../../editors/requests';
 import checkCustomSteps from '../../customChecks/CustomSteps';
 
 module.exports = {

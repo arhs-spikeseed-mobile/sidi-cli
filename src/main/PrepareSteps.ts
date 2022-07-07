@@ -5,7 +5,7 @@ import { SidiConfig } from '../main/SidiConfig';
 import { printSeparator } from '../utils/Printer';
 import Translator from '../translations/Translator';
 import { getConfigFiles } from '../utils/FileHelpers';
-import { requestStack } from '../utils/Workflow';
+import { requestStack } from '../editors/requests';
 
 /**
   Will check each workflow, and inject all required things

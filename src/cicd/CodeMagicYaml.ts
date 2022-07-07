@@ -43,7 +43,7 @@ export class CodeMagicYaml {
 
       this.workflows[workflowName] = {};
       this.workflows[workflowName].name = workflowName;
-      this.workflows[workflowName].max_build_duration = 120;
+      this.workflows[workflowName].max_build_duration = workflowSetByUser.maxDurationTime ?? 120;
       this.workflows[workflowName].artifacts = [
         '$CM_EXPORT_DIR/*',
         '$CM_EXPORT_DIR/*.txt',
@@ -123,7 +123,6 @@ export class CodeMagicYaml {
 
       if (arrayNotEmpty(workflowSetByUser.codemagicPublishingSteps)) {
         workflowSetByUser.codemagicPublishingSteps.forEach((item) => {
-          console.log('<<>> item: ', item);
           const stepPath = `${DEPENDENCE_STEPS_PATH}/${item}/${sidiConfig.cicd}/${STEP_YAML}`;
           const step = { '': FS.readFileSync(stepPath, ENCODING_FORMAT) };
           if (!arrayNotEmpty(this.workflows[workflowName].publishing.scripts)) {

@@ -168,8 +168,6 @@ export class SidiConfig {
         this._workflowConfigs[workflowName].addStep(stepName);
       }
     }
-    console.log('<<>> workflow = ', workflowName);
-    console.log('<<>> configFile.publishingSteps = ', configFile.publishingSteps);
     if (arrayNotEmpty(configFile.publishingSteps)) {
       for (const stepName of configFile.publishingSteps) {
         const dependenceYamlPath = `${DEPENDENCE_STEPS_PATH}/${stepName}/${this.cicd}/${STEP_YAML}`;

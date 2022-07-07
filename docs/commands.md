@@ -60,9 +60,14 @@ This command allow:
 - Add a new workflow
 - Delete an existing workflow
 - Duplicate an existing workflow
-- Update a workflow
+- Edit an existing workflow
     - Add a new step
     - Delete a step
+    - Delete a custom Step
+    - Edit push event triggerer (CodeMagic only)
+    - Set Android signing key (CodeMagic only)
+    - Edit max build duration (CodeMagic only) (default 120 min)
+- Change the CI/CD (CodeMagic <==> Bitrise)
 
 Based on your input, it will regenerate/update your YAML file.
 

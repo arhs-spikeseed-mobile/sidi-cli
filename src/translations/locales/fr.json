@@ -20,6 +20,7 @@
             "delete": "Quelle étape voulez-vous supprimer?",
             "pushTriggerPattern": "Entrez le pattern de branche pour détecter l'événement push et lancer le workflow {{workflowName}}  [Plus d'info](https://github.com/imranMnts/sidi-cli/blob/master/docs/buildTriggers.md)",
             "androidSigningName": "Entrez le nom de reference du fichier de keystore enregistrer sur CodeMagic pour le workflow {{workflowName}}",
+            "maxDuration": "Entrez la durée maximum du build pour {{workflowName}} (minutes)",
             "add": "Quelle étape voulez-vous ajouter?"
         },
         "updateWorkflow": {
@@ -29,6 +30,7 @@
             "deleteStep": "Supprimer une nouvelle étape",
             "editPushTrigger": "Modifier le modèle de branche du déclencheur d'événement push du workflow",
             "editAndroidSigning": "Paramétrer la clé de signature Android [More info](https://docs.codemagic.io/yaml-code-signing/signing-android/#set-up-code-signing-with-user-specified-keys)",
+            "editMaxDuration": "Modifier la durée maximal du build (Par défaut: 120min)",
             "deleteCustomStep": "Suprimer une étape custom",
             "deletePublishingCustomStep": "Suprimer une étape custom dans la section publishing"
         },
