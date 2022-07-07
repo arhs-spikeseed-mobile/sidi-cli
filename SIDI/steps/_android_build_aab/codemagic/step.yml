@@ -6,7 +6,7 @@ script: |
   cd $GRADLEW_PATH
   chmod 777 gradlew
   
-  if [[ ${AAB_SPECIFIC_BUILD_VARIANT} == "" ]]; then
+  if [[ ${AAB_SPECIFIC_BUILD_VARIANT} != "" ]]; then
     ./gradlew "bundle$AAB_SPECIFIC_BUILD_VARIANT"
   else
     ./gradlew "bundle$ANDROID_BUILD_VARIANT"
