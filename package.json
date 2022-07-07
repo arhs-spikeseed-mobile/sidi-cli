@@ -1,6 +1,6 @@
 {
   "name": "sidi-cli",
-  "version": "3.0.0-beta3",
+  "version": "3.0.0-beta9",
   "description": "SIDI is a human friendly tool to create the yaml to test, build, and deploy any mobile project via the chosen CICD.",
   "homepage": "https://github.com/odemolliens/sidi-cli",
   "author": "Imran Mentese <imran.mentese@gmail.com>",
@@ -11,7 +11,7 @@
   "scripts": {
     "clean-build": "rm -rf ./build",
     "compile": "tsc -p ./",
-    "build": "yarn clean-build && yarn compile",
+    "build": "yarn clean-build && yarn compile && yarn copy-files",
     "prepublishOnly": "yarn build",
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
     "lint": "eslint -c .eslintrc.js --ext .ts src/",
@@ -21,8 +21,7 @@
     "prettier:fix": "prettier --config .prettierrc --write --check \"src/**/*.ts\" --check \"SIDI/**/*.json\" --check \"SIDI/**/*.ts\"",
     "test": "TZ=UTC node_modules/.bin/jest --coverage --maxWorkers=50%",
     "watch": "jest --watch",
-    "testu": "TZ=UTC node_modules/.bin/jest --updateSnapshot",
-    "coverage": "jest --coverage"
+    "copy-files": "copyfiles -u 1 SIDI/**/*.yml build/SIDI/"
   },
   "files": [
     "build",
