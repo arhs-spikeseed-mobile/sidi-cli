@@ -3,12 +3,13 @@ script: |
   #!/bin/sh
   set -ex
   
+  npm i -g devops-helper
   if [[ "$INCREMENT_VERSION" != "" ]]; then
-    npx --yes devops-helper promote-app $REPOSITORY_URL $BRANCHES $APP_VERSION
+    devops-helper promote-app $REPOSITORY_URL $BRANCHES $APP_VERSION
   else
     if [ ${IS_VERSIONED_BRANCH} == "true" ]; then
-      npx --yes devops-helper promote-app $REPOSITORY_URL $BRANCHES $APP_VERSION
+      devops-helper promote-app $REPOSITORY_URL $BRANCHES $APP_VERSION
     else
-      npx --yes devops-helper promote-app $REPOSITORY_URL $BRANCHES --noVersionedBranch
+      devops-helper promote-app $REPOSITORY_URL $BRANCHES --noVersionedBranch
     fi
   fi
