@@ -2,8 +2,11 @@ name: "[AUDIT] - Check applications size"
 ignore_failure: true
 script: |
  #!/bin/bash
- #!/bin/bash
  set -ex
+
+ config_file_path="$CONFIG_FILE_PATH"
+ check_android="$CHECK_ANDROID"
+ check_ios="$CHECK_IOS"
 
  echo "---- CONFIG ----"
  if [ -n "$config_file_path" ]; then
