@@ -191,7 +191,7 @@ To check if the final application (APK) contain any logs.
 | FILTER_PATH    | If you have any class/dependence you know you have logs but not want to take into account   | *optional key* |                |
 
 Outputs:
-- `quality_report.txt`: This step will create/update this file where you can build's informations
+- `quality_report.json`: This step will create/update this file where you can build's informations
 
 ## _audit_app_permissions
 
@@ -219,7 +219,7 @@ ios_permission_count=5
 ```
 
 Outputs:
-- `quality_report.txt`: This step will create/update this file where you can build's informations
+- `quality_report.json`: This step will create/update this file where you can build's informations
 - `list_ios_permissions.txt`: List of permission used in your final iOS application
 - `list_android_permissions.txt`: List of permission used in your final Android application
 
@@ -250,7 +250,7 @@ alert_threshold=3
 ```
 
 Outputs:
-- `quality_report.txt`: This step will create/update this file where you can build's informations
+- `quality_report.json`: This step will create/update this file where you can build's informations
 
 ## audit_packages_outdated
 

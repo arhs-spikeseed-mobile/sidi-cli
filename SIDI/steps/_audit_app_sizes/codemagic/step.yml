@@ -2,11 +2,8 @@ name: "[AUDIT] - Check applications size"
 ignore_failure: true
 script: |
  #!/bin/bash
+ #!/bin/bash
  set -ex
- 
- config_file_path="$CONFIG_FILE_PATH"
- check_android="$CHECK_ANDROID"
- check_ios="$CHECK_IOS"
 
  echo "---- CONFIG ----"
  if [ -n "$config_file_path" ]; then
@@ -37,7 +34,7 @@ script: |
          echo "Error: Cannot find the APK"
          exit 1
      fi
-     # SIZE CHECK - if the size of the new APk bigger than the size set into config file or on codemagic
+     # SIZE CHECK - if the size of the new APk bigger than the size set into config file or on CodeMagic
      ANDROID_NEW_APP_SIZE=$(wc -c "android.apk" | awk '{print $1}')
      ANDROID_NEW_APP_SIZE_MB=$(echo "$ANDROID_NEW_APP_SIZE / 1024^2" | bc)
 
@@ -67,46 +64,25 @@ script: |
 
  echo "---- REPORT ----"
 
-
- if [ ! -f "quality_report.txt" ]; then
-     printf "QUALITY REPORT\n\n\n" > quality_report.txt
+ if [ ! -f "quality_report.json" ]; then
+   touch "quality_report.json"
+   echo "{}" > "quality_report.json"
  fi
 
- printf ">>>>>>>>>>  CURRENT APP SIZES  <<<<<<<<<<\n" >> quality_report.txt
- if [[ ${check_android} == "yes" ]]; then
-     printf "Android APK: $android_apk_size MB \n" >> quality_report.txt
- fi
- if [[ ${check_ios} == "yes" ]]; then
-     printf "iOS IPA: $ios_ipa_size MB \n" >> quality_report.txt
- fi
-
- printf "\n\n" >> quality_report.txt
+ STEP_KEY="Sizes"
+ JSON_OBJECT='{ }'
+ JSON_OBJECT=$(echo "$(jq ". + { "\"$STEP_KEY\"": {} }" <<<"$JSON_OBJECT")")
 
  if [[ ${check_android} == "yes" ]]; then
-     printf "   >>>>>>>  ANDROID  <<<<<<< \n" >> quality_report.txt
-     if [[ ${NEW_APK_SIZE} != "" ]]; then
-         printf "!!! New Android apk is bigger !!!\n" >> quality_report.txt
-         printf "It weighed: $android_apk_size MB \n" >> quality_report.txt
-         printf "And now: $NEW_APK_SIZE MB \n" >> quality_report.txt
-     else
-         printf "0 alert \n" >> quality_report.txt
-     fi
-     printf "\n" >> quality_report.txt
+     JSON_OBJECT=$(echo "$(jq ".$STEP_KEY += { "androidApp": { "oldValue": "$android_apk_size", "value": "$ANDROID_NEW_APP_SIZE_MB", "displayAlert": true } }" <<<"$JSON_OBJECT")")
  fi
 
  if [[ ${check_ios} == "yes" ]]; then
-     printf "   >>>>>>>  IOS  <<<<<<< \n" >> quality_report.txt
-     if [[ ${NEW_IPA_SIZE} != "" ]]; then
-         printf "!!! New iOS ipa is bigger !!!\n" >> quality_report.txt
-         printf "It weighed: $ios_ipa_size MB \n" >> quality_report.txt
-         printf "And now: $NEW_IPA_SIZE MB \n\n" >> quality_report.txt
-     else
-         printf "0 alert \n" >> quality_report.txt
-     fi
-     printf "\n" >> quality_report.txt
+     JSON_OBJECT=$(echo "$(jq ".$STEP_KEY += { "iosApp": { "oldValue": "$ios_ipa_size", "value": "$IOS_NEW_APP_SIZE_MB", "displayAlert": true } }" <<<"$JSON_OBJECT")")
  fi
 
- cp quality_report.txt $CM_EXPORT_DIR/quality_report.txt || true
+ echo "$(jq ". + $JSON_OBJECT" <<< cat quality_report.json)" > quality_report.json
+ cp quality_report.json $CM_EXPORT_DIR/quality_report.json || true
 
  if [[ ${NEW_APK_SIZE} != "" || ${NEW_IPA_SIZE} != ""  ]]; then
      echo "Generate an error due to app size alert"

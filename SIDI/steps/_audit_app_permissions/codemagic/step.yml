@@ -74,55 +74,32 @@ script: |
 
  echo "---- REPORT ----"
 
- if [ ! -f "quality_report.txt" ]; then
-     printf "QUALITY REPORT\n\n\n" > quality_report.txt
+ if [ ! -f "quality_report.json" ]; then
+   touch "quality_report.json"
+   echo "{}" > "quality_report.json"
  fi
 
- printf ">>>>>>>>>>  CURRENT APP PERMISSIONS  <<<<<<<<<<\n" >> quality_report.txt
+ STEP_KEY="Permissions"
+ JSON_OBJECT='{ }'
+ JSON_OBJECT=$(echo "$(jq ". + { "\"$STEP_KEY\"": {} }" <<<"$JSON_OBJECT")")
 
  if [[ ${check_android} == "yes" ]]; then
-     printf "Android permission count (from config): $android_permission_count \n" >> quality_report.txt
- fi
- if [[ ${check_android} == "yes" ]]; then
-     printf "iOS permission count (from config): $ios_permission_count \n" >> quality_report.txt
- fi
-
- printf "\n\n" >> quality_report.txt
-
- if [[ ${check_android} == "yes" ]]; then
-     printf "   >>>>>>>  ANDROID  <<<<<<< \n" >> quality_report.txt
-     if [ $CURRENT_ANDROID_PERMISSION_COUNT -gt $android_permission_count ]; then
-         printf "!!! New Android permissions have been added !!!\n" >> quality_report.txt
-         printf "You had: $android_permission_count permissions \n" >> quality_report.txt
-         printf "And now: $CURRENT_ANDROID_PERMISSION_COUNT permissions \n" >> quality_report.txt
-         printf "You can see list of permissions into list_android_permissions.txt \n\n" >> quality_report.txt
-     else
-         printf "0 alert \n" >> quality_report.txt
-     fi
-     printf "\n" >> quality_report.txt
+     JSON_OBJECT=$(echo "$(jq ".$STEP_KEY += { "androidApp": { "oldValue": "$android_permission_count", "value": "$CURRENT_ANDROID_PERMISSION_COUNT", "displayAlert": true, "artifactName": \"list_android_permissions.txt\" } }" <<<"$JSON_OBJECT")")
  fi
 
  if [[ ${check_ios} == "yes" ]]; then
-     printf "   >>>>>>>  IOS  <<<<<<< \n" >> quality_report.txt
-     if [ $CURRENT_IOS_PERMISSION_COUNT -gt $ios_permission_count ]; then
-         printf "!!! New iOS permissions have been added !!!\n" >> quality_report.txt
-         printf "You had: $ios_permission_count permissions \n" >> quality_report.txt
-         printf "And now: $CURRENT_IOS_PERMISSION_COUNT permissions \n" >> quality_report.txt
-         printf "You can see list of permissions into list_ios_permissions.txt \n\n" >> quality_report.txt
-     else
-         printf "0 alert \n" >> quality_report.txt
-     fi
-     printf "\n" >> quality_report.txt
+     JSON_OBJECT=$(echo "$(jq ".$STEP_KEY += { "iosApp": { "oldValue": "$ios_permission_count", "value": "$CURRENT_IOS_PERMISSION_COUNT", "displayAlert": true, "artifactName": \"list_ios_permissions.txt\" } }" <<<"$JSON_OBJECT")")
  fi
 
- cp quality_report.txt $CM_EXPORT_DIR/quality_report.txt || true
+ echo "$(jq ". + $JSON_OBJECT" <<< cat quality_report.json)" > quality_report.json
+ cp quality_report.json $CM_EXPORT_DIR/quality_report.json || true
 
  if [ $CURRENT_ANDROID_PERMISSION_COUNT -gt $android_permission_count ]; then
-     echo "ERROR: New permissions have been added"
+     echo "ERROR: New Android permissions have been added"
      exit 1
  fi
  if [ $CURRENT_IOS_PERMISSION_COUNT -gt $ios_permission_count ]; then
-     echo "ERROR: New permissions have been added"
+     echo "ERROR: New iOS permissions have been added"
      exit 1
  fi
  exit 0
