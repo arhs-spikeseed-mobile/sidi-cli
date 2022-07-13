@@ -43,7 +43,6 @@ module.exports = {
       ]);
     }
 
-    // sidiConfig.appOrLib = await selectExtension(Translator.translate(sidiConfig.appOrLib), ['app', 'library']);
     sidiConfig.cicd = await selectExtension(Translator.translate('sidiConfig.whichCICD'), ['bitrise', 'codemagic']);
 
     if (!checkCustomSteps(toolbox, sidiConfig.cicd)) {
@@ -67,12 +66,6 @@ module.exports = {
     if (sidiConfig.projectType != 'android') {
       sidiConfig.iosExecutableType = await iosProjectType();
     }
-
-    // Mock
-    // sidiConfig.projectType = 'react-native';
-    // sidiConfig.cicd = 'codemagic';
-    // sidiConfig.updateGitStatus = 'false';
-    // sidiConfig.hasVersionedBranches = 'true';
 
     sidiConfig = await requestWorkflow(toolbox, sidiConfig);
     await Generator(toolbox, sidiConfig);
