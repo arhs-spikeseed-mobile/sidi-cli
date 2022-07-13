@@ -65,12 +65,12 @@ export function hasWhiteSpace(text: string): boolean {
  */
 export function supportHyperlink(text: string) {
   if (terminalLink.isSupported) {
-    const linkRegEx = new RegExp(/\[((.*))*]\(((.*))\)/, 'g');
+    const linkRegEx = new RegExp(/\[(.*?)\]\((.*?)\)/, 'g');
     const splittedText: string[] = linkRegEx.exec(text);
     if (splittedText && splittedText.length > 2) {
       const fullText = splittedText[0];
       const description = splittedText[1];
-      const url = splittedText[3];
+      const url = splittedText[2];
       const cliLink = terminalLink(description, url);
 
       return text.replace(fullText, cliLink);

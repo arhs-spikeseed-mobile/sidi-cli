@@ -11,6 +11,7 @@ class Translator {
       try {
         cacheObject = JSON.parse(cacheFile);
       } catch (e) {
+        // eslint-disable-next-line no-console
         console.error(e);
       }
     }
