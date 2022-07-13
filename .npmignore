@@ -1,5 +1,6 @@
 src/
 docs/
+assets/
 scripts
 shell
 **/__tests__/

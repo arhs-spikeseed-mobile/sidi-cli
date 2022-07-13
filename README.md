@@ -1,3 +1,10 @@
+<p align="center">
+  <img src="assets/sidi_cli.png" width="40%">
+</p>
+
+![npm](https://img.shields.io/npm/v/sidi-cli.svg)
+![GitHub](https://img.shields.io/github/license/arhs-spikeseed-mobile/sidi-cli.svg)
+
 # sidi-cli
 
 **SIDI** is a human friendly tool to create a yaml file dedicated to be used on Bitrise or Codemagic to **test**, **build**, and **deploy** any mobile project.
