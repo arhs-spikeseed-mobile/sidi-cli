@@ -81,6 +81,12 @@ Some commands are made available by SIDI to meet your needs.
 
 List of commands available with **SIDI** can be found [there](./docs/commands.md)
 
+### User flows
+
+<p align="center">
+  <img src="assets/user_flow.jpeg" width="90%">
+</p>
+
 ---
 ## Purposed steps
 

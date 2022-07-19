@@ -16,13 +16,19 @@ export default async function androidManifest(toolbox: GluegunToolbox): Promise<
     if (androidManifestPath) {
       // check if keys set properly in manifest
       const manifestFile = FS.readFileSync(`${androidManifestPath}`, 'utf8');
-      const manifestFileParsed = await xml2js.parseStringPromise(manifestFile);
-      if (manifestFileParsed?.manifest && manifestFileParsed?.manifest['$']) {
-        const versionCode = manifestFileParsed?.manifest['$']['android:versionCode'];
-        const versionName = manifestFileParsed?.manifest['$']['android:versionName'];
-        if (versionCode && versionName) {
-          manifestSetProperly = true;
+      let manifestFileParsed;
+      try {
+        manifestFileParsed = await xml2js.parseStringPromise(manifestFile);
+        if (manifestFileParsed?.manifest && manifestFileParsed?.manifest['$']) {
+          const versionCode = manifestFileParsed?.manifest['$']['android:versionCode'];
+          const versionName = manifestFileParsed?.manifest['$']['android:versionName'];
+          if (versionCode && versionName) {
+            manifestSetProperly = true;
+          }
         }
+      } catch (e) {
+        print(toolbox, e, 'error');
+        return true;
       }
       if (!manifestSetProperly) {
         await inputExtension('userInput', Translator.translate('checker.androidManifest.setKeys'));

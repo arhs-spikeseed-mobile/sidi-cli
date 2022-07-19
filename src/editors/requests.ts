@@ -7,7 +7,6 @@ import { arrayNotEmpty } from '../utils/Helpers';
 import { purposeStepsToWorkflow } from '../utils/PurposeStep';
 import { INITIAL_CONFIG_PATH } from '../Constants';
 
-
 export async function requestWorkflowNameAndSteps(
   toolbox: GluegunToolbox,
   sidiConfig: SidiConfig

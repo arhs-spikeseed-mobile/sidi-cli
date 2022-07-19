@@ -43,7 +43,7 @@ export class CodeMagicYaml {
 
       this.workflows[workflowName] = {};
       this.workflows[workflowName].name = workflowName;
-      this.workflows[workflowName].max_build_duration = workflowSetByUser.maxDurationTime ?? 120;
+      this.workflows[workflowName].max_build_duration = workflowSetByUser.maxDurationTime || 120;
       this.workflows[workflowName].artifacts = [
         '$CM_EXPORT_DIR/*',
         '$CM_EXPORT_DIR/*.txt',

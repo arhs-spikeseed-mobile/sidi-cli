@@ -137,7 +137,7 @@ export class WorkflowConfig {
   }
 
   setBuildDurationTime(duration: string) {
-    this.maxDurationTime = parseInt(duration)
+    this.maxDurationTime = parseInt(duration);
   }
 
   /**
@@ -323,5 +323,6 @@ export class WorkflowConfig {
    */
   cleanSteps() {
     this.stepsNames = [];
+    this.codemagicPublishingSteps = [];
   }
 }

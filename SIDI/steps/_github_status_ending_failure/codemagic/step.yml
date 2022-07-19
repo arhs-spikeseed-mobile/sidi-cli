@@ -1,0 +1,8 @@
+name: "[PRE] - GitHub status - Failure job"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+  
+  if [[ $BUILD_STATUS != "success" ]]; then
+    SEND_SUCCESS_STATUS=$(curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token $GITHUB_TOKEN" "$REPOSITORY_URL/statuses/$CM_COMMIT" --data "{\"state\": \"failure\",\"target_url\": \"https://codemagic.io/app/$CM_PROJECT_ID/build/$CM_BUILD_ID\",\"description\": \"ci/codemagic/$WORKFLOW\"}")
+  fi

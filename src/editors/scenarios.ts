@@ -4,7 +4,6 @@ import { WorkflowConfig } from '../main/WorkflowConfig';
 import Translator from '../translations/Translator';
 import { arrayNotEmpty } from '../utils/Helpers';
 
-
 export async function duplicateScenario(
   toolbox: GluegunToolbox,
   sidiConfig: SidiConfig,
@@ -25,7 +24,11 @@ export async function duplicateScenario(
   return sidiConfig;
 }
 
-export function deleteScenario(toolbox: GluegunToolbox, sidiConfig: SidiConfig, selectedWorkflowName: string): SidiConfig {
+export function deleteScenario(
+  toolbox: GluegunToolbox,
+  sidiConfig: SidiConfig,
+  selectedWorkflowName: string
+): SidiConfig {
   sidiConfig.deleteWorkflow(selectedWorkflowName);
   return sidiConfig;
 }

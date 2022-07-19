@@ -4,7 +4,6 @@ import Translator from '../translations/Translator';
 import { changeCICDScenario, deleteScenario, duplicateScenario, editScenario } from './scenarios';
 import { requestWorkflow } from '../main/PrepareWorkflows';
 
-
 export async function userEditWorkflow(toolbox: GluegunToolbox, sidiConfig: SidiConfig): Promise<SidiConfig> {
   const { selectExtension } = toolbox;
 

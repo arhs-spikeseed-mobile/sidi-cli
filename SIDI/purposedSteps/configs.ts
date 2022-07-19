@@ -10,8 +10,18 @@ export const commonConfig: IConditionalStep[] = [
     stepsNames: ['_git_send_tag'],
   },
   {
-    conditions: [{ key: 'updateGitStatus', expectedValues: ['true'], choices: ['true', 'false'] }],
-    stepsNames: ['_git_status_beginning', '_git_status_ending', '_git_status_ending_failure'],
+    conditions: [
+      { key: 'repositoryManager', expectedValues: ['gitlab'], choices: ['gitlab', 'github', 'other'] },
+      { key: 'updateGitStatus', expectedValues: ['true'], choices: ['true', 'false'] },
+    ],
+    stepsNames: ['_gitlab_status_beginning', '_gitlab_status_ending', '_gitlab_status_ending_failure'],
+  },
+  {
+    conditions: [
+      { key: 'repositoryManager', expectedValues: ['github'], choices: ['gitlab', 'github', 'other'] },
+      { key: 'updateGitStatus', expectedValues: ['true'], choices: ['true', 'false'] },
+    ],
+    stepsNames: ['_github_status_beginning', '_github_status_ending', '_github_status_ending_failure'],
   },
   {
     conditions: [{ key: '_send_slack_message', expectedValues: ['true'], choices: ['true', 'false'] }],

@@ -1,6 +1,6 @@
 {
   "name": "sidi-cli",
-  "version": "3.0.0-beta10",
+  "version": "3.0.0-beta11",
   "description": "SIDI is a human friendly tool to create the yaml to test, build, and deploy any mobile project via the chosen CICD.",
   "homepage": "https://github.com/odemolliens/sidi-cli",
   "author": "Imran Mentese <imran.mentese@gmail.com>",

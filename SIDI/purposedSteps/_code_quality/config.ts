@@ -30,9 +30,10 @@ const config: IConfig = {
     '_audit_conditional_fail',
     '_send_slack_message',
     '_send_teams_message',
-    '_git_status_ending',
+    '_gitlab_status_ending',
+    '_github_status_ending',
   ],
-  publishingSteps: ['_git_status_ending_failure'],
+  publishingSteps: ['_gitlab_status_ending_failure', '_github_status_ending_failure'],
 };
 
 export default config;

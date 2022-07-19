@@ -1,9 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { dirname } = require('path');
 
-const storeMode = require('fs').existsSync(`${__dirname}/../../build`)
-const path = storeMode ? '/build' : ''
-const type = storeMode ? '.js' : '.ts'
+const storeMode = require('fs').existsSync(`${__dirname}/../../build`);
+const path = storeMode ? '/build' : '';
+const type = storeMode ? '.js' : '.ts';
 
 export const INITIAL_CONFIG_PATH = `${dirname(require.main.path)}${path}/SIDI/initial`;
 export const PURPOSED_STEPS_PATH = `${dirname(require.main.path)}${path}/SIDI/purposedSteps`;
