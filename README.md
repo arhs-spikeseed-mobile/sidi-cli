@@ -30,7 +30,8 @@ Each CI/CD purposes us a different way to create a workflow where we'll be able 
 - Update your YAML to benefit from the latest updates/fix
 - Switch between **Codemagic** and **Bitrise** easily
 
-### How it works?
+---
+## How it works?
 
 **SIDI** will ask:
 - Some information related to the project
@@ -50,22 +51,24 @@ At the end, **SIDI** will generate two file:
     - You have to set values for each keys required to do the build successfully
     - You can refer to [steps](./docs/purposedSteps.md) file to know what expected, if it's an optionnal key or not..
 
-### Features
+---
+## Features
 
-#### Supported CI/CD
+### Supported CI/CD
 | CI/CD                             | Supported          |
 |----------------------------------|--------------------|
 | Bitrise                          | :white_check_mark: |
 | CodeMagic                        | :white_check_mark: |
 
-#### Supported project types
+### Supported project types
 | Project type   | Supported          |
 |----------------|--------------------|
 | React Native   | :white_check_mark: |
 | Native iOS     | :white_check_mark: |
 | Native Android | :white_check_mark: |
 
-### Installation
+---
+## Installation
 
 ```bash
 yarn global add sidi-cli
@@ -75,6 +78,7 @@ OR
 npm install -g sidi-cli
 ```
 
+---
 ## Commands Overview
 
 Some commands are made available by SIDI to meet your needs.
