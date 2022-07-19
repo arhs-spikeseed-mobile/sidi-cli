@@ -99,13 +99,13 @@ List of purposed steps available with **SIDI** can be found [there](./docs/purpo
 
 #### How can we add iOS certificates to be able to archive and export a build?
 
-[Explanation](./docs/iosCertificates.md)
+[Explanations](./docs/iosCertificates.md)
 
 #### How can we set an Android keystore to a workflow?
 
-[Explanation](./docs/androidSigning.md)
+[Explanations](./docs/androidSigning.md)
 
 
 #### How can we customize the push event triggered for each workflow?
 
-[buildTriggers](./docs/buildTriggers.md)
+[Explanations](./docs/buildTriggers.md)
