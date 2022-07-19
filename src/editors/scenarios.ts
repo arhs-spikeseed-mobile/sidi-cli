@@ -107,18 +107,21 @@ export async function editScenario(
   } else if (userStepChoice.key === 'editPushTrigger') {
     // CONFIG PUSH EVENT BRANCH
     const pattern = await inputExtension(
+      'pushTriggerPattern',
       Translator.translate('edit.step.pushTriggerPattern', { workflowName: selectedWorkflowName })
     );
     sidiConfig._workflowConfigs[selectedWorkflowName].setCustomTriggerPattern(pattern);
   } else if (userStepChoice.key === 'editAndroidSigning') {
     // EDIT ANDROID SIGNING
     const referenceName = await inputExtension(
+      'referenceName',
       Translator.translate('edit.step.androidSigningName', { workflowName: selectedWorkflowName })
     );
     sidiConfig._workflowConfigs[selectedWorkflowName].setAndroidSigningKeystoreRef(referenceName);
   } else if (userStepChoice.key === 'editMaxDuration') {
     // EDIT MAX DURATION TIME
     const maxDuration = await inputExtension(
+      'maxDuration',
       Translator.translate('edit.step.maxDuration', { workflowName: selectedWorkflowName })
     );
     sidiConfig._workflowConfigs[selectedWorkflowName].setBuildDurationTime(maxDuration);

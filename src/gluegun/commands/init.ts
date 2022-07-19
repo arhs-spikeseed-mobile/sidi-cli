@@ -53,10 +53,6 @@ module.exports = {
     if (sidiConfig.cicd === 'bitrise') {
       sidiConfig.setStackToUse(await requestStack(toolbox, sidiConfig.cicd));
     }
-    sidiConfig.updateGitStatus = await selectExtension(Translator.translate('sidiConfig.updateGitStatus'), [
-      'true',
-      'false',
-    ]);
 
     sidiConfig.hasVersionedBranches = await selectExtension(Translator.translate('sidiConfig.hasVersionedBranches'), [
       'true',

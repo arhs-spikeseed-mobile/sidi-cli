@@ -23,7 +23,8 @@ export default async function jest(toolbox: GluegunToolbox): Promise<boolean> {
       // check if jest set properly in package.json
       jestSetProperly = !!(
         packageJsonParsed.jest &&
-        (packageJsonParsed.dependencies?.jest || packageJsonParsed.devDependencies?.jest)
+        ((packageJsonParsed.dependencies != undefined && packageJsonParsed.dependencies.jest) ||
+          (packageJsonParsed.devDependencies != undefined && packageJsonParsed.devDependencies.jest))
       );
       if (!jestSetProperly) {
         await inputExtension('userInput', Translator.translate('checker.jest.setKeys'));

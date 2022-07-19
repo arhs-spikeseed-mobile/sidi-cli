@@ -19,9 +19,9 @@ export default async function androidManifest(toolbox: GluegunToolbox): Promise<
       let manifestFileParsed;
       try {
         manifestFileParsed = await xml2js.parseStringPromise(manifestFile);
-        if (manifestFileParsed?.manifest && manifestFileParsed?.manifest['$']) {
-          const versionCode = manifestFileParsed?.manifest['$']['android:versionCode'];
-          const versionName = manifestFileParsed?.manifest['$']['android:versionName'];
+        if (manifestFileParsed && manifestFileParsed.manifest && manifestFileParsed.manifest['$']) {
+          const versionCode = manifestFileParsed.manifest['$']['android:versionCode'];
+          const versionName = manifestFileParsed.manifest['$']['android:versionName'];
           if (versionCode && versionName) {
             manifestSetProperly = true;
           }

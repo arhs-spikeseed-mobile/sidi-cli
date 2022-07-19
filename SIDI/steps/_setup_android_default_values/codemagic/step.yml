@@ -39,5 +39,7 @@ script: |
   fi
   echo "ANDROID_LINT_CMD: $ANDROID_LINT_CMD"
 
-  echo "Set Android SDK location"
-  echo "sdk.dir=$ANDROID_SDK_ROOT" > "$FCI_BUILD_DIR/android/local.properties"
+  if test -f "$FCI_BUILD_DIR/android/local.properties"; then
+    echo "Set Android SDK location"
+    echo "sdk.dir=$ANDROID_SDK_ROOT" > "$FCI_BUILD_DIR/android/local.properties"
+  fi
