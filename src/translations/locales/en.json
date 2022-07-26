@@ -67,6 +67,7 @@
         "searchConfig": "Sidi is searching your config file created during init command..",
         "configuring": "Configuring {{workflowName}}...",
         "newCustomStep": "Do you want add a custom step to {{workflowName}}",
+        "repositoryManager": "Which repository hosting manager tool are you using?",
         "newPublishingCustomStep": "Do you want add a custom step to {{workflowName}}'s publishing section?",
         "defaultValue": "// Default value:"
     },
