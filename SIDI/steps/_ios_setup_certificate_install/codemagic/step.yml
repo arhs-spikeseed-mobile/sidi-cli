@@ -15,6 +15,7 @@ script: |
      echo "PASSWORD in key name, not need to install it"
      continue
    fi
+   echo "Installing cetificate... $cert"
 
    CERT_PATH="$(mktemp "$CERTS_HOME"/ios_$(uuidgen).p12)"
    echo ${!cert} | base64 --decode > "$CERT_PATH"
@@ -30,7 +31,7 @@ script: |
      keychain add-certificates --certificate "$CERT_PATH" --certificate-password ${!CERT_PSW}
    fi
 
-   echo "Saved certificate $CERT_PATH"
+   echo "Saved certificate $cert"
  done
 
 
@@ -39,6 +40,7 @@ script: |
  PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
  mkdir -p "$PROFILES_HOME"
  for profile in "${!CM_PROVISIONING_PROFILE_@}"; do
+   echo "Installing profile... $profile"
    PROFILE_PATH="$(mktemp "$PROFILES_HOME"/ios_$(uuidgen).mobileprovision)"
    echo ${!profile} | base64 --decode > "$PROFILE_PATH"
    echo "Saved provisioning profile $PROFILE_PATH"
