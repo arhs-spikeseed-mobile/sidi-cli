@@ -5,26 +5,11 @@ script: |
   
   echo "GIT_BRANCH: $GIT_BRANCH"
   
-  if [[ ${GIT_BRANCH} =~ ^(prodlike|master|uat|develop|lut)\/([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-      echo "Develop/uat/prodlike/lut/master branch mode"
+
+  if [[ ${GIT_BRANCH} =~ ^[A-Za-z]+\/([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+      echo "xxx/X.Y.Z branch mode"
       # get version from branch
-      BRANCH_TYPE="${BASH_REMATCH[1]}"
-      APP_VERSION="${BASH_REMATCH[2]}"
-      INCREMENT_VERSION="1"
-  
-      if [ "$APP_VERSION" == "" ]
-      then
-          APP_VERSION="0.0.0"
-      fi
-  
-      echo "BRANCH_TYPE=$BRANCH_TYPE" >> $CM_ENV
-      echo "APP_VERSION=$APP_VERSION" >> $CM_ENV
-      echo "INCREMENT_VERSION=$INCREMENT_VERSION" >> $CM_ENV
-  elif [[ ${GIT_BRANCH} =~ ^(fix|feat|feature)\/([0-9]+\.[0-9]+\.[0-9]+)\/[A-Za-z]+-[0-9]+\/.+$ ]]; then
-      echo "Feat/fix branch mode"
-      # get version from branch
-      BRANCH_TYPE="${BASH_REMATCH[1]}"
-      APP_VERSION="${BASH_REMATCH[2]}"
+      APP_VERSION="${BASH_REMATCH[1]}"
       INCREMENT_VERSION="1"
   
       if [ "$APP_VERSION" == "" ]
@@ -36,10 +21,8 @@ script: |
       echo "APP_VERSION=$APP_VERSION" >> $CM_ENV
       echo "INCREMENT_VERSION=$INCREMENT_VERSION" >> $CM_ENV
   else
-      echo "Other branch mode"
-      BRANCH_TYPE="${BRANCH_TYPE}"
+      echo "Other branch mode, branch has to respect this format: xxx/X.Y.Z\n Where X.Y.Z correspond to your version"
       APP_VERSION="0.0.0"
   
-      echo "BRANCH_TYPE=$BRANCH_TYPE" >> $CM_ENV
       echo "APP_VERSION=$APP_VERSION" >> $CM_ENV
   fi
