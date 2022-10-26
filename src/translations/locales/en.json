@@ -173,7 +173,7 @@
         "npmPackageUrl": "https://registry.npmjs.org/-/package/sidi-cli/dist-tags",
         "updateAvailable": "Update available {{currentVersion}} -> {{latestVersion}}",
         "changelog": "Changelog: https://github.com/odemolliens/react-native-netwatch/releases/tag/{{latestVersion}}",
-        "command": "Run **yarn add -g sidi-cli** to update!"
+        "command": "Run **yarn global upgrade sidi-cli** to update!"
     },
     "end": {
         "title": "END",
