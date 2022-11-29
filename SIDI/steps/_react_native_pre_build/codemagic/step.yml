@@ -31,4 +31,3 @@ script: |
   nvm install ${NODE_VERSION}
   
   echo "PATH=$PATH" >> $CM_ENV
-  fi
