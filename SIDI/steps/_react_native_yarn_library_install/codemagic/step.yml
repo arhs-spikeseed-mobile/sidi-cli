@@ -1,0 +1,8 @@
+name: "[REACT-NATIVE] - Yarn install for sample app"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  cd "$SAMPLE_APP_PATH"
+  yarn install
+  cd ..

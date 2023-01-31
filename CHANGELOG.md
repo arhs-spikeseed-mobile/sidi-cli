@@ -1,5 +1,13 @@
 # Changelog (Current version: 3.0.5)
 
+## Unreleased
+
+Features
+- support react-native library to check library's code and build application for the sample application
+
+Fixes
+- Fix: Installing provising profile for the project based on IOS_PROJECT_ROOT key
+
 ### Version 3.0.5
 
 Features

@@ -29,6 +29,7 @@ export class SidiConfig {
   projectType: 'ios' | 'android' | 'react-native';
   appOrLib: 'app' | 'library';
   cicd: 'bitrise' | 'codemagic';
+  libOrApp: 'library' | 'application';
   hasVersionedBranches: 'true' | 'false';
   updateGitStatus: 'true' | 'false';
   iosExecutableType: 'xcworkspace' | 'xcodeproj';

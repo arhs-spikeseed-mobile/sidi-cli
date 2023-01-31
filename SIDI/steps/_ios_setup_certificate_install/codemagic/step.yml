@@ -46,4 +46,4 @@ script: |
 
  # Set up code signing settings on Xcode project
  printf "\nSet up code signing settings on Xcode project\n"
- xcode-project use-profiles --archive-method "$IOS_EXPORT_METHOD" --project="ios/$IOS_PROJECT_FILE_NAME.xcodeproj" --warn-only
+ xcode-project use-profiles --archive-method "$IOS_EXPORT_METHOD" --project="$IOS_PROJECT_ROOT/$IOS_PROJECT_FILE_NAME.xcodeproj" --warn-only

@@ -71,6 +71,15 @@ export const rnConfig: IConditionalStep[] = [
   {
     conditions: [
       { key: 'projectType', expectedValues: ['react-native'] },
+      { key: 'libOrApp', expectedValues: ['library'] },
+      { key: 'yarnOrNpm', expectedValues: ['yarn'], choices: ['yarn', 'npm'] },
+      { key: '_react_native_yarn_install', expectedValues: ['true'], choices: ['true', 'false'] },
+    ],
+    stepsNames: ['_react_native_yarn_library_install'],
+  },
+  {
+    conditions: [
+      { key: 'projectType', expectedValues: ['react-native'] },
       { key: 'yarnOrNpm', expectedValues: ['yarn'], choices: ['yarn', 'npm'] },
       { key: '_react_native_lint', expectedValues: ['true'], choices: ['true', 'false'] },
     ],
@@ -107,6 +116,15 @@ export const rnConfig: IConditionalStep[] = [
       { key: '_react_native_npm_install', expectedValues: ['true'], choices: ['true', 'false'] },
     ],
     stepsNames: ['_react_native_npm_install'],
+  },
+  {
+    conditions: [
+      { key: 'projectType', expectedValues: ['react-native'] },
+      { key: 'yarnOrNpm', expectedValues: ['npm'], choices: ['yarn', 'npm'] },
+      { key: 'libOrApp', expectedValues: ['library'] },
+      { key: '_react_native_npm_install', expectedValues: ['true'], choices: ['true', 'false'] },
+    ],
+    stepsNames: ['_react_native_npm_library_install'],
   },
   {
     conditions: [

@@ -18,6 +18,8 @@ const config: IConfig = {
     '_react_native_npm_tsc',
     '_react_native_npm_prettier',
     '_react_native_npm_jest',
+    '_react_native_npm_library_install',
+    '_react_native_yarn_library_install',
     '_ios_setup_file_type',
     '_ios_setup_build_number',
     '_ios_setup_certificate_install',
