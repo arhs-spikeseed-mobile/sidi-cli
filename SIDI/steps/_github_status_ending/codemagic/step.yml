@@ -3,7 +3,7 @@ script: |
   #!/usr/bin/env bash
   set -ex
 
-  SEND_SUCCESS_STATUS=$(curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: token $GITHUB_TOKEN" "$REPOSITORY_URL/statuses/$CM_COMMIT" --data "{\"state\": \"success\",\"target_url\": \"https://codemagic.io/app/$CM_PROJECT_ID/build/$CM_BUILD_ID\",\"description\": \"ci/codemagic/$WORKFLOW\"}")
+  SEND_SUCCESS_STATUS=$(curl -X POST -H "Accept: application/vnd.github+json" -H "Authorization: Bearer $GITHUB_TOKEN" "$REPOSITORY_URL/statuses/$CM_COMMIT" --data "{\"state\": \"success\",\"target_url\": \"https://codemagic.io/app/$CM_PROJECT_ID/build/$CM_BUILD_ID\",\"description\": \"ci/codemagic/$WORKFLOW\"}")
   echo "SEND_SUCCESS_STATUS: $SEND_SUCCESS_STATUS"
 
   BUILD_STATUS="success"
