@@ -1,81 +1,88 @@
 
-### Git Workflow
+# 🌱 Versioned Branches & Git Workflow
 
-To ensure consistency at the Git level, a strategy has been defined concerning branch naming conventions, workflows, and versioning. This approach is inspired by the [GitFlow Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).
-
----
-
-#### **Main Branches**
-
-The primary branches in the repository are:
-
-- **`develop`**: Used for development purposes, testing new features, and ongoing work.
-- **`test`**: Used by the QA team to validate new features, check for regressions, and ensure that all changes meet expectations.
-- **`master`**: The production branch, representing the stable and released version.
-
-> **Note:** These branches are protected, and direct commits are not allowed.
+A consistent Git workflow ensures efficient collaboration and seamless CI/CD integration. This document outlines a strategy inspired by [Gitflow Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).
 
 ---
 
-#### **Branch Versioning**
+## 🌟 Main Branches
 
-Each branch is versioned to easily identify ongoing and completed versions while seamlessly integrating with the CI/CD pipeline. For example:
+The following main branches form the backbone of the Git workflow:
+
+- **`develop`**: For the development environment; used to test new features during active development.
+- **`test`**: For the QA team; ensures no regressions and verifies that new features meet expectations.
+- **`master`**: Represents the production environment.
+
+⚠️ **Important:** These branches must be protected to prevent direct commits. Use pull requests for changes.
+
+---
+
+## 🏷️ Branch Versioning
+
+To ensure clarity and maintainability, each branch is versioned. This approach helps identify and modify specific versions while integrating seamlessly with CI/CD pipelines.
+
+### 📚 Example Branch Versions:
 
 - `develop/1.0.0`
 - `test/1.0.0`
 - `master/1.0.0`
+- Upcoming versions: `develop/2.0.0`
 
-For upcoming releases, ongoing work might look like:
-
-- `develop/2.0.0`
-
-> **Semantic Versioning**: Branch versions follow the format `X.Y.Z`, where:
-> - `X`: Major version
-> - `Y`: Minor version
-> - `Z`: Patch version
+### 🔢 Semantic Versioning:
+We follow the `X.Y.Z` convention:
+- `X`: Major version
+- `Y`: Minor version
+- `Z`: Patch version
 
 ---
 
-#### **Feature and Fix Branch Naming Convention**
+## 🛠️ Feature & Fix Branch Naming Convention
 
-A standardized naming convention is used for feature and fix branches to enhance traceability. The format is:
+To streamline tracking, branch names adhere to the following convention:
 
 ```
 [typeOfTask]/[version]/[jiraTaskID]/[description]
 ```
 
-- **`typeOfTask`**: Type of task, e.g., `feat` (feature) or `fix` (bug fix).
-- **`version`**: Application version affected by the branch.
-- **`jiraTaskID`**: The corresponding Jira task ID.
-- **`description`**: A brief description of the task.
+### Components:
+- **typeOfTask**: Use `feat` for features or `fix` for bug fixes.
+- **version**: The application version related to the branch.
+- **jiraTaskID**: The associated Jira task ID.
+- **description**: A brief task description.
 
-**Example**:
-```
-feat/7.0.0/TEAM-13/add-new-feature
-```
-
----
-
-#### **Features**
-
-All new features should be developed in dedicated branches. Developers must create these branches from the appropriate `develop` version branch.
-
-**Example**:  
-For a new feature targeting release `8.0.0`, create the branch from `develop/8.0.0`.
-
-To merge feature branches into `develop`, a pull request must be created and reviewed.
+### ✏️ Example:
+`feat/7.0.0/TEAM-13/add-new-feature`
 
 ---
 
-#### **Fixes**
+## 🚀 Feature Workflow
 
-Bug fixes follow a similar process to features:
+Each feature is developed on its own branch:
 
-- For a **hotfix** on version `7.0.0` in `master`, create the branch from `develop/7.0.0`.  
-  > This ensures that new features targeting `8.0.0` (on `develop/8.0.0`) remain unaffected.
-
-- Once the fix is completed, update the version (e.g., `develop/7.0.1`), merge the branch, and repeat the process for `test` and `master`.
+1. Create the feature branch from the corresponding `develop` version branch.
+2. For example, for a feature in the upcoming `8.0.0` release:
+   - Branch from `develop/8.0.0`.
+3. Submit a pull request to merge the branch into `develop`.
 
 ---
 
-This workflow provides clear versioning, maintains consistency across branches, and simplifies tracking work in progress.
+## 🔧 Fix Workflow
+
+Fixes follow a similar workflow:
+
+1. Create a branch for the fix.
+2. Example: For a hotfix in `master/7.0.0`:
+   - Investigate and create a branch from `develop/7.0.0`.
+3. Complete the fix and create a branch for the new version:
+   - E.g., `develop/7.0.1`.
+4. Merge the fix branch and follow the same process for `test` and `master`.
+
+---
+
+## 🔍 Key Benefits
+
+- Easily distinguish between versions in progress.
+- Simplified tracking and modification of specific versions.
+- Clear segregation of features and fixes for better code management.
+
+By adopting this workflow, teams can ensure consistency and maintainability across all versions in development and production.
