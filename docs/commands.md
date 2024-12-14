@@ -1,92 +1,92 @@
-# Commands
 
-* [Help](#help)
-* [Init](#init)
-* [Update](#update)
-* [Edit](#edit)
-* [Change language](#change-language)
+# 📜 Commands
 
-## Help
+## 📖 Help
 
-Will print the list of commands available with small description
+🔍 Displays a list of available commands with brief descriptions.
 
-### Command
+### 💻 Command
 
 ```bash
 sidi-cli h
 ```
 
-## Init
+---
 
-**First command** todo to use SIDI.
+## 🚀 Init
 
-This command will ask to the user some informations about the project and workflows
+**The first command** to execute when setting up SIDI.
 
-⚠️ This step generates a file (`./.sidi/sidiConfig.json`)
+✨ This command collects project and workflow information.
 
-⚠️ Do not update it manually, `Update` and `Edit` features needs it to work as expected
+⚠️ This step generates a file: `./.sidi/sidiConfig.json`.
 
+⚠️ Do not update this file manually! Use `Update` and `Edit` to ensure proper functionality.
 
-### Command
+### 💻 Command
 
 ```bash
 sidi-cli i
 ```
 
+---
 
-## Update
+## 🔄 Update
 
-Based on the config file created during `Init` step.
+Updates the YAML configuration file based on the config file created during the `Init` step.
 
-`Update` command will update your YAML file to benefit from the latest features/fixes.
+💡 Use this to benefit from the latest features and fixes.
 
+⚠️ Requires the `Init` step to be completed beforehand.
 
-⚠️ It can be used only if you already launched `Init` before.
+⚠️ Relies on the `.sidi/sidiConfig.json` file for updates.
 
-⚠️ This step is looking in `.sidi/sidiConfig.json` file created during init step and updated when you launch this step.
-
-### Command
+### 💻 Command
 
 ```bash
 sidi-cli u
 ```
 
-## Edit
+---
 
-Based on the config file created during `Init` step
-`Edit` command will purpose to edit YAML file's content.
+## ✏️ Edit
 
-This command allow:
-- Add a new workflow
-- Delete an existing workflow
-- Duplicate an existing workflow
-- Edit an existing workflow
-    - Add a new step
-    - Delete a step
-    - Delete a custom Step
-    - Edit push event triggerer (CodeMagic only)
-    - Set Android signing key (CodeMagic only)
-    - Edit max build duration (CodeMagic only) (default 120 min)
-- Change the CI/CD (CodeMagic <==> Bitrise)
+Edits the YAML configuration file based on the config file created during the `Init` step.
 
-Based on your input, it will regenerate/update your YAML file.
+🔧 Allows the following:
+- ➕ Add a new workflow
+- 🗑️ Delete an existing workflow
+- 📋 Duplicate an existing workflow
+- ✍️ Edit an existing workflow:
+  - ➕ Add a new step
+  - 🗑️ Delete a step
+  - 🗑️ Remove a custom step
+  - 🔄 Edit push event triggers (Codemagic only)
+  - 🔑 Set Android signing key (Codemagic only)
+  - ⏳ Edit max build duration (default: 120 min, Codemagic only)
+  - 🔀 Switch CI/CD provider (Codemagic ↔ Bitrise)
 
-⚠️ It can be used only if you already launched `Init` before.
+💡 Updates and regenerates your YAML file based on your input.
 
-⚠️ This step is looking in `.sidi/sidiConfig.json` file created during init step and updated when you launch this step.
+⚠️ Requires the `Init` step to be completed beforehand.
 
-### Command
+⚠️ Relies on the `.sidi/sidiConfig.json` file for edits.
+
+### 💻 Command
 
 ```bash
 sidi-cli e
 ```
 
-## Change language
+---
 
-To change cli's language
-Supported languages: English, French
+## 🌍 Change Language
 
-### Command
+Changes the CLI's language.
+
+🌐 Supported languages: **English**, **French**.
+
+### 💻 Command
 
 ```bash
 sidi-cli l
