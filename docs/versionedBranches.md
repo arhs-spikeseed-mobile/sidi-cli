@@ -1,88 +1,98 @@
+# 🌱 **Versioned Branching Strategy**
 
-# 🌱 Versioned Branches & Git Workflow
-
-A consistent Git workflow ensures efficient collaboration and seamless CI/CD integration. This document outlines a strategy inspired by [Gitflow Workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).
-
----
-
-## 🌟 Main Branches
-
-The following main branches form the backbone of the Git workflow:
-
-- **`develop`**: For the development environment; used to test new features during active development.
-- **`test`**: For the QA team; ensures no regressions and verifies that new features meet expectations.
-- **`master`**: Represents the production environment.
-
-⚠️ **Important:** These branches must be protected to prevent direct commits. Use pull requests for changes.
+A consistent branching strategy is key for collaborative development, version control, and seamless CI/CD pipelines. This document explains a **versioned Git branching workflow** supported by images for clarity.
 
 ---
 
-## 🏷️ Branch Versioning
+## 🌟 **Main Branches**
 
-To ensure clarity and maintainability, each branch is versioned. This approach helps identify and modify specific versions while integrating seamlessly with CI/CD pipelines.
+The workflow relies on five key branches:
 
-### 📚 Example Branch Versions:
-
-- `develop/1.0.0`
-- `test/1.0.0`
-- `master/1.0.0`
-- Upcoming versions: `develop/2.0.0`
-
-### 🔢 Semantic Versioning:
-We follow the `X.Y.Z` convention:
-- `X`: Major version
-- `Y`: Minor version
-- `Z`: Patch version
+1. **feature/x.x.x** – For feature development.
+2. **develop/x.x.x** – Main development branch for integration.
+3. **uat/x.x.x** – For User Acceptance Testing (UAT).
+4. **prodlike/x.x.x** – Pre-production (PRODLIKE) environment for validation.
+5. **master/x.x.x** – The production branch.
 
 ---
 
-## 🛠️ Feature & Fix Branch Naming Convention
+## 🏷️ **Branch Versioning**
 
-To streamline tracking, branch names adhere to the following convention:
+Branch versioning follows **semantic versioning** (`x.y.z`):
+- `x` = Major version (breaking changes)
+- `y` = Minor version (new features)
+- `z` = Patch (bug fixes)
+
+---
+
+## 🚀 **Workflow with Images**
+
+### 1️⃣ **Feature Development**  
+
+- All features are developed in **feature branches**.
+- A `feature/x.x.x` branch is created from `develop/x.x.x` to isolate changes.  
+- Once tested, the branch is merged back to `develop`.
+
+![Feature Development Workflow](../assets/branching_strategy_merge_feat_fix.png)
+
+---
+
+### 2️⃣ **Multi-Version Support**  
+
+In multi-version scenarios:  
+- Features and fixes are applied to specific versions.
+- Cherry-picking ensures that hotfixes and features propagate to the right branches.
+
+![Multi-Version Workflow](../assets/branching_strategy_merge%20feat_fix_multi_version.png)
+
+---
+
+### 3️⃣ **New Application Versions**  
+
+When creating new versions:  
+1. A new `develop/x.y.z` branch is started.  
+2. Updates flow from `develop → uat → prodlike → master`.  
+3. Tags ensure clear milestones.
+
+![New Version Workflow](../assets/branching_strategy_new_app_version.png)
+
+---
+
+## 🛠️ **Branch Naming Conventions**
+
+Branches adhere to the following format:  
 
 ```
-[typeOfTask]/[version]/[jiraTaskID]/[description]
+[type]/[version]/[task-id]/[description]
 ```
 
-### Components:
-- **typeOfTask**: Use `feat` for features or `fix` for bug fixes.
-- **version**: The application version related to the branch.
-- **jiraTaskID**: The associated Jira task ID.
-- **description**: A brief task description.
-
-### ✏️ Example:
-`feat/7.0.0/TEAM-13/add-new-feature`
+### **Examples:**
+- `feat/1.0.1/TEAM-123/implement-login`
+- `fix/1.0.2/BUG-456/resolve-api-error`
 
 ---
 
-## 🚀 Feature Workflow
+## 🔧 **Workflow Steps**
 
-Each feature is developed on its own branch:
+### 1. **Feature Development**  
+   - Develop in `feature/x.x.x`.
+   - Merge into `develop/x.x.x`.
 
-1. Create the feature branch from the corresponding `develop` version branch.
-2. For example, for a feature in the upcoming `8.0.0` release:
-   - Branch from `develop/8.0.0`.
-3. Submit a pull request to merge the branch into `develop`.
+### 2. **UAT Validation**  
+   - From `develop/x.x.x`, create a `uat/x.x.x` branch for testing.
 
----
+### 3. **Pre-Production**  
+   - Merge UAT changes to `prodlike/x.x.x`.
 
-## 🔧 Fix Workflow
-
-Fixes follow a similar workflow:
-
-1. Create a branch for the fix.
-2. Example: For a hotfix in `master/7.0.0`:
-   - Investigate and create a branch from `develop/7.0.0`.
-3. Complete the fix and create a branch for the new version:
-   - E.g., `develop/7.0.1`.
-4. Merge the fix branch and follow the same process for `test` and `master`.
+### 4. **Release to Production**  
+   - Final changes are merged into `master/x.x.x`.
 
 ---
 
-## 🔍 Key Benefits
+## 🔍 **Benefits of this Workflow**
 
-- Easily distinguish between versions in progress.
-- Simplified tracking and modification of specific versions.
-- Clear segregation of features and fixes for better code management.
+- **Clear isolation** of features and fixes.
+- **Multi-version support** for production and upcoming releases.
+- Simplifies tracking, testing, and deploying changes.
 
-By adopting this workflow, teams can ensure consistency and maintainability across all versions in development and production.
+---
