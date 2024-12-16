@@ -18,11 +18,14 @@ script: |
 
     for build_slug in $END_TO_END_BUILD_LIST; do
       # Fetch info about the artifact
-      END_TO_END_RESULTS_S3=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --request GET "https://api.codemagic.io/builds/$build_slug" | jq '.build | .artefacts[] | select(.name == "end_to_end_results.zip") | .url' | sed 's/"//g')
+      END_TO_END_RESULTS_S3=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" \
+        --request GET "https://api.codemagic.io/builds/$build_slug" | \
+        jq '.build | .artefacts[] | select(.name == "end_to_end_results.zip") | .url' | sed 's/"//g')
       echo "ℹ️ Request to download artifacts: $END_TO_END_RESULTS_S3"
 
       if [[ "$END_TO_END_RESULTS_S3" != "" ]]; then
-        curl -L -o ./end-to-end/build/reports/"$build_slug".zip "$END_TO_END_RESULTS_S3" -H "x-auth-token:$CODE_MAGIC_TOKEN"
+        curl -L -o ./end-to-end/build/reports/"$build_slug".zip "$END_TO_END_RESULTS_S3" \
+          -H "x-auth-token:$CODE_MAGIC_TOKEN"
 
         # delete .gitkeep files
         find . -name \*.gitkeep -type f -delete
@@ -33,7 +36,7 @@ script: |
         unzip -q -o "./end-to-end/build/reports/$build_slug.zip"
         rm ./end-to-end/build/reports/"$build_slug".zip
 
-        # Validate JSON files
+        # Define a function to validate JSON files
         validate_json() {
           local file="$1"
           local invalid_dir="./end-to-end/build/reports/wdio-html-nice-reporter-results-invalid"
@@ -49,6 +52,7 @@ script: |
         # Directory containing the JSON files
         JSON_DIR="./end-to-end/build/reports/wdio-html-nice-reporter-results"
 
+        # Check if the directory exists and contains JSON files
         if [[ -d "$JSON_DIR" && $(find "$JSON_DIR" -type f -name '*.json' | wc -l) -gt 0 ]]; then
           echo "ℹ️ Validating JSON files in $JSON_DIR..." 1>&2
           for file in "$JSON_DIR"/*.json; do
@@ -61,6 +65,7 @@ script: |
           ((invalid_builds_count++))
         fi
 
+        # remove empty report files to avoid error
         find ./end-to-end/build/reports/wdio-html-nice-reporter-results -type f -empty -print -delete
       else
         echo "🚨 No artifacts found for build $build_slug; something goes wrong..."
@@ -71,29 +76,40 @@ script: |
     echo "INVALID_JSON_COUNT=$invalid_json_count" >> $CM_ENV
     echo "INVALID_BUILDS_COUNT=$invalid_builds_count" >> $CM_ENV
 
-    res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.config_name == $key) | .config_content' "$END_TO_END_CONFIG_PATH")
+    # Read JSON content from the file
+    res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.config_name == $key) | .config_content' \
+      "$END_TO_END_CONFIG_PATH")
 
+    # Navigate to the end-to-end directory
     echo "ℹ️ Navigating to the end-to-end directory..."
     if ! cd ./end-to-end/; then
       echo "🚨 Failed to navigate to the end-to-end directory."
       exit 1
     fi
 
+    # After validation, proceed with merging results
     echo "ℹ️ Proceeding with merging results..."
+
+    # Extract report_mapping_key values and ensure uniqueness
     mapping_keys=$(echo "$res" | jq -r '.config[]?.report_mapping_key' | sort -u)
 
+    # Add additional keys
     for additional_key in "*ios*" "*android*" "*results*"; do
       mapping_keys="$mapping_keys"$'\n'"$additional_key"
     done
 
+    # Convert mapping_keys into an array by splitting on newlines
     IFS=$'\n' mapping_keys_array=($mapping_keys)
 
+    # Process each key in the array
     for key in "${mapping_keys_array[@]}"; do
       echo "ℹ️ Processing key: $key"
-      
+
+      # Split the key into parts using '?' as the delimiter
       IFS='?' read -ra parts <<< "$key"
 
       for part in "${parts[@]}"; do
+        # Determine the correct base path and folder name
         folder_name="${part#\*}"
         folder_name="${folder_name%\*}"
         case "$part" in
@@ -114,23 +130,39 @@ script: |
             ;;
         esac
 
+        # Start processing
+        echo "ℹ️ Starting the process of merging results..."
+
+        # Create necessary folders
+        echo "ℹ️ Creating directories..."
         mkdir -p "$base_path/$folder_name/" || { echo "🚨 Failed to create base folder."; exit 1; }
         mkdir -p ./build/reports/wdio-html-nice-reporter-results/temp/screenshots/ || { echo "🚨 Failed to create temporary screenshot folder."; exit 1; }
 
+        # Merge results
+        echo "ℹ️ Merging results using lib/scripts/mergeResults.js..."
         if ! node lib/scripts/mergeResults.js ./build/reports/wdio-html-nice-reporter-results/ "$part"; then
           echo "🚨 Failed to merge results. Check lib/scripts/mergeResults.js script."
           exit 1
         fi
 
+        # Move files to the appropriate directories
+        echo "ℹ️ Moving screenshot files..."
         mv ./build/reports/wdio-html-nice-reporter-results/screenshots/* ./build/reports/wdio-html-nice-reporter-results/temp/screenshots/ || { echo "⚠️ Failed to move screenshots."; }
 
+        echo "ℹ️ Moving merged report files..."
         mv ./build/reports/wdio-html-nice-reporter-results/temp/merged-report.html "$base_path/$folder_name/merged-report.html" || exit 1
         mv ./build/reports/wdio-html-nice-reporter-results/temp/merged-report.json "$base_path/$folder_name/merged-report.json" || exit 1
 
+        echo "ℹ️ Generating date-based filenames for reports..."
         current_date=$(date +'%d-%m-%Y')
-        mv "$base_path/$folder_name/merged-report.html" "$base_path/$folder_name/$current_date.html" || exit 1
 
-        rm -rf ./build/reports/wdio-html-nice-reporter-results/temp/ || exit 1
+        mv "$base_path/$folder_name/merged-report.html" "$base_path/$folder_name/$current_date.html" || exit 1
+        mv "$base_path/$folder_name/master-report.pdf" "$base_path/$folder_name/$current_date.pdf" || exit 1
+
+        echo "ℹ️ Cleaning up temporary files..."
+        rm -rf ./build/reports/wdio-html-nice-reporter-results/temp/ || { echo "🚨 Failed to clean up temporary files."; exit 1; }
+
+        echo "ℹ️ Process completed successfully!"
       done
     done
 
@@ -148,7 +180,9 @@ script: |
 
     echo "✅ Console reports generated successfully"
 
+    echo "ℹ️ Zip reports..."
     zip -q -r $CM_EXPORT_DIR/source_end_to_end_results.zip ./build/*
     zip -q -r $CM_EXPORT_DIR/wdio-html-nice-reporter-reports.zip ./build/reports/wdio-html-nice-reporter-reports/*
+
     cd ../
   fi
