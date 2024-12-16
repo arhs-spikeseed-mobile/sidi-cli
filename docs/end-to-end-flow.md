@@ -40,7 +40,7 @@ This document describes the **flow** for an end-to-end process. The workflow ens
 
 ## 📤 4. Summary
 The workflow ensures:
-- ⏱️ Timely triggers.  
+- ⏱️ Timely schedule triggers.  
 - 🛠️ Configuration-based build execution.  
 - 🚦 Safe handling of ongoing processes.  
 - 📦 Collection of artifacts for analysis.
