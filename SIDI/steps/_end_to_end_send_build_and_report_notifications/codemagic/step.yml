@@ -1,0 +1,208 @@
+name: "[END-TO-END] Notifications"
+script: |
+  #!/usr/bin/env bash
+  # fail if any commands fails
+  set -ex
+
+  # Send a message to Slack using a webhook URL
+  sendToSlack() {
+      local webhookUrl="$1"
+      local message="$2"
+
+      echo "🚨🚨🚨🚨🚨 $message"
+
+      # Check if required parameters are provided
+      if [ -z "$webhookUrl" ] || [ -z "$message" ]; then
+          echo "🚨 Error: Both Slack Webhook URL and message are required." 1>&2
+          echo "Usage: sendToSlack <webhook-url> <message>" 1>&2
+          return 1
+      fi
+
+      # Create JSON payload
+      local payload
+      payload=$(jq -n --arg text "$message" '{text: $text}')
+
+      # Send POST request to Slack webhook
+      local response
+      response=$(curl -s -o /dev/null -w "%{http_code}" -H "Content-Type: application/json" \
+          -d "$payload" "$webhookUrl")
+
+      # Check the response status
+      if [ "$response" -eq 200 ]; then
+          echo "✅ Message sent to Slack successfully." 1>&2
+      else
+          echo "🚨 Failed to send message to Slack: HTTP $response." 1>&2
+          return 1
+      fi
+  }
+
+  # Send a message to Microsoft Teams using a webhook URL
+  sendToTeams() {
+      local webhookUrl="$1"
+      local message="$2"
+
+      # Check if required parameters are provided
+      if [ -z "$webhookUrl" ] || [ -z "$message" ]; then
+          echo "🚨 Error: Both Teams Webhook URL and message are required." 1>&2
+          echo "Usage: sendToTeams <webhook-url> <message>" 1>&2
+          return 1
+      fi
+
+      # Create JSON payload
+      local payload
+      payload=$(jq -n --arg text "$message" '{text: $text}')
+
+      # Send POST request to Microsoft Teams webhook
+      local response
+      response=$(curl -s -o /dev/null -w "%{http_code}" -H "Content-Type: application/json" \
+          -d "$payload" "$webhookUrl")
+
+      # Check the response status
+      if [ "$response" -eq 200 ]; then
+          echo "✅ Message sent to Microsoft Teams successfully." 1>&2
+      else
+          echo "🚨 Failed to send message to Microsoft Teams: HTTP $response." 1>&2
+          return 1
+      fi
+  }
+
+  # Send a short report by message to Slack using a webhook URL
+  sendReportToSlack() {
+      local webhook_url=$1
+
+      if [[ -z "$webhook_url" ]]; then
+          echo "🚨 Error: Slack Webhook URL is required." >&2
+          return 1
+      fi
+
+      local base_path="build/reports/wdio-html-nice-reporter-reports"
+      local rows=("| *Team*          | *Suites* | *Tests* | *Passes* | *Failures* | *% Success* |")
+
+      process_folder() {
+          local folder_path=$1
+
+          for dir in "$folder_path"/*; do
+              if [ -d "$dir" ]; then
+                  local dir_name=$(basename "$dir")
+                  [[ "$dir_name" == "teams" ]] && continue
+
+                  local team_name=$(echo "$dir_name" | tr '[:lower:]' '[:upper:]')
+                  local json_file="$dir/merged-report.json"
+
+                  if [[ -f "$json_file" ]]; then
+                      local file_content=$(cat "$json_file")
+                      local suites_count=$(jq '.suites | length' <<< "$file_content" 2>/dev/null || echo 0)
+                      local passed=$(jq '.metrics.passed // 0' <<< "$file_content" 2>/dev/null)
+                      local failed=$(jq '.metrics.failed // 0' <<< "$file_content" 2>/dev/null)
+                      local total_tests=$((passed + failed))
+                      local perc_success="0.00"
+                      if [[ "$total_tests" -gt 0 ]]; then
+                          perc_success=$(awk "BEGIN {printf \"%.2f\", ($passed / $total_tests) * 100}")
+                      fi
+                      rows+=("| $(printf "%-18s" "$team_name") | $(printf "%-6s" "$suites_count") | $(printf "%-5s" "$total_tests") | $(printf "%-6s" "$passed") | $(printf "%-8s" "$failed") | $(printf "%-9s" "$perc_success%") |")
+                  else
+                      rows+=("| $(printf "%-18s" "$team_name") | ❌     | ❌     | ❌     | ❌       | FILE NOT FOUND |")
+                  fi
+              fi
+          done
+      }
+
+      echo "ℹ️ Processing folders..." >&2
+      process_folder "$base_path"
+      process_folder "$base_path/teams"
+
+      join_by() {
+        local IFS="$1"; shift
+        echo "$*"
+      }
+
+      local message=$(join_by $'\n' "${rows[@]}")
+      sendToSlack "$webhook_url" "$message"
+
+      echo "✅ Message sent to Slack successfully."
+  }
+
+  # Send a short report by message to Microsoft Teams using a webhook URL
+  sendReportToTeams() {
+      local webhook_url=$1
+
+      # Constants for HTML structure
+      local base_path="build/reports/wdio-html-nice-reporter-reports"
+      local html_result_temp="$base_path/result_reports_temp.html"
+      local html_result_final="$base_path/result_reports.html"
+      local html_top="<table bordercolor='black' border='2'><thead><tr style='background-color:#f0f0f0;color:#000;text-align:center'><th>Team</th><th>Suites</th><th>Tests</th><th>Passes</th><th>Failures</th><th>% success</th></tr></thead><tbody>"
+      local html_bottom="</tbody></table>"
+
+      # Helper to write to a file
+      write_to_file() {
+          local file_path=$1
+          local content=$2
+          local append=$3
+
+          if [ "$append" = true ]; then
+              echo "$content" >> "$file_path"
+          else
+              echo "$content" > "$file_path"
+          fi
+      }
+
+      # Process a folder and generate HTML rows
+      process_folder() {
+          local folder_path=$1
+          local html_path=$2
+
+          for dir in "$folder_path"/*; do
+              if [ -d "$dir" ]; then
+                  local dir_name=$(basename "$dir")
+                  if [ "$dir_name" = "teams" ]; then
+                      continue
+                  fi
+
+                  local team_name=$(echo "$dir_name" | tr '[:lower:]' '[:upper:]')
+                  local json_file="$dir/merged-report.json"
+
+                  if [ -f "$json_file" ]; then
+                      local file_content=$(cat "$json_file")
+                      local suites_count=$(jq '.suites | length' <<< "$file_content" 2>/dev/null || echo 0)
+                      local passed=$(jq '.metrics.passed // 0' <<< "$file_content" 2>/dev/null)
+                      local failed=$(jq '.metrics.failed // 0' <<< "$file_content" 2>/dev/null)
+                      local total_tests=$((passed + failed))
+                      local perc_success="0.00"
+                      if [[ "$total_tests" -gt 0 ]]; then
+                          perc_success=$(awk "BEGIN {printf \"%.2f\", ($passed / $total_tests) * 100}")
+                      fi
+
+                      local perc_success_emoji="❌ ${perc_success}"
+                      if (( $(echo "$perc_success == 100" | bc -l) )); then
+                          perc_success_emoji="✅ ${perc_success}"
+                      elif (( $(echo "$perc_success >= 70" | bc -l) )); then
+                          perc_success_emoji="⚠️ ${perc_success}"
+                      fi
+
+                      local html_row="<tr><th style='text-align:center'>$team_name</th><td style='text-align:center'>$suites_count</td><td style='text-align:center'>$total_tests</td><td style='text-align:center'>$passed</td><td style='text-align:center'>$failed</td><td style='text-align:center'>$perc_success_emoji%</td></tr>"
+                      write_to_file "$html_path" "$html_row" true
+                  else
+                      local html_row="<tr><th style='text-align:center'>$team_name</th><td style='text-align:center'>❌</td><td style='text-align:center'>❌</td><td style='text-align:center'>❌</td><td style='text-align:center'>❌</td><td style='text-align:center'>FILE NOT FOUND</td></tr>"
+                      write_to_file "$html_path" "$html_row" true
+                  fi
+              fi
+          done
+      }
+
+      # Main workflow
+      write_to_file "$html_result_temp" "$html_top"
+      echo "ℹ️ Processing main folders..." 1>&2
+      process_folder "$base_path" "$html_result_temp"
+      echo "ℹ️ Processing team folders..." 1>&2
+      process_folder "$base_path/teams" "$html_result_temp"
+      write_to_file "$html_result_temp" "$html_bottom" true
+
+      # Create single-line HTML file
+      local html_content=$(tr -d '\n' < "$html_result_temp")
+      write_to_file "$html_result_final" "$html_content"
+
+      echo "✅ HTML report generated successfully at: $html_result_final" 1>&2
+
+      # Send to webhook
+      sendToTeams "$webhook_url" "$html_content"
+  }
