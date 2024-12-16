@@ -7,7 +7,7 @@ script: |
   chmod 777 gradlew
   
   if [[ ${AAB_SPECIFIC_BUILD_VARIANT} != "" ]]; then
-    ./gradlew "bundle$AAB_SPECIFIC_BUILD_VARIANT"
+    ./gradlew "bundle${AAB_SPECIFIC_BUILD_VARIANT}Release" -Dorg.gradle.jvmargs="-Xmx4096m"
   else
-    ./gradlew "bundle$ANDROID_BUILD_VARIANT"
+    ./gradlew "bundle${ANDROID_BUILD_VARIANT}Release" -Dorg.gradle.jvmargs="-Xmx4096m"
   fi
