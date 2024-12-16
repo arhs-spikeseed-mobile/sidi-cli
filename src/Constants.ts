@@ -14,6 +14,7 @@ export const CUSTOM_STEPS_PATH = `./.sidi/customSteps`;
 export const STEP_YAML = 'step.yml';
 export const CONFIG_TS = 'config' + type;
 export const ENCODING_FORMAT = 'utf8';
+export const NPM_IGNORE_FILE = '.npmignore';
 
 export const END_FINAL_YAML = '.yaml';
 export const END_FINAL_SECRET_YAML = '-secret.yaml';

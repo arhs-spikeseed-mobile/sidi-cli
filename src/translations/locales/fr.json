@@ -62,6 +62,7 @@
         "platform": "Quelle plateforme ?",
         "appOrLib": "Est ce une application ou librarie ?",
         "whichCICD": "Quel CICD utilisez vous ?",
+        "libOrApp": "Est ce un projet librairie [BETA] ou une application ?",
         "hasVersionedBranches": "Utilisez vous des branches versionnées dans votre dépôt git ?  [Plus info](https://github.com/imranMnts/sidi-cli/blob/master/docs/versionedBranches.md)",
         "started": "Génération de votre magnifique fichier YAML..",
         "searchConfig": "Sidi est en train de cherche votre fichier de configuration crée durant l'initialisation..",

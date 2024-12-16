@@ -32,6 +32,8 @@ const config: IConfig = {
     '_react_native_npm_tsc',
     '_react_native_npm_prettier',
     '_react_native_npm_jest',
+    '_react_native_yarn_library_install',
+    '_react_native_npm_library_install',
     '_android_set_manifest_version',
     '_android_set_version_code_name',
     '_android_run_lint',

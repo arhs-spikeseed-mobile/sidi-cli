@@ -10,28 +10,24 @@ script: |
 
   echo "PATH=$PATH" >> $CM_ENV
   
-  if [[ $(uname -m) == 'arm64' ]]; then
-    yarn global add node-gyp
-  else
-    # Install NVM
-    PROFILE=$HOME/.profile
-    touch $PROFILE
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | PROFILE=$PROFILE bash
-    source $PROFILE
+  # Install NVM
+  PROFILE=$HOME/.profile
+  touch $PROFILE
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | PROFILE=$PROFILE bash
+  source $PROFILE
   
-    if [ ! -z "${CM_BUILD_DIR}" ] ; then
-      echo "Switching to working directory: ${CM_BUILD_DIR}"
+  if [ ! -z "${CM_BUILD_DIR}" ] ; then
+    echo "Switching to working directory: ${CM_BUILD_DIR}"
   
-      cd "${CM_BUILD_DIR}"
-      if [ $? -ne 0 ] ; then
-        echo "Failed to switch to working directory: ${CM_BUILD_DIR}"
-      fi
+    cd "${CM_BUILD_DIR}"
+    if [ $? -ne 0 ] ; then
+    echo "Failed to switch to working directory: ${CM_BUILD_DIR}"
     fi
-  
-    # Install latest node version by default
-    if [[ -z "$NODE_VERSION" && ! -e "./.nvmrc" ]]; then NODE_VERSION="node"; fi
-  
-    nvm install ${NODE_VERSION}
-  
-    echo "PATH=$PATH" >> $CM_ENV
   fi
+  
+  # Install latest node version by default
+  if [[ -z "$NODE_VERSION" && ! -e "./.nvmrc" ]]; then NODE_VERSION="node"; fi
+  
+  nvm install ${NODE_VERSION}
+  
+  echo "PATH=$PATH" >> $CM_ENV

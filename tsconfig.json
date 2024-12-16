@@ -31,6 +31,7 @@
     "src/translations/locales/*.json",
     "SIDI/*",
     "SIDI/**/*",
+    "SIDI/**/*.json",
     "i18n.config.ts"
   ],
   "exclude": ["node_modules"]

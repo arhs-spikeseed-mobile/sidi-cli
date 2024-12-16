@@ -43,6 +43,8 @@ module.exports = {
       ]);
     }
 
+    sidiConfig.libOrApp = await selectExtension(Translator.translate('sidiConfig.libOrApp'), ['library', 'application']);
+
     sidiConfig.cicd = await selectExtension(Translator.translate('sidiConfig.whichCICD'), ['bitrise', 'codemagic']);
 
     if (!checkCustomSteps(toolbox, sidiConfig.cicd)) {

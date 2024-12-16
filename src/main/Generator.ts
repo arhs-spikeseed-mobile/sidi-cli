@@ -3,7 +3,7 @@ import { GluegunToolbox } from 'gluegun';
 import * as FS from 'fs';
 import { SidiConfig } from '../main/SidiConfig';
 import { BitriseYaml } from '../cicd/BitriseYaml';
-import { ENCODING_FORMAT, END_FINAL_SECRET_YAML, END_FINAL_YAML } from '../Constants';
+import { ENCODING_FORMAT, END_FINAL_SECRET_YAML, END_FINAL_YAML, NPM_IGNORE_FILE } from '../Constants';
 import { print, printSeparator } from '../utils/Printer';
 import Translator from '../translations/Translator';
 import { checkIfProperlyCreated, sidiConfigKeyReplacer, sleep } from '../utils/Helpers';
@@ -33,6 +33,24 @@ export async function Generator(toolbox: GluegunToolbox, sidiConfig: SidiConfig)
       }),
       'success'
     );
+    if (FS.existsSync(NPM_IGNORE_FILE)) {
+      const contents = await FS.readFileSync(NPM_IGNORE_FILE, ENCODING_FORMAT);
+      if (sidiConfig.cicd == 'bitrise') {
+        if (!contents.includes('bitrise.yaml')) {
+          FS.appendFileSync(NPM_IGNORE_FILE, '\nbitrise.yaml', ENCODING_FORMAT);
+        }
+        if (!contents.includes('bitrise-secret.yaml')) {
+          FS.appendFileSync(NPM_IGNORE_FILE, '\nbitrise-secret.yaml', ENCODING_FORMAT);
+        }
+      } else {
+        if (!contents.includes('codemagic.yaml')) {
+          FS.appendFileSync(NPM_IGNORE_FILE, '\ncodemagic.yaml', ENCODING_FORMAT);
+        }
+        if (!contents.includes('codemagic-secret.conf')) {
+          FS.appendFileSync(NPM_IGNORE_FILE, '\ncodemagic-secret.conf', ENCODING_FORMAT);
+        }
+      }
+    }
     print(toolbox, Translator.translate('end.helper'));
   } else {
     print(toolbox, Translator.translate('end.failure'), 'error');

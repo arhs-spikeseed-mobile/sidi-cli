@@ -1,4 +1,4 @@
-# Steps
+# 🚀 Steps
 
 - [setup_app_assets](#setup_app_assets)
 - [react_native_pre_build](#react_native_pre_build)
@@ -47,16 +47,16 @@
 
 Building an Android application in AAB format
 
-Outputs:
+📤 Outputs:
 - apk file
 
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description          | Default value      | Expected value                                 |
+| 🔑 Variable | 📝 Description          | Default value      | Expected value                                 |
 |---------|----------------------|--------------------|------------------------------------------------|
 | TARGET_ANDROID    | Path of the module   |    android/app      |                                                |
 | GRADLEW_PATH    | gradlew path         | android |                                                |
@@ -65,7 +65,7 @@ Outputs:
 | ANDROID_MODULE_NAME    | Module's name                       | :app                |                                                |
 | ENV_ANDROID_APK_FILTER    | One filter per line. The Step will NOT copy the generated apk files that match this filters into the Bitrise deploy directory.<br>You can use this filter to avoid moving unalinged and/or unsigned apk files.<br>If you specify an empty filter, every APK file (selected by `apk_file_include_filter`) will be copied. |  |                                                |
 
-Outputs:
+📤 Outputs:
 - `APP_NAME.apk`: your APK
 - `APP_NAME.aab`: your AAB
 
@@ -73,15 +73,15 @@ Outputs:
 
 Building an Android application in APK format
 
-Outputs:
+📤 Outputs:
 - apk file
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description          | Default value      | Expected value |
+| 🔑 Variable | 📝 Description          | Default value      | Expected value |
 |---------|----------------------|--------------------|----------------|
 | TARGET_ANDROID    | Path of the module   |    android/app      |                |
 | GRADLEW_PATH    | gradlew path         | android |                |
@@ -89,19 +89,19 @@ Outputs:
 | ANDROID_MODULE_NAME    | Module's name                       | :app                |                |
 | ENV_ANDROID_APK_FILTER    | One filter per line. The Step will NOT copy the generated apk files that match this filters into the Bitrise deploy directory.<br>You can use this filter to avoid moving unalinged and/or unsigned apk files.<br>If you specify an empty filter, every APK file (selected by `apk_file_include_filter`) will be copied. |  | *optional key* |
 
-Outputs:
+📤 Outputs:
 - `APP_NAME.apk`: your APK
 
 ## android_run_jetify
 
 Run jetify on the project before build it
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                   | Default value      | Expected value                   |
+| 🔑 Variable | 📝 Description                   | Default value      | Expected value                   |
 |---------|-------------------------------|--------------------|----------------------------------|
 | TARGET_ANDROID    | Path of the module            |    android/app      |  |
 
@@ -109,12 +109,12 @@ Run jetify on the project before build it
 
 Run lint on Android code
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                   | Default value      | Expected value                   |
+| 🔑 Variable | 📝 Description                   | Default value      | Expected value                   |
 |---------|-------------------------------|--------------------|----------------------------------|
 | TARGET_ANDROID    | Path of the module            |    android/app      |  |
 | GRADLEW_PATH    | gradlew path                  | android |  |
@@ -124,12 +124,12 @@ Run lint on Android code
 
 Run unit tests on Android code
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                         | Default value       | Expected value                   |
+| 🔑 Variable | 📝 Description                         | Default value       | Expected value                   |
 |---------|-------------------------------------|---------------------|----------------------------------|
 | ANDROID_MODULE_NAME    | Module's name                       | :app                |  |
 | ANDROID_UNIT_TEST_CMD    | Gradle command to launch unit tests | testReleaseUnitTest |  |
@@ -138,12 +138,12 @@ Run unit tests on Android code
 
 Set application code and build number in the android manifest file
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                      | Default value | Expected value                   |
+| 🔑 Variable | 📝 Description                      | Default value | Expected value                   |
 |---------|-------------------------------------------------------------------|------------|----------------------------------|
 | TARGET_ANDROID    | Path of the module |    android/app      |  |
 
@@ -151,12 +151,12 @@ Set application code and build number in the android manifest file
 
 Set application code and build number in the gradle file
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                      | Default value | Expected value                   |
+| 🔑 Variable | 📝 Description                      | Default value | Expected value                   |
 |---------|-------------------------------------------------------------------|------------|----------------------------------|
 | TARGET_ANDROID    | Path of the module |    android/app      |  |
 
@@ -164,12 +164,12 @@ Set application code and build number in the gradle file
 
 Decompile the application (Android and/or iOS) to be able to check inside in other quality steps (audit_app_logs, audit_app_permissions, audit_app_sizes)
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description            | Default value | Expected value |
+| 🔑 Variable | 📝 Description            | Default value | Expected value |
 |---------|------------------------|------------|----------------|
 | ANDROID_ARTIFACT_URL    | Android artifact's url |    *optional key*      |                |
 | IOS_ARTIFACT_URL    | iOS artifact's url     |    *optional key*      |                |
@@ -180,17 +180,17 @@ Decompile the application (Android and/or iOS) to be able to check inside in oth
 
 To check if the final application (APK) contain any logs.
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                                                 | Default value  | Expected value |
+| 🔑 Variable | 📝 Description                                                                                 | Default value  | Expected value |
 |---------|---------------------------------------------------------------------------------------------|----------------|----------------|
 | LOG_COUNT    | the count of logs present in your app, the step will fail if it detect more than this value | 0              |                |
 | FILTER_PATH    | If you have any class/dependence you know you have logs but not want to take into account   | *optional key* |                |
 
-Outputs:
+📤 Outputs:
 - `quality_report.json`: This step will create/update this file where you can build's informations
 
 ## _audit_app_permissions
@@ -198,12 +198,12 @@ Outputs:
 To check how many permission is required per the application
 Based on the config where we have to set current permission count, the step will fail if we have any new permission
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                                                                                                              | Default value | Expected value |
+| 🔑 Variable | 📝 Description                                                                                                                                              | Default value | Expected value |
 |---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|----------------|
 | CONFIG_FILE_PATH    | You can create a config file (see bellow example) where you can set different needed data to follow up values via your git client - eg. folder/config.sh |              |                |
 | CHECK_ANDROID    | Set yes if you want check Android part                                                                                                                   | no           |                |
@@ -218,7 +218,7 @@ android_permission_count=10
 ios_permission_count=5
 ```
 
-Outputs:
+📤 Outputs:
 - `quality_report.json`: This step will create/update this file where you can build's informations
 - `list_ios_permissions.txt`: List of permission used in your final iOS application
 - `list_android_permissions.txt`: List of permission used in your final Android application
@@ -229,12 +229,12 @@ Outputs:
 To check applications' size
 Based on the config where we have to set current applications size, the step will fail if we have any change (if difference detected higher than `alert_threshold`'s value in config file)
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                                                                                                              | Default value | Expected value |
+| 🔑 Variable | 📝 Description                                                                                                                                              | Default value | Expected value |
 |---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|----------------|
 | CONFIG_FILE_PATH    | You can create a config file (see bellow example) where you can set different needed data to follow up values via your git client - eg. folder/config.sh |              |                |
 | CHECK_ANDROID    | Set yes if you want check Android part                                                                                                                   | no           |                |
@@ -249,14 +249,14 @@ ios_ipa_size=28
 alert_threshold=3
 ```
 
-Outputs:
+📤 Outputs:
 - `quality_report.json`: This step will create/update this file where you can build's informations
 
 ## audit_packages_outdated
 
 Search outdated packages
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -266,12 +266,12 @@ Search outdated packages
 To check CVE vulnerabilites in the Podfile.lock and/or gradle files
 
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                                                                                                              | Default value    | Expected value |
+| 🔑 Variable | 📝 Description                                                                                                                                              | Default value    | Expected value |
 |---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|----------------|
 | IOS_PROJECT_ROOT   | Where your xcodeproj and/or xcworkspace exist                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `ios`            ||
 | ANDROID_MODULE_NAME    | Module's name                       | :app             |                |
@@ -284,12 +284,12 @@ This step will scan the source code of the repository to extract all HTTP/HTTPS 
 
 
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                                                                                                              | Default value    | Expected value |
+| 🔑 Variable | 📝 Description                                                                                                                                              | Default value    | Expected value |
 |---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|------------------|----------------|
 | SSL_LABS_SCAN    | Analyze HTTPS URLs with SSLLabs and generate a report for each domain         | no               | yes/no         |
 | BLACK_LIST    | List of domains that will not be analyzed by SSLLabs         | apache.org;cloudflare.com;bintray.com;w3.org;apple-mapkit.com;apple.com;mzstatic.com;mozilla.org;github.io;github.com;youtube.com;withgoogle.com;android.com;google.com;jitpack.io;microsoft.com;firebaseio.com          |                |
@@ -298,7 +298,7 @@ This step will scan the source code of the repository to extract all HTTP/HTTPS 
 
 Audit yarn packages
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -307,7 +307,7 @@ Audit yarn packages
 
 Will export generated files generated during audit packages steps
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -316,7 +316,7 @@ Will export generated files generated during audit packages steps
 
 Based on previous audit packages steps, will generate an error if it detected any problem
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -325,7 +325,7 @@ Based on previous audit packages steps, will generate an error if it detected an
 
 Check if we are using versioned branches in the project
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -335,11 +335,11 @@ Check if we are using versioned branches in the project
 Based on the latest tag pushed for the current branch,
 this step will compare the difference between current and last tag and expose the changelogs.
 
-Outputs:
+📤 Outputs:
 - $ENV_FIREBASE_RELEASE_NOTES
 - release_notes.txt
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -348,12 +348,12 @@ Outputs:
 
 It will share artifacts on the build page
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                        | Default value | Expected value                                   |
+| 🔑 Variable | 📝 Description                                                        | Default value | Expected value                                   |
 |---------|--------------------------------------------------------------------|------------|--------------------------------------------------|
 | EMAILS_TO_NOTIFY    | Mail adress to send a notification when this step will be trigered |          | email1@mail.com, email2@mail.com *optional key*  |
 
@@ -362,12 +362,12 @@ It will share artifacts on the build page
 
 It will deploy the Android application to Firebase
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                                                                                                                                                                                                               | Default value | Expected value                                |
+| 🔑 Variable | 📝 Description                                                                                                                                                                                                                                               | Default value | Expected value                                |
 |---------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------------------------------------------|
 | FIREBASE_IOS_APP_ID    | App ID of Android application on Firebase - You can find the App ID in the Firebase console, on the General Settings page. It is something in the form of: 1:1234567890:android:0a1b2c3d4e5f67890                                                         |          ||
 | DEPLOYMENT_GROUP    | Alias name - Distribute the application to a group of people define on Firebase on the DEV build                                                                                                                                                          |            |*optional key*|
@@ -377,12 +377,12 @@ It will deploy the Android application to Firebase
 
 It will deploy the iOS application to Firebase
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                                                                                                                                               | Default value | Expected value                                |
+| 🔑 Variable | 📝 Description                                                                                                                                                                               | Default value | Expected value                                |
 |---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------------------------------------------|
 | FIREBASE_IOS_APP_ID    | App ID of iOS application on Firebase - You can find the App ID in the Firebase console, on the General Settings page. It is something in the form of: 1:1234567890:ios:0a1b2c3d4e5f67890 |          ||
 | DEPLOYMENT_GROUP    | Alias name - Distribute the application to a group of people define on Firebase on the DEV build                                                                                          |            |*optional key*|
@@ -392,12 +392,12 @@ It will deploy the iOS application to Firebase
 
 It will deploy the iOS application to iTunes
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                                                                               | Default value | Expected value                                |
+| 🔑 Variable | 📝 Description                                                                                                               | Default value | Expected value                                |
 |---------|---------------------------------------------------------------------------------------------------------------------------|------------|-----------------------------------------------|
 | IOS_DEPLOY_PWD    | Password for the specified Apple ID (Don't forget to select "Make it protected" when you will add this secret)            |          ||
 | APPLE_APP_SPECIFIC_PASSWORD    | Apple ID: Application-specific password                                                                                   |            ||
@@ -411,12 +411,12 @@ It will deploy the iOS application to iTunes
 
 It will deploy the Android application to PlayStore
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                         | Default value | Expected value                                |
+| 🔑 Variable | 📝 Description                                                         | Default value | Expected value                                |
 |---------|---------------------------------------------------------------------|------------|-----------------------------------------------|
 | ANDROID_PACKAGE_NAME    | Package name of the APK or App bundle to deploy                                         |          ||
 | SERVICE_ACCOUNT_PATH    | Path to the Service Account's JSON key file eg: https://URL/TO/key.json or file://PATH/TO/key.json (See bellow to see how create it) |            ||
@@ -439,7 +439,7 @@ Tag architecture:
 $WORKFLOW--$APP_VERSION($PROJECT_BUILD_NUMBER)
 ```
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -463,7 +463,7 @@ Send `Start` event to gitlab pipelines
 | Bitrise | :white_check_mark: |
 | Codemagic| :x:                |
 
-| Variable | Description                                                         | Default value | Expected value                                |
+| 🔑 Variable | 📝 Description                                                         | Default value | Expected value                                |
 |---------|---------------------------------------------------------------------|--------------|-----------------------------------------------|
 | GITLAB_TOKEN    | Gitlab token to use the API                                         |          ||
 | GITLAB_STATUS_URL    | Gitlab status url (needed if build is managed by a Gitlab pipeline) |     https://gitlab.com/api/v4         ||
@@ -478,7 +478,7 @@ Send `End` event to gitlab pipelines
 | Bitrise | :white_check_mark: |
 | Codemagic| :x:                |
 
-| Variable | Description                                                         | Default value | Expected value                                |
+| 🔑 Variable | 📝 Description                                                         | Default value | Expected value                                |
 |---------|---------------------------------------------------------------------|--------------|-----------------------------------------------|
 | GITLAB_TOKEN    | Gitlab token to use the API                                         |          ||
 | GITLAB_STATUS_URL    | Gitlab status url (needed if build is managed by a Gitlab pipeline) |     https://gitlab.com/api/v4         ||
@@ -488,12 +488,12 @@ Send `End` event to gitlab pipelines
 
 Building the iOS archive and expose in IPA format
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Default value | Expected value                                |
+| 🔑 Variable | 📝 Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Default value | Expected value                                |
 |---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----------------------------------------------|
 | IOS_PROJECT_ROOT   | Where your xcodeproj and/or xcworkspace exist                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | `ios`         ||
 | IOS_PROJECT_FILE_NAME   | iOS profect file name (without .extension)                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |               ||
@@ -504,14 +504,14 @@ Building the iOS archive and expose in IPA format
 | IOS_UPLOAD_BITCODE   | To upload the BITCODE version of the app. More info about [BITCODE](https://www.infoq.com/articles/ios-9-bitcode)      yes                                                                                                                                                                                                                                                                                                                                                                                         |               | yes/no                                        |
 | IOS_EXPORT_METHOD   | Certificate / provisioning profile used to build based on the provisioning profile embedded in the .xcarchive (*which is generated by the xcodebuild archive command, also performed by the Xcode Archive step, right before the xcodebuild -exportArchive command*).<br/><br/>*The embedded provisioning profile depends on your code sign settings in your project. You can force the desired code signing configuration with Xcode Archive step's force_code_sign_identity and force_ provisioning_profile inputs. |     development          | ad_hoc/app_store/development/enterprise |
 
-Outputs:
+📤 Outputs:
 - `APP_NAME.ipa`: your IPA
 
 ## ios_setup_certificate_install
 
 Install certificate which will be used to build the archive
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -553,7 +553,7 @@ Run iOS unit tests
 | Bitrise | :white_check_mark: |
 | Codemagic| :x:                |
 
-| Variable | Description                                     | Default value                      | Expected value |
+| 🔑 Variable | 📝 Description                                     | Default value                      | Expected value |
 |---------|-------------------------------------------------|------------------------------------|----------------|
 | IOS_PROJECT_ROOT    | Where your xcodeproj and/or xcworkspace exist   | `ios` ||
 | IOS_PROJECT_FILE_NAME    | iOS profect file name (without .extension)      |  ||
@@ -566,12 +566,12 @@ Run iOS unit tests
 
 Set application code and build number
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description              | Default value                       | Expected value |
+| 🔑 Variable | 📝 Description              | Default value                       | Expected value |
 |---------|--------------------------|-------------------------------------|----------------|
 | IOS_PROJECT_ROOT    | Where your xcodeproj and/or xcworkspace exist | `ios` ||
 | IOS_PLIST_PATH    | Where your podfile exist |  ||
@@ -580,12 +580,12 @@ Set application code and build number
 
 Install carthage dependencies
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description              | Default value                       | Expected value |
+| 🔑 Variable | 📝 Description              | Default value                       | Expected value |
 |---------|--------------------------|-------------------------------------|----------------|
 | IOS_PROJECT_ROOT    | Where your xcodeproj and/or xcworkspace exist | `ios` ||
 | IOS_PLIST_PATH    | Where your podfile exist |  ||
@@ -594,12 +594,12 @@ Install carthage dependencies
 
 To change a value of a key present in a plist file
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                 | Default value                       | Expected value |
+| 🔑 Variable | 📝 Description                 | Default value                       | Expected value |
 |---------|-----------------------------|-------------------------------------|----------------|
 |  IOS_PLIST_PATH   | Path to the Info.plist file |  ||
 |  PLIST_KEY   | Key to replace              |  ||
@@ -609,12 +609,12 @@ To change a value of a key present in a plist file
 
 Install pod dependencies
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description              | Default value                        | Expected value                      |
+| 🔑 Variable | 📝 Description              | Default value                        | Expected value                      |
 |---------|--------------------------|--------------------------------------|---|
 | IOS_PROJECT_ROOT    | Where your xcodeproj and/or xcworkspace exist | `ios` ||
 
@@ -622,19 +622,19 @@ Install pod dependencies
 
 To register and be able to install private npm packages
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description        | Default value                        | Expected value                      |
+| 🔑 Variable | 📝 Description        | Default value                        | Expected value                      |
 |---------|--------------------|--------------------------------------|---|
 | NPM_TOKEN    | Npm token to login |  ||
 
 ## react_native_jest
 Run unit tests on React-Native codes
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -643,7 +643,7 @@ Run unit tests on React-Native codes
 
 Run lint on React-Native codes
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -652,12 +652,12 @@ Run lint on React-Native codes
 
 Install React-Native cli
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                | Default value                        | Expected value                                      |
+| 🔑 Variable | 📝 Description                | Default value                        | Expected value                                      |
 |---------|----------------------------|--------------------------------------|-----------------------------------------------------|
 | RN_CLI_VERSION    | React native cli's version | latest | *optional key - will use latest version if not set* |
 
@@ -665,7 +665,7 @@ Install React-Native cli
 
 Run prettier on React-Native codes
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -674,7 +674,7 @@ Run prettier on React-Native codes
 
 Run tsc on React-Native codes
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -683,7 +683,7 @@ Run tsc on React-Native codes
 
 Install yarn
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -692,12 +692,12 @@ Install yarn
 
 Send the build on Slack
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                        | Default value | Expected value                      |
+| 🔑 Variable | 📝 Description                        | Default value | Expected value                      |
 |---------|------------------------------------|---------------|---|
 | SLACK_WEBHOOCKS    | Url of the webhook on Slack's side |               ||
 | CHANNEL_NAME        | Channel name on Slack              |               ||
@@ -706,12 +706,12 @@ Send the build on Slack
 
 Send the build on Teams
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-| Variable | Description                              | Default value | Expected value                      |
+| 🔑 Variable | 📝 Description                              | Default value | Expected value                      |
 |---------|------------------------------------------|---------------|---|
 | TEAMS_BUILDS_WEBHOOCKS      | Url of the webhook on Team's side        |               ||
 | CODE_MAGIC_TOKEN<sup> codemagic only</sup>       | CodeMagic token, to check build's status |               ||
@@ -721,14 +721,14 @@ Send the build on Teams
 This step will add an icon or text, on the left and/or right bottom side of the source image
 More info: https://github.com/imranMnts/bitrise-step-image-overlayer
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-Variables
+🔑 Variables
 
-| Variable                                                 | Description                                                                                                                                                                              | Default value | Expected value |
+| 🔑 Variable                                                 | 📝 Description                                                                                                                                                                              | Default value | Expected value |
 |----------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|----------------|
 | IMAGE_OVERLAYER_SOURCE_IMAGE                             | Source image or folder path - in fodler case, we can put a list of folder, just split folders with ,                                                                                     |               ||
 | IMAGE_OVERLAYER_LEFT_ICON                                | Left icon's path or text to display on left side                                                                                                                                         |               | *optional key* |
@@ -743,7 +743,7 @@ Variables
 
 To export the sourcemap to artifacts, and be able to download and debug a crash in production.
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
@@ -752,14 +752,14 @@ To export the sourcemap to artifacts, and be able to download and debug a crash 
 
 To promote (merge it & push) your source branch (first branch of BRANCH_LIST) to others'
 
-| CICD    | Available         |
+| CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
-Variables
+🔑 Variables
 
-| Variable                                                 | Description                                                                                                                                      | Default value | Expected value                           |
+| 🔑 Variable                                                 | 📝 Description                                                                                                                                      | Default value | Expected value                           |
 |----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|--------------|------------------------------------------|
 | REPOSITORY_URL                             | You have to set your repository url with the ci-token [More info](https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html)                          |              ||
 | BRANCHES                                | Your branch list, to know which branch have to be merged into which - Should be a valid json array                                               |              | [\"branch_1\",\"branch_2\",\"branch_3\"] |

@@ -1,17 +1,20 @@
-# Custom steps
 
-*SIDI* purpose a set of steps during the initialization of your project, which can be found [there](./purposedSteps.md).
+# 🛠️ Custom Steps
 
-At the end, if you don't find your need, *SIDI* allows to create custom steps to execute `bash script` and trigger when you want during the build.
+*SIDI* provides a set of predefined steps during the initialization of your project, which can be found [here](./purposedSteps.md). 
 
-## How to create a custom step?
+If these predefined steps do not meet your needs, *SIDI* allows you to create custom steps to execute `bash scripts` and trigger them at specific points during the build process.
 
-Firstly, you have to create a folder `customSteps/` in `.sidi/` folder generated at the end of the initialization
-    - `.sidi/` can be created manually if you want prepare your custom steps before launching init command
+---
 
-Now you will have to create *one folder per custom step* in `customSteps/` and place your `step.yml` file where you should place your code.
+## ✨ How to Create a Custom Step?
 
-Expected architecture:
+1️⃣ First, create a `customSteps/` folder inside the `.sidi/` directory generated during initialization:
+   - If `.sidi/` does not exist yet, you can create it manually to prepare your custom steps before running the `init` command.
+
+2️⃣ Within `customSteps/`, create a **separate folder for each custom step**, and place a `step.yml` file inside it where your custom code will reside.
+
+### 🔧 Expected Folder Structure:
 ```
 <project root>
     - .sidi/
@@ -26,22 +29,26 @@ Expected architecture:
                 - step.yml
 ```
 
-⚠️ The architecture of the expected YAML file is not the same for Bitrise and Codemagic, please be careful to have a look at examples listed below to have a good start and place your code
+⚠️ **Important Notes:**
+- The YAML structure differs between **Bitrise** and **Codemagic**. Check the examples below to get started:
+  - [Example for Bitrise](./../.sidi/customSteps/example_bitrise/step.yml)
+  - [Example for Codemagic](./../.sidi/customSteps/example_codemagic/step.yml)
+- Ensure there are no line breaks at the end of your YAML file.
 
-⚠️ Please pay attention to not have a line break at the end of your YAML file
+---
 
-[Example of expected yml file for Bitrise](./../.sidi/customSteps/example_bitrise/step.yml)
+## 🚀 How to Use Your Custom Step?
 
-[Example of expected yml file for CodeMagic](./../.sidi/customSteps/example_codemagic/step.yml)
+After creating custom steps, *SIDI* will detect them during:
+- **Initialization (`init` command):** If the steps are created beforehand, they will be suggested during the creation of each workflow, allowing you to inject them at any point in the build.
+- **Editing (`edit` command):** If you add steps after initialization, you can modify an existing workflow by adding the custom step wherever needed.
 
-## How to use your custom step?
+---
 
-Now that you have created your custom steps, *SIDI* will detect them during:
-    -  If you created steps before the `init` command, they will be purposed during the creation of *each* workflow, and you will be able to inject them to execute it before any step in the build.
-    -  If you created them when you already initialized, and want to add it to a worklfow. You can launch `edit` command to edit a workflow and select `Add a custom step` and place it where yo want
+## 📦 Using Custom Steps in the Publishing Process (Codemagic Only)
 
-## How to use a custom step during the publishing process (at the end of the build) (CodeMagic only)?
+During workflow creation, *SIDI* will ask if you want to:
+1. Add a custom step.
+2. Add a custom step **specifically during the publishing process**.
 
-During the creation of your workflow, SIDI will request if you want add a custom step, and if you want *add a custom step during the publishing process*.
-
-Just have to select yes for the second one and select your custom step as explained in the previous point.
+Select **yes** for the second option and choose the desired custom step as explained in the previous section.
