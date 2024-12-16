@@ -1,15 +1,15 @@
 
-# 🌙 **Nightly Build Workflow Documentation**
+# 🌙 **End-to-end Build Workflow Documentation**
 
 ## 📝 1. Overview of the Workflow
 
 This document describes the **flow** for an end-to-end process. The workflow ensures that builds are executed efficiently, configurations are retrieved dynamically, and artifacts are collected upon completion.
 
-![End-to-End Flow](../assets/end_to_end_flow.png)
+
 
 ## ⚙️ 2. Steps in the Process
 
-### 🔹 Step 1: Nightly Build Trigger
+### 🔹 Step 1: End-to-end Build Trigger
 - 🕒 The workflow is triggered nightly to initiate the **end-to-end workflow**.
 - **Action:** The process begins execution automatically.
 
@@ -35,11 +35,12 @@ This document describes the **flow** for an end-to-end process. The workflow ens
 - 📥 All artifacts from completed builds are collected for further processing or storage.
 
 ## 🔁 3. Workflow Diagram
-Refer to the **Nightly Build Workflow** diagram for a visual representation of the process.
+
+![End-to-End Flow](../assets/end_to_end_flow.png)
 
 ## 📤 4. Summary
-The nightly workflow ensures:
-- ⏱️ Timely nightly triggers.  
+The workflow ensures:
+- ⏱️ Timely triggers.  
 - 🛠️ Configuration-based build execution.  
 - 🚦 Safe handling of ongoing processes.  
 - 📦 Collection of artifacts for analysis.
