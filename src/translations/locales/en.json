@@ -68,6 +68,7 @@
         "searchConfig": "Sidi is searching your config file created during init command..",
         "configuring": "Configuring {{workflowName}}...",
         "newCustomStep": "Do you want add a custom step to {{workflowName}}",
+        "repositoryManager": "Which repository hosting manager tool are you using?",
         "newPublishingCustomStep": "Do you want add a custom step to {{workflowName}}'s publishing section?",
         "defaultValue": "// Default value:"
     },
@@ -173,7 +174,7 @@
         "npmPackageUrl": "https://registry.npmjs.org/-/package/sidi-cli/dist-tags",
         "updateAvailable": "Update available {{currentVersion}} -> {{latestVersion}}",
         "changelog": "Changelog: https://github.com/odemolliens/react-native-netwatch/releases/tag/{{latestVersion}}",
-        "command": "Run **yarn add -g sidi-cli** to update!"
+        "command": "Run **yarn global upgrade sidi-cli** to update!"
     },
     "end": {
         "title": "END",

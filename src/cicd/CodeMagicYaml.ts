@@ -88,8 +88,8 @@ export class CodeMagicYaml {
 
       // Configure environment block
       this.workflows[workflowName].environment = {
-        xcode: 13.4,
-        node: 14,
+        xcode: 15.4,
+        node: 18,
         groups: ['default'],
         vars: cmVars,
       };

@@ -61,6 +61,12 @@ module.exports = {
       'false',
     ]);
 
+    sidiConfig.repositoryManager = await selectExtension(Translator.translate('sidiConfig.repositoryManager'), [
+      'gitlab',
+      'github',
+      'other',
+    ]);
+
     if (sidiConfig.projectType != 'android') {
       sidiConfig.iosExecutableType = await iosProjectType();
     }

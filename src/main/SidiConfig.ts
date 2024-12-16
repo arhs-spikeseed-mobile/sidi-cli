@@ -31,6 +31,7 @@ export class SidiConfig {
   cicd: 'bitrise' | 'codemagic';
   libOrApp: 'library' | 'application';
   hasVersionedBranches: 'true' | 'false';
+  repositoryManager: 'gitlab' | 'github' | 'other';
   updateGitStatus: 'true' | 'false';
   iosExecutableType: 'xcworkspace' | 'xcodeproj';
   sidiMode: ISidiMode;
