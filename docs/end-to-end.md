@@ -56,4 +56,3 @@ Aggregated results and reports are shared to designated channels.
 
 ![End-to-end Global picture](../assets/end_to_end_global_picture.png)
 
-Refer to the attached **end-to-end global picture** for a visual representation of the process.
