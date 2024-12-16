@@ -1,3 +1,4 @@
+
 <p align="center">
   <img src="assets/sidi_cli.png" width="40%">
 </p>
@@ -5,111 +6,128 @@
 ![npm](https://img.shields.io/npm/v/sidi-cli.svg)
 ![GitHub](https://img.shields.io/github/license/arhs-spikeseed-mobile/sidi-cli.svg)
 
-# sidi-cli
+# **SIDI-CLI**
 
-**SIDI** is a human friendly tool to create a yaml file dedicated to be used on Bitrise or Codemagic to **test**, **build**, and **deploy** any mobile project.
-
----
-## Getting started
-
-**SIDI** is a cli tool which will help you to create the YAML file which will be used to config your CI/CD.
-<br><br>It will ask you some questions to know what do you want to do on the chosen CI/CD.
-<br>And, it will create the workflows, steps, required keys and will inject them into the YAML file which will be generated in an optimized way without any duplicated steps and more consistent as possible.
+**SIDI** is a user-friendly CLI tool designed to streamline the creation of YAML files for **testing**, **building**, and **deploying** mobile projects on **Bitrise** and **Codemagic**.
 
 ---
-## Why use SIDI?
 
-The setup of a project from scratch on Bitrise and/or CodeMagic can be long and difficult to maintain.
+## 🚀 Getting Started
 
-Each CI/CD purpose a different way to set up a project, typically on Bitrise we can do it via the website directly or via the yaml, and CodeMagic only via the YAML file.
+**SIDI** simplifies CI/CD setup by guiding you through the creation of optimized YAML configuration files.  
+It ensures:
+- **No duplicate steps**
+- **Consistent workflows**
+- Automatic injection of required keys and configurations.
 
-Each CI/CD purposes us a different way to create a workflow where we'll be able to do different things. It can be easy to set up and maintain if we have only one workflow but the difficulty increases exponentially with the workflow number increase.
-
-**SIDI** comes into play at exactly this point, you will be able to:
-- Create and configure your CI/CD config YAML file
-- Update your YAML to benefit from the latest updates/fix
-- Switch between **Codemagic** and **Bitrise** easily
+With SIDI, you'll answer a few questions about your project and desired CI/CD setup, and it will do the heavy lifting for you!
 
 ---
-## How it works?
 
-**SIDI** will ask:
-- Some information related to the project
-  - project type (Native Android, Native iOS, React-Native)
-  - Application or library
-  - Requested CI/CD (Bitrise or CodeMagic)
-  - ...
-- [Workflows](./docs/workflow.md) 
-  - Worfklow's name
-  - Steps which should be executed or not
+## 🌟 Why Use SIDI?
 
-At the end, **SIDI** will generate two file:
-  - The main yaml file which will be use per the CI/CD to launch builds
-    - ⚠️ This file should never be updated manually, `sidi-cli u` and `sidi-cli u` should be used to do any things, please refer to `Commands Overview` section to see in details their utility.
-    - Bitrise requires to copy/paste the content on the website directly, just need to push it for Codemagic
-  - The secret file, where we will have different keys to set per the user
-    - You have to set values for each keys required to do the build successfully
-    - You can refer to [steps](./docs/purposedSteps.md) file to know what expected, if it's an optionnal key or not..
+Setting up a project from scratch on CI/CD platforms like Bitrise and Codemagic can be complex and time-consuming. Each platform uses unique workflows, making it harder to manage as the number of workflows grows.  
+
+**SIDI** makes the process:
+- **Easier**: Automates YAML file creation and updates.
+- **Faster**: Generates optimized configurations tailored to your needs.
+- **Flexible**: Enables seamless switching between Bitrise and Codemagic.
+
+With SIDI, you can:
+- Quickly create and configure YAML files.
+- Update YAML configurations to the latest standards.
+- Maintain consistency across CI/CD setups.
 
 ---
-## Features
 
-### Supported CI/CD
-| CI/CD                             | Supported          |
-|----------------------------------|--------------------|
-| Bitrise                          | :white_check_mark: |
-| CodeMagic                        | :white_check_mark: |
+## 🛠️ How It Works
 
-### Supported project types
-| Project type   | Supported          |
-|----------------|--------------------|
-| React Native   | :white_check_mark: |
-| Native iOS     | :white_check_mark: |
-| Native Android | :white_check_mark: |
+**SIDI** asks a series of questions about:
+- **Project Details**:
+  - Type: Native Android, Native iOS, or React Native.
+  - Application or Library.
+  - CI/CD platform: Bitrise or Codemagic.
+- **Workflows**:
+  - Workflow names.
+  - Steps to include or exclude.
+
+### Output Files:
+1. **Main YAML File**: The core configuration for your CI/CD platform.
+   - **Important**: This file should not be manually edited. Use `sidi-cli u` for updates.
+   - For Bitrise, copy/paste the content into the platform. For Codemagic, push the file directly.
+2. **Secret File**: Contains keys required for builds.
+   - Fill in the required values to ensure a successful build.
+   - Refer to the [purposed steps documentation](./docs/purposedSteps.md) for details.
 
 ---
-## Installation
+
+## 🧩 Features
+
+### Supported CI/CD Platforms
+| CI/CD      | Status               |
+|------------|----------------------|
+| Bitrise    | ✅ Supported         |
+| Codemagic  | ✅ Supported         |
+
+### Supported Project Types
+| Project Type    | Status               |
+|-----------------|----------------------|
+| React Native    | ✅ Supported         |
+| Native iOS      | ✅ Supported         |
+| Native Android  | ✅ Supported         |
+
+---
+
+## 📥 Installation
+
+Install **SIDI** using either `npm` or `yarn`:
 
 ```bash
 yarn global add sidi-cli
 
-OR
+# OR
 
 npm install -g sidi-cli
 ```
 
 ---
-## Commands Overview
 
-Some commands are made available by SIDI to meet your needs.
+## 🔧 Commands Overview
 
-List of commands available with **SIDI** can be found [there](./docs/commands.md)
+SIDI offers a variety of commands to suit your needs.  
+For a detailed list of commands, refer to the [Commands Overview](./docs/commands.md).
 
-### User flows
+### User Flows
 
 <p align="center">
   <img src="assets/user_flow.jpeg" width="90%">
 </p>
 
 ---
-## Purposed steps
 
-When you will create a workflow, **SIDI** will request to choose a group, which will inject all steps used in this group, based on project's information and input from users.
+## 📋 Purposed Steps
 
-List of purposed steps available with **SIDI** can be found [there](./docs/purposedSteps.md)
+When creating a workflow, **SIDI** groups steps based on:
+- Project details.
+- User inputs.
+
+A complete list of these steps is available [here](./docs/purposedSteps.md).
 
 ---
-## FAQ
 
-#### How can we add iOS certificates to be able to archive and export a build?
+## ❓ FAQ
 
-[Explanations](./docs/iosCertificates.md)
+#### 1. How do I add iOS certificates for archiving and exporting builds?
+Find detailed instructions [here](./docs/iosCertificates.md).
 
-#### How can we set an Android keystore to a workflow?
+#### 2. How do I set up an Android keystore for a workflow?
+Follow the steps [here](./docs/androidSigning.md).
 
-[Explanations](./docs/androidSigning.md)
+#### 3. How can I customize the push events that trigger workflows?
+Learn more [here](./docs/buildTriggers.md).
 
+---
 
-#### How can we customize the push event triggered for each workflow?
+## 📄 License
 
-[Explanations](./docs/buildTriggers.md)
+This project is licensed under the MIT License. See the LICENSE file for details.
