@@ -10,7 +10,7 @@ This document describes the **flow** for an end-to-end process. The workflow ens
 ## ⚙️ 2. Steps in the Process
 
 ### 🔹 Step 1: End-to-end Build Trigger
-- 🕒 The workflow is triggered nightly to initiate the **end-to-end workflow**.
+- 🕒 The workflow is triggered with a scheduled time to initiate the **end-to-end workflow**.
 - **Action:** The process begins execution automatically.
 
 ### 🔎 Step 2: Check if Previous Builds are Running
