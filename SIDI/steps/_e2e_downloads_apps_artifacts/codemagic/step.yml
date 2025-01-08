@@ -1,0 +1,188 @@
+    name: "[END-TO-END] Download apps artifacts"
+    ignore_failure: true
+    script: |
+      #!/usr/bin/env bash
+      # fail if any commands fail
+      set -e
+
+      # Run end-to-end tests if required
+      if [[ -n "$RUN_END_TO_END" ]]; then
+
+        # Determine WDIO config path
+        WDIO_CONFIG_PATH="${WDIO_CONFIG_PATH_IOS:-$WDIO_CONFIG_PATH_ANDROID}"
+
+        # Set specs and report name
+        for i in 1 2 3; do
+          REPORT_NAME_VAR="WDIO_CONFIG_${i}_REPORT_NAME"
+          if [[ -n "${!REPORT_NAME_VAR}" ]]; then
+            WDIO_CONFIG_SPECS_VAR="WDIO_CONFIG_${i}_SPECS_NAME"
+            WDIO_CONFIG_SPECS="${!WDIO_CONFIG_SPECS_VAR}"
+            WDIO_CONFIG_REPORT_NAME="${!REPORT_NAME_VAR}"
+            echo "WDIO_CONFIG_SPECS=$WDIO_CONFIG_SPECS" >> "$CM_ENV"
+            echo "WDIO_CONFIG_REPORT_NAME=$WDIO_CONFIG_REPORT_NAME" >> "$CM_ENV"
+            break
+          fi
+        done
+
+        # Parse environment configuration
+        res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.config_name == $key) | .config_content' "$END_TO_END_CONFIG_PATH")
+        CODEMAGIC_ENV_NAME="$(echo "$res" | jq -r '.config_env_name')"
+
+        # Navigate to the end-to-end directory
+        echo "ℹ️ Navigating to the end-to-end directory..."
+        if ! cd ./end-to-end/; then
+          echo "🚨 Failed to navigate to the end-to-end directory."
+          exit 1
+        fi
+
+        echo "ℹ️ Start on $E2E_APP_VERSION $CODEMAGIC_ENV_NAME"
+        download_last_apps_with() {
+            local provider="$1"
+            local app_id="$2"
+            local app_version="$3"
+            local app_env="$4"
+
+            fetch_with_retry() {
+                local url="$1"
+                local headers="$2"
+                local max_retries="${3:-3}"
+                local retry_delay="${4:-3}"
+
+                for ((retry_count = 1; retry_count <= max_retries; retry_count++)); do
+                    echo "ℹ️ Fetching URL: $url (Attempt $retry_count)" 1>&2
+                    
+                    local response
+                    local http_code
+                    
+                    response=$(curl -s -H "$headers" -w "\n%{http_code}" "$url")
+                    http_code=$(echo "$response" | tail -n1)
+                    body=$(echo "$response" | sed '$d') # Everything except the last line is the body
+
+                    if [[ "$http_code" -eq 200 ]]; then
+                        echo "✅ Successful response from $url" 1>&2
+                        echo "$body"
+                        return 0
+                    else
+                        echo "🚨 HTTP $http_code: Failed to fetch $url" 1>&2
+                        echo "Raw response: $body"
+                    fi
+
+                    if ((retry_count < max_retries)); then
+                        echo "🚨 Retrying in ${retry_delay}s..." 1>&2
+                        sleep "$retry_delay"
+                    fi
+                done
+
+                echo "🚨 Failed to fetch $url after $max_retries attempts." 1>&2
+                return 1
+            }
+
+            fetch_artifacts_codemagic() {
+                echo "ℹ️ Fetching artifacts from CodeMagic..." 1>&2
+                local url="https://api.codemagic.io/builds?appId=$app_id&workflowId=$app_env&branch=$app_env/$app_version&status=finished"
+                local headers="x-auth-token: $codemagic_token"
+
+                fetch_with_retry "$url" "$headers" || return 1
+            }
+
+            fetch_artifacts_bitrise() {
+                echo "ℹ️ Fetching artifacts from Bitrise..." 1>&2
+                local builds_url="https://api.bitrise.io/v0.1/apps/$app_id/builds?branch=$app_env&status=1"
+                local headers="Authorization: $bitrise_token"
+
+                response=$(fetch_with_retry "$builds_url" "$headers") || return 1
+                build_slug=$(echo "$response" | jq -r '.data[0].slug')
+
+                if [[ -n "$build_slug" ]]; then
+                    local artifacts_url="https://api.bitrise.io/v0.1/apps/$app_id/builds/$build_slug/artifacts"
+                    fetch_with_retry "$artifacts_url" "$headers"
+                else
+                    echo "🚨 No builds or artifacts found on Bitrise." 1>&2
+                    return 1
+                fi
+            }
+
+            process_large_json() {
+                local json_file="$1"
+
+                # Check if the JSON file exists and is not empty
+                if [[ -f "$json_file" && -s "$json_file" ]]; then
+                    jq '.builds[0].artefacts[] | {name, url}' "$json_file"
+                else
+                    echo "🚨 JSON file $json_file does not exist or is empty."
+                    return 1
+                fi
+            }
+
+            download_artifact() {
+                local name="$1"
+                local url="$2"
+
+                # Ensure the file extension is .ipa, .aab, or .apk
+                if [[ ! "$name" =~ \.(ipa|aab|apk)$ ]]; then
+                    echo "❎ Skipping artifact: $name (not a .ipa, .aab, or .apk file)" 1>&2
+                    return
+                fi
+
+                echo "ℹ️ Downloading artifact: $name" 1>&2
+                mkdir -p build
+
+                # Remove any existing file to ensure a clean start
+                rm -f "build/$name"
+
+                curl -L --fail --retry 2 --retry-delay 10 -o "build/$name" \
+                    -H "x-auth-token: $CODE_MAGIC_TOKEN" "$url" \
+                || {
+                    echo "🚨 Error downloading $name. Check URL or headers." 1>&2
+                    return 1
+                }
+
+                echo "✅ Successfully downloaded: $name" 1>&2
+            }
+
+            fetch_and_process_artifacts() {
+                local artifacts_data="$1"
+
+                # Process the JSON data directly
+                echo "$artifacts_data" | jq -c '.builds[0].artefacts[] | {name, url}' | while read -r artifact; do
+                    echo "ℹ️ Processing artifact: $artifact" 1>&2
+
+                    # Extract name and URL fields
+                    name=$(echo "$artifact" | jq -r '.name')
+                    url=$(echo "$artifact" | jq -r '.url')
+
+                    # Validate extracted values
+                    if [[ -z "$name" || -z "$url" ]]; then
+                        echo "🚨 Missing name or URL for artifact: $artifact" 1>&2
+                        continue
+                    fi
+
+                    # Download the artifact
+                    download_artifact "$name" "$url"
+                done
+            }
+
+            # Main logic
+            echo "ℹ️ Starting script with provider: $provider, app_id: $app_id, version: $app_version, environment: $app_env" 1>&2
+
+            if [[ "$provider" == "codemagic" ]]; then
+                codemagic_token=$CODE_MAGIC_TOKEN || exit 1
+                artifacts=$(fetch_artifacts_codemagic)
+            elif [[ "$provider" == "bitrise" ]]; then
+                bitrise_token=$BITRISE_TOKEN || exit 1
+                artifacts=$(fetch_artifacts_bitrise)
+            else
+                echo "🚨 Unsupported provider: $provider" 1>&2
+                exit 1
+            fi
+
+            if [[ -n "$artifacts" ]]; then
+                echo "ℹ️ Found artifacts. Starting download..." 1>&2
+                fetch_and_process_artifacts "$artifacts"
+            else
+                echo "🚨 No artifacts found." 1>&2
+            fi
+        }
+
+        download_last_apps_with codemagic "$CM_PROJECT_ID" "$E2E_APP_VERSION" "$CODEMAGIC_ENV_NAME"
+      fi
