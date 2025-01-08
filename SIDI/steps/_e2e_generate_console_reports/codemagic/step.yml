@@ -1,88 +1,88 @@
-    name: "[END-TO-END] Console reports"
-    script: |
-      #!/usr/bin/env bash
-      set -e
+name: "[END-TO-END] Console reports"
+script: |
+  #!/usr/bin/env bash
+  set -e
 
-      if [[ "$END_TO_END_COLLECT_ARTIFACTS" != "" ]]; then
-          # Navigate to the end-to-end directory
-          echo "ℹ️ Navigating to the end-to-end directory..."
-          if ! cd ./end-to-end/; then
-              echo "🚨 Failed to navigate to the end-to-end directory."
-              exit 1
-          fi
-
-          # Function to print a row with borders
-          print_row() {
-              local line="$1"
-              printf "| %-12s | %-6s | %-5s | %-6s | %-8s | %-10s |\n" $line
-          }
-
-          # Function to print a border line
-          print_border() {
-              printf "+--------------+--------+-------+--------+----------+------------+\n"
-          }
-
-          # Function to process a folder and extract stats from JSON files
-          process_folder() {
-              local base_path="$1"
-              echo "ℹ️ Processing folder: $base_path" 1>&2
-
-              local table=()
-              local team_name file_to_merge file_content suites tests passes failures perc_success
-
-              print_border
-              print_row "Team" "Suites" "Tests" "Passes" "Failures" "% Success"
-              print_border
-
-              for dir in "$base_path"/*; do
-                  if [[ -d "$dir" ]]; then
-                      team_name=$(basename "$dir" | tr 'a-z' 'A-Z')
-
-                      # Skip if directory is "teams"
-                      if [[ "$team_name" == "TEAMS" ]]; then
-                          continue
-                      fi
-
-                      file_to_merge="$dir/merged-report.json"
-                      if [[ -f "$file_to_merge" ]]; then
-                          # Parse JSON content using jq
-                          if metrics=$(jq -r '.metrics' "$file_to_merge" 2>/dev/null); then
-                              suites=$(jq '.suites | length' "$file_to_merge")
-                              passes=$(jq '.passed' <<< "$metrics")
-                              failures=$(jq '.failed' <<< "$metrics")
-                              skipped=$(jq '.skipped' <<< "$metrics")
-                              # tests=$((passes + failures + skipped))
-                              tests=$((passes + failures))
-
-                              if [[ "$tests" -eq 0 ]]; then
-                                  perc_success="0.00"
-                              else
-                                  perc_success=$(awk "BEGIN {printf \"%.2f\", ($passes/$tests)*100}")
-                              fi
-
-                              print_row "$team_name" "$suites" "$tests" "$passes" "$failures" "$perc_success%"
-                          else
-                              echo "⚠️ Failed to process JSON file: $file_to_merge. Adding error row." 1>&2
-                              print_row "$team_name" "JSON ERROR" "JSON ERROR" "JSON ERROR" "JSON ERROR" "JSON ERROR"
-                          fi
-                      else
-                          echo "🚨 File not found: $file_to_merge" 1>&2
-                          print_row "$team_name" "ERROR" "ERROR" "ERROR" "ERROR" "ERROR"
-                      fi
-                  fi
-              done
-
-              print_border
-          }
-
-          # Main script execution
-          REPORTS_BASE_PATH="build/reports/wdio-html-nice-reporter-reports"
-
-          echo "ℹ️ Processing main folders..."
-          process_folder "$REPORTS_BASE_PATH"
-
-          echo "ℹ️ Processing team folders..."
-          process_folder "$REPORTS_BASE_PATH/teams"
-
-          cd ../
+  if [[ "$END_TO_END_COLLECT_ARTIFACTS" != "" ]]; then
+      # Navigate to the end-to-end directory
+      echo "ℹ️ Navigating to the end-to-end directory..."
+      if ! cd ./end-to-end/; then
+          echo "🚨 Failed to navigate to the end-to-end directory."
+          exit 1
       fi
+
+      # Function to print a row with borders
+      print_row() {
+          local line="$1"
+          printf "| %-12s | %-6s | %-5s | %-6s | %-8s | %-10s |\n" $line
+      }
+
+      # Function to print a border line
+      print_border() {
+          printf "+--------------+--------+-------+--------+----------+------------+\n"
+      }
+
+      # Function to process a folder and extract stats from JSON files
+      process_folder() {
+          local base_path="$1"
+          echo "ℹ️ Processing folder: $base_path" 1>&2
+
+          local table=()
+          local team_name file_to_merge file_content suites tests passes failures perc_success
+
+          print_border
+          print_row "Team" "Suites" "Tests" "Passes" "Failures" "% Success"
+          print_border
+
+          for dir in "$base_path"/*; do
+              if [[ -d "$dir" ]]; then
+                  team_name=$(basename "$dir" | tr 'a-z' 'A-Z')
+
+                  # Skip if directory is "teams"
+                  if [[ "$team_name" == "TEAMS" ]]; then
+                      continue
+                  fi
+
+                  file_to_merge="$dir/merged-report.json"
+                  if [[ -f "$file_to_merge" ]]; then
+                      # Parse JSON content using jq
+                      if metrics=$(jq -r '.metrics' "$file_to_merge" 2>/dev/null); then
+                          suites=$(jq '.suites | length' "$file_to_merge")
+                          passes=$(jq '.passed' <<< "$metrics")
+                          failures=$(jq '.failed' <<< "$metrics")
+                          skipped=$(jq '.skipped' <<< "$metrics")
+                          # tests=$((passes + failures + skipped))
+                          tests=$((passes + failures))
+
+                          if [[ "$tests" -eq 0 ]]; then
+                              perc_success="0.00"
+                          else
+                              perc_success=$(awk "BEGIN {printf \"%.2f\", ($passes/$tests)*100}")
+                          fi
+
+                          print_row "$team_name" "$suites" "$tests" "$passes" "$failures" "$perc_success%"
+                      else
+                          echo "⚠️ Failed to process JSON file: $file_to_merge. Adding error row." 1>&2
+                          print_row "$team_name" "JSON ERROR" "JSON ERROR" "JSON ERROR" "JSON ERROR" "JSON ERROR"
+                      fi
+                  else
+                      echo "🚨 File not found: $file_to_merge" 1>&2
+                      print_row "$team_name" "ERROR" "ERROR" "ERROR" "ERROR" "ERROR"
+                  fi
+              fi
+          done
+
+          print_border
+      }
+
+      # Main script execution
+      REPORTS_BASE_PATH="build/reports/wdio-html-nice-reporter-reports"
+
+      echo "ℹ️ Processing main folders..."
+      process_folder "$REPORTS_BASE_PATH"
+
+      echo "ℹ️ Processing team folders..."
+      process_folder "$REPORTS_BASE_PATH/teams"
+
+      cd ../
+  fi

@@ -1,124 +1,123 @@
-    name: "[END-TO-END] Launch builds"
-    script: |
-      #!/usr/bin/env bash
-      # fail if any commands fails
-      set -ex
+name: "[END-TO-END] Launch builds"
+script: |
+  #!/usr/bin/env bash
+  # fail if any commands fails
+  set -ex
 
-      res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.config_name == $key) | .config_content' "$END_TO_END_CONFIG_PATH")
-      WDIO_CONFIG_BACKWARD="$(echo "$res" | jq -c -r '.config_backward_compatibility')"
+  res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.config_name == $key) | .config_content' "$END_TO_END_CONFIG_PATH")
+  WDIO_CONFIG_BACKWARD="$(echo "$res" | jq -c -r '.config_backward_compatibility')"
 
-      # Check if we are in backward compatibility mode
-      if [[ "$CM_WORKFLOW_NAME" != "" && "$CM_WORKFLOW_NAME" == *"backward_compatibility"* ]]; then
-          echo "Backward compatibility mode"
-          echo $WDIO_CONFIG_BACKWARD
-          echo $CM_WORKFLOW_NAME
-          APP_VERSION="$WDIO_CONFIG_BACKWARD"
-          echo "APP_VERSION=$APP_VERSION" >> $CM_ENV
-      else
-          # FIXME: Force APP_VERSION instead of using check versioned branch
-          echo "Regular mode"
-          APP_VERSION="${CM_BRANCH##*/}"
-          echo "APP_VERSION=$APP_VERSION" >> $CM_ENV
-      fi
+  # Check if we are in backward compatibility mode
+  if [[ "$CM_WORKFLOW_NAME" != "" && "$CM_WORKFLOW_NAME" == *"backward_compatibility"* ]]; then
+      echo "Backward compatibility mode"
+      echo $WDIO_CONFIG_BACKWARD
+      echo $CM_WORKFLOW_NAME
+      APP_VERSION="$WDIO_CONFIG_BACKWARD"
+      echo "APP_VERSION=$APP_VERSION" >> $CM_ENV
+  else
+      # FIXME: Force APP_VERSION instead of using check versioned branch
+      echo "Regular mode"
+      APP_VERSION="${CM_BRANCH##*/}"
+      echo "APP_VERSION=$APP_VERSION" >> $CM_ENV
+  fi
 
-      SLEEP_BTW_LAUNCH=5
+  SLEEP_BTW_LAUNCH=5
 
-      # Add results of E2E into $CM_EXPORT_DIR
-      if [[ "$WDIO_CONFIG_1_REPORT_NAME" != "" ]]; then
-            echo "========================================="
-            echo "[END-TO-END] Start iOS lane 1 "
-            echo "========================================="
+  # Add results of E2E into $CM_EXPORT_DIR
+  if [[ "$WDIO_CONFIG_1_REPORT_NAME" != "" ]]; then
+        echo "========================================="
+        echo "[END-TO-END] Start iOS lane 1 "
+        echo "========================================="
 
-            IOS_BUILD_SLUG_1=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_ios\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_1_REPORT_NAME\":\"$WDIO_CONFIG_1_REPORT_NAME\", \"WDIO_CONFIG_1_SPECS_NAME\":\"$WDIO_CONFIG_1_SPECS_NAME\", \"WDIO_CONFIG_PATH_IOS\":\"$WDIO_CONFIG_PATH_IOS\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
-            echo "IOS_BUILD_SLUG_1=$IOS_BUILD_SLUG_1" >> $CM_ENV
+        IOS_BUILD_SLUG_1=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_ios\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_1_REPORT_NAME\":\"$WDIO_CONFIG_1_REPORT_NAME\", \"WDIO_CONFIG_1_SPECS_NAME\":\"$WDIO_CONFIG_1_SPECS_NAME\", \"WDIO_CONFIG_PATH_IOS\":\"$WDIO_CONFIG_PATH_IOS\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
+        echo "IOS_BUILD_SLUG_1=$IOS_BUILD_SLUG_1" >> $CM_ENV
 
-            echo "========================================="
-            echo "[END-TO-END] Start Android lane 1 "
-            echo "========================================="
+        echo "========================================="
+        echo "[END-TO-END] Start Android lane 1 "
+        echo "========================================="
 
-            # Limit spam to CodeMagic API and Git provider
-            sleep $SLEEP_BTW_LAUNCH
-            ANDROID_BUILD_SLUG_1=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_android\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_1_REPORT_NAME\":\"$WDIO_CONFIG_1_REPORT_NAME\", \"WDIO_CONFIG_1_SPECS_NAME\":\"$WDIO_CONFIG_1_SPECS_NAME\", \"WDIO_CONFIG_PATH_ANDROID\":\"$WDIO_CONFIG_PATH_ANDROID\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
-            echo "ANDROID_BUILD_SLUG_1=$ANDROID_BUILD_SLUG_1" >> $CM_ENV
-      fi
+        # Limit spam to CodeMagic API and Git provider
+        sleep $SLEEP_BTW_LAUNCH
+        ANDROID_BUILD_SLUG_1=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_android\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_1_REPORT_NAME\":\"$WDIO_CONFIG_1_REPORT_NAME\", \"WDIO_CONFIG_1_SPECS_NAME\":\"$WDIO_CONFIG_1_SPECS_NAME\", \"WDIO_CONFIG_PATH_ANDROID\":\"$WDIO_CONFIG_PATH_ANDROID\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
+        echo "ANDROID_BUILD_SLUG_1=$ANDROID_BUILD_SLUG_1" >> $CM_ENV
+  fi
 
-      if [[ "$WDIO_CONFIG_2_REPORT_NAME" != "" ]]; then
-            echo "========================================="
-            echo "[END-TO-END] Start iOS lane 2 "
-            echo "========================================="
+  if [[ "$WDIO_CONFIG_2_REPORT_NAME" != "" ]]; then
+        echo "========================================="
+        echo "[END-TO-END] Start iOS lane 2 "
+        echo "========================================="
 
-            # Limit spam to CodeMagic API and Git provider
-            sleep $SLEEP_BTW_LAUNCH
-            IOS_BUILD_SLUG_2=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_ios\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_2_REPORT_NAME\":\"$WDIO_CONFIG_2_REPORT_NAME\", \"WDIO_CONFIG_2_SPECS_NAME\":\"$WDIO_CONFIG_2_SPECS_NAME\", \"WDIO_CONFIG_PATH_IOS\":\"$WDIO_CONFIG_PATH_IOS\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
-            echo "IOS_BUILD_SLUG_2=$IOS_BUILD_SLUG_2" >> $CM_ENV
+        # Limit spam to CodeMagic API and Git provider
+        sleep $SLEEP_BTW_LAUNCH
+        IOS_BUILD_SLUG_2=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_ios\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_2_REPORT_NAME\":\"$WDIO_CONFIG_2_REPORT_NAME\", \"WDIO_CONFIG_2_SPECS_NAME\":\"$WDIO_CONFIG_2_SPECS_NAME\", \"WDIO_CONFIG_PATH_IOS\":\"$WDIO_CONFIG_PATH_IOS\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
+        echo "IOS_BUILD_SLUG_2=$IOS_BUILD_SLUG_2" >> $CM_ENV
 
-            echo "========================================="
-            echo "[END-TO-END] Start Android lane 2 "
-            echo "========================================="
+        echo "========================================="
+        echo "[END-TO-END] Start Android lane 2 "
+        echo "========================================="
 
-            # Limit spam to CodeMagic API and Git provider
-            sleep $SLEEP_BTW_LAUNCH
-            ANDROID_BUILD_SLUG_2=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_android\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_2_REPORT_NAME\":\"$WDIO_CONFIG_2_REPORT_NAME\", \"WDIO_CONFIG_2_SPECS_NAME\":\"$WDIO_CONFIG_2_SPECS_NAME\", \"WDIO_CONFIG_PATH_ANDROID\":\"$WDIO_CONFIG_PATH_ANDROID\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
-            echo "ANDROID_BUILD_SLUG_2=$ANDROID_BUILD_SLUG_2" >> $CM_ENV
-      fi
+        # Limit spam to CodeMagic API and Git provider
+        sleep $SLEEP_BTW_LAUNCH
+        ANDROID_BUILD_SLUG_2=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_android\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_2_REPORT_NAME\":\"$WDIO_CONFIG_2_REPORT_NAME\", \"WDIO_CONFIG_2_SPECS_NAME\":\"$WDIO_CONFIG_2_SPECS_NAME\", \"WDIO_CONFIG_PATH_ANDROID\":\"$WDIO_CONFIG_PATH_ANDROID\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
+        echo "ANDROID_BUILD_SLUG_2=$ANDROID_BUILD_SLUG_2" >> $CM_ENV
+  fi
 
-      if [[ "$WDIO_CONFIG_3_REPORT_NAME" != "" ]]; then
-            echo "========================================="
-            echo "[END-TO-END] Start iOS lane 3 "
-            echo "========================================="
+  if [[ "$WDIO_CONFIG_3_REPORT_NAME" != "" ]]; then
+        echo "========================================="
+        echo "[END-TO-END] Start iOS lane 3 "
+        echo "========================================="
 
-            # Limit spam to CodeMagic API and Git provider
-            sleep $SLEEP_BTW_LAUNCH
-            IOS_BUILD_SLUG_3=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_ios\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_3_REPORT_NAME\":\"$WDIO_CONFIG_3_REPORT_NAME\", \"WDIO_CONFIG_3_SPECS_NAME\":\"$WDIO_CONFIG_3_SPECS_NAME\", \"WDIO_CONFIG_PATH_IOS\":\"$WDIO_CONFIG_PATH_IOS\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
-            echo "IOS_BUILD_SLUG_3=$IOS_BUILD_SLUG_3" >> $CM_ENV
+        # Limit spam to CodeMagic API and Git provider
+        sleep $SLEEP_BTW_LAUNCH
+        IOS_BUILD_SLUG_3=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_ios\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_3_REPORT_NAME\":\"$WDIO_CONFIG_3_REPORT_NAME\", \"WDIO_CONFIG_3_SPECS_NAME\":\"$WDIO_CONFIG_3_SPECS_NAME\", \"WDIO_CONFIG_PATH_IOS\":\"$WDIO_CONFIG_PATH_IOS\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
+        echo "IOS_BUILD_SLUG_3=$IOS_BUILD_SLUG_3" >> $CM_ENV
 
-            echo "========================================="
-            echo "[END-TO-END] Start Android lane 3 "
-            echo "========================================="
+        echo "========================================="
+        echo "[END-TO-END] Start Android lane 3 "
+        echo "========================================="
 
-            # Limit spam to CodeMagic API and Git provider
-            sleep $SLEEP_BTW_LAUNCH
-            ANDROID_BUILD_SLUG_3=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_android\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_3_REPORT_NAME\":\"$WDIO_CONFIG_3_REPORT_NAME\", \"WDIO_CONFIG_3_SPECS_NAME\":\"$WDIO_CONFIG_3_SPECS_NAME\", \"WDIO_CONFIG_PATH_ANDROID\":\"$WDIO_CONFIG_PATH_ANDROID\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
-            echo "ANDROID_BUILD_SLUG_3=$ANDROID_BUILD_SLUG_3" >> $CM_ENV
-      fi
+        # Limit spam to CodeMagic API and Git provider
+        sleep $SLEEP_BTW_LAUNCH
+        ANDROID_BUILD_SLUG_3=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"build_e2e_android\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"RUN_END_TO_END\":\"$RUN_END_TO_END\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\", \"E2E_APP_VERSION\":\"$APP_VERSION\", \"WDIO_CONFIG_3_REPORT_NAME\":\"$WDIO_CONFIG_3_REPORT_NAME\", \"WDIO_CONFIG_3_SPECS_NAME\":\"$WDIO_CONFIG_3_SPECS_NAME\", \"WDIO_CONFIG_PATH_ANDROID\":\"$WDIO_CONFIG_PATH_ANDROID\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
+        echo "ANDROID_BUILD_SLUG_3=$ANDROID_BUILD_SLUG_3" >> $CM_ENV
+  fi
 
-      if [[ ${IOS_BUILD_SLUG_1} != "" && ${IOS_BUILD_SLUG_1} != "EMPTY" ]]; then
-            echo "========================================="
-            echo "[END-TO-END] Complete builds list variable"
-            echo "========================================="
+  if [[ ${IOS_BUILD_SLUG_1} != "" && ${IOS_BUILD_SLUG_1} != "EMPTY" ]]; then
+        echo "========================================="
+        echo "[END-TO-END] Complete builds list variable"
+        echo "========================================="
 
-            # Avoid usage of run_if + don't re-enter in the loop if builds are already added
-            if [ "$RETRIGGER_WAITING_PREVIOUS_BUILDS" == "true" ]
-                  then
-                  echo "Waiting builds to trigger new ones..."
-                  exit 0
-            fi
+        # Avoid usage of run_if + don't re-enter in the loop if builds are already added
+        if [ "$RETRIGGER_WAITING_PREVIOUS_BUILDS" == "true" ]
+              then
+              echo "Waiting builds to trigger new ones..."
+              exit 0
+        fi
 
-            echo "Current END_TO_END_BUILD_LIST:$END_TO_END_BUILD_LIST"
-            L_END_TO_END_BUILD_LIST=$END_TO_END_BUILD_LIST
+        echo "Current END_TO_END_BUILD_LIST:$END_TO_END_BUILD_LIST"
+        L_END_TO_END_BUILD_LIST=$END_TO_END_BUILD_LIST
 
-            echo "Current IOS_BUILD_SLUG_1:$IOS_BUILD_SLUG_1"
-            echo "Current ANDROID_BUILD_SLUG_1:$ANDROID_BUILD_SLUG_1"
+        echo "Current IOS_BUILD_SLUG_1:$IOS_BUILD_SLUG_1"
+        echo "Current ANDROID_BUILD_SLUG_1:$ANDROID_BUILD_SLUG_1"
 
-            # We take in consideration that we always trigger both platform
-            if [[ ${IOS_BUILD_SLUG_1} != "" && ${IOS_BUILD_SLUG_1} != "EMPTY" ]]; then
-                  L_END_TO_END_BUILD_LIST=$L_END_TO_END_BUILD_LIST+$IOS_BUILD_SLUG_1+$ANDROID_BUILD_SLUG_1
-            fi
+        # We take in consideration that we always trigger both platform
+        if [[ ${IOS_BUILD_SLUG_1} != "" && ${IOS_BUILD_SLUG_1} != "EMPTY" ]]; then
+              L_END_TO_END_BUILD_LIST=$L_END_TO_END_BUILD_LIST+$IOS_BUILD_SLUG_1+$ANDROID_BUILD_SLUG_1
+        fi
 
-            if [[ ${IOS_BUILD_SLUG_2} != "" && ${IOS_BUILD_SLUG_2} != "EMPTY" ]]; then
-                  L_END_TO_END_BUILD_LIST=$L_END_TO_END_BUILD_LIST+$IOS_BUILD_SLUG_2+$ANDROID_BUILD_SLUG_2
-            fi
+        if [[ ${IOS_BUILD_SLUG_2} != "" && ${IOS_BUILD_SLUG_2} != "EMPTY" ]]; then
+              L_END_TO_END_BUILD_LIST=$L_END_TO_END_BUILD_LIST+$IOS_BUILD_SLUG_2+$ANDROID_BUILD_SLUG_2
+        fi
 
-            if [[ ${IOS_BUILD_SLUG_3} != "" && ${IOS_BUILD_SLUG_3} != "EMPTY" ]]; then
-                  L_END_TO_END_BUILD_LIST=$L_END_TO_END_BUILD_LIST+$IOS_BUILD_SLUG_3+$ANDROID_BUILD_SLUG_3
-            fi
+        if [[ ${IOS_BUILD_SLUG_3} != "" && ${IOS_BUILD_SLUG_3} != "EMPTY" ]]; then
+              L_END_TO_END_BUILD_LIST=$L_END_TO_END_BUILD_LIST+$IOS_BUILD_SLUG_3+$ANDROID_BUILD_SLUG_3
+        fi
 
-            # Remove char "+" for the first build if any
-            L_END_TO_END_BUILD_LIST=${L_END_TO_END_BUILD_LIST#+}
+        # Remove char "+" for the first build if any
+        L_END_TO_END_BUILD_LIST=${L_END_TO_END_BUILD_LIST#+}
 
-            echo "New END_TO_END_BUILD_LIST:$L_END_TO_END_BUILD_LIST"
+        echo "New END_TO_END_BUILD_LIST:$L_END_TO_END_BUILD_LIST"
 
-            END_TO_END_BUILD_LIST="$L_END_TO_END_BUILD_LIST"
-            echo "END_TO_END_BUILD_LIST=$END_TO_END_BUILD_LIST" >> $CM_ENV
-      fi
- 
+        END_TO_END_BUILD_LIST="$L_END_TO_END_BUILD_LIST"
+        echo "END_TO_END_BUILD_LIST=$END_TO_END_BUILD_LIST" >> $CM_ENV
+  fi

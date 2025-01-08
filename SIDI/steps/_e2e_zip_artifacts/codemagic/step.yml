@@ -1,8 +1,7 @@
-    name: "[END-TO-END] Zip artifacts"
-    script: |
-      #!/usr/bin/env bash
-      # fail if any commands fails
+name: "[END-TO-END] Zip artifacts"
+script: |
+  #!/usr/bin/env bash
+  # fail if any commands fails
 
-      # Add results of E2E into $CM_EXPORT_DIR
-      zip -q -r $CM_EXPORT_DIR/end_to_end_results.zip ./end-to-end/build/reports/*
- 
+  # Add results of E2E into $CM_EXPORT_DIR
+  zip -q -r $CM_EXPORT_DIR/end_to_end_results.zip ./end-to-end/build/reports/*

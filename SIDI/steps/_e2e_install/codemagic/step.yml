@@ -1,14 +1,14 @@
-    name: "[END-TO-END] Yarn install"
-    script: |
-      #!/usr/bin/env bash
-      set -e
+name: "[END-TO-END] Yarn install"
+script: |
+  #!/usr/bin/env bash
+  set -e
 
-      # Navigate to the end-to-end directory
-      echo "ℹ️ Navigating to the end-to-end directory..."
-      if ! cd ./end-to-end/; then
-        echo "🚨 Failed to navigate to the end-to-end directory."
-        exit 1
-      fi
-      yarn install
-      echo "✅ Yarn install is successfully"
-      cd ../
+  # Navigate to the end-to-end directory
+  echo "ℹ️ Navigating to the end-to-end directory..."
+  if ! cd ./end-to-end/; then
+    echo "🚨 Failed to navigate to the end-to-end directory."
+    exit 1
+  fi
+  yarn install
+  echo "✅ Yarn install is successfully"
+  cd ../
