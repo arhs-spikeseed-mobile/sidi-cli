@@ -1,5 +1,4 @@
 import { IConfig } from '../../../src/models/SidiModel';
-import { commonConfig, rnConfig, iosConfig } from '../configs';
 
 const config: IConfig = {
   mandatoryKeys: [

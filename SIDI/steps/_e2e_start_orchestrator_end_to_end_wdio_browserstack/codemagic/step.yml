@@ -1,0 +1,12 @@
+name: "[END-TO-END] Start e2e orchestrator"
+script: |
+  #!/usr/bin/env bash
+  # fail if any commands fails
+
+  # Check if required parameters are provided
+  if [ -z "$END_TO_END_CONFIG_PATH" ] || [ -z "$END_TO_END_CONFIG_KEY" ]; then
+      echo "🚨 Error: Both END_TO_END_CONFIG_PATH and END_TO_END_CONFIG_KEY" 1>&2
+      return 1
+  fi
+  BUILD_SLUG=$(curl -H "Content-Type: application/json" -H "x-auth-token: $CODE_MAGIC_TOKEN" --data "{ \"appId\": \"$CM_PROJECT_ID\", \"workflowId\": \"end_to_end_wdio_browserstack\", \"branch\": \"$CM_BRANCH\", \"environment\": { \"variables\": { \"END_TO_END_CONFIG_PATH\":\"$END_TO_END_CONFIG_PATH\", \"END_TO_END_CONFIG_KEY\":\"$END_TO_END_CONFIG_KEY\" }}}" https://api.codemagic.io/builds | jq '.buildId' | sed 's/"//g')
+  echo $BUILD_SLUG
