@@ -19,9 +19,9 @@ steps:
                 local branch=$1
                 local version=$2
                 if [ -z "$version" ]; then
-                  echo "ℹ️ $branch" >&2
+                  echo "$branch"
                 else
-                  echo "ℹ️ ${branch}/${version}" >&2
+                  echo "${branch}/${version}"
                 fi
               }
 
