@@ -95,7 +95,32 @@ Focused on maintaining code quality. This group will:
 
 ## 🚀 promote_app
 
-Uses [this library](https://www.npmjs.com/package/devops-helper) to promote your source branch to others.
+Promote your source branch to others.
+
+### Example:
+#### Auto detected version from the branch name:
+
+Your current branch is: `branch_1/1.2.3`
+
+`"[\"branch_1\", \"branch_2\", \"branch_3\"]"`
+
+it will merge `branch_1/1.2.3` into `branch_2/1.2.3`, and `branch_2/1.2.3` into `branch_3/1.2.3`
+
+### Manually set version:
+
+`"[\"develop\", \"uat\", \"store\"]" 9.99.9`
+
+It will merge `branch_1/9.99.9` into `branch_2/9.99.9`, and `branch_2/9.99.9` into `branch_3/9.99.9`
+
+### Without any versioned branches:
+
+`"[\"branch_1\", \"branch_2\", \"branch_3\"]"`
+
+It will merge `branch_1` into `branch_2`, and `branch_2` into `branch_3`
+
+## Lint, Coverage, Test...
+
+- `yarn fix` to run the linter and automatically fix your code
 
 **List of Steps:**
 - [_promote_app_step](./steps.md#promote_app_step)
