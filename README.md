@@ -73,6 +73,7 @@ With SIDI, you can:
 | Project Type    | Status               |
 |-----------------|----------------------|
 | React Native    | ✅ Supported         |
+| Flutter    | 🛠️ WIP         |
 | Native iOS      | ✅ Supported         |
 | Native Android  | ✅ Supported         |
 

@@ -19,7 +19,7 @@ During the `Init` or `Edit` commands, **SIDI** proposes groups of steps from a c
 
 A group of steps designed for building Android applications. Depending on user choices during `init` or `edit`, this group will:
 - Add overlays to application icons.
-- Run React Native and Android tests (Lint, TSC, Prettier, UT, Jest).
+- Run React Native (or Flutter) and Android tests (Lint, TSC, Prettier, UT, Jest).
 - Set the application version and build APK/AAB files.
 - Share the APK as CICD artifacts.
 - Notify status updates via Slack/Teams.
@@ -33,6 +33,11 @@ A group of steps designed for building Android applications. Depending on user c
 - [react_native_tsc](./steps.md#react_native_tsc)
 - [react_native_prettier](./steps.md#react_native_prettier)
 - [react_native_jest](./steps.md#react_native_jest)
+- [flutter_pre_build](./steps.md#flutter_pre_build)
+- [flutter_yarn](./steps.md#flutter_yarn)
+- [flutter_jest](./steps.md#flutter_jest)
+- [flutter_prettier](./steps.md#flutter_prettier)
+- [flutter_lint](./steps.md#flutter_lint)
 - [android_set_manifest_version](./steps.md#android_set_manifest_version)
 - [android_build_apk](./steps.md#android_build_apk)
 - [send_slack_message](./steps.md#send_slack_message)
@@ -57,13 +62,26 @@ Extends `build_android` to include deployment steps:
 
 A group of steps for iOS builds. Based on user choices, this group will:
 - Add overlays to application icons.
-- Run React Native and iOS tests.
+- Run React Native (or Flutter) and iOS tests.
 - Set the application version and build IPA files.
 - Share the IPA as CICD artifacts.
 - Notify status updates via Slack/Teams.
 
 **List of Steps:**
 - [ios_setup_file_type](./steps.md#ios_setup_file_type)
+- [setup_app_assets](./steps.md#setup_app_assets)
+- [react_native_pre_build](./steps.md#react_native_pre_build)
+- [npm_private_login](./steps.md#npm_private_login)
+- [react_native_yarn](./steps.md#react_native_yarn)
+- [react_native_lint](./steps.md#react_native_lint)
+- [react_native_tsc](./steps.md#react_native_tsc)
+- [react_native_prettier](./steps.md#react_native_prettier)
+- [react_native_jest](./steps.md#react_native_jest)
+- [flutter_pre_build](./steps.md#flutter_pre_build)
+- [flutter_yarn](./steps.md#flutter_yarn)
+- [flutter_jest](./steps.md#flutter_jest)
+- [flutter_prettier](./steps.md#flutter_prettier)
+- [flutter_lint](./steps.md#flutter_lint)
 - [ios_archive](./steps.md#ios_archive)
 - [send_slack_message](./steps.md#send_slack_message)
 

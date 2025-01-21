@@ -7,6 +7,7 @@ const config: IConfig = {
   stepsFamily: [
     '_setup_app_assets',
     '_react_native_pre_build',
+    '_flutter_pre_build',
     '_npm_private_login',
     '_react_native_yarn_install',
     '_react_native_lint',
@@ -20,6 +21,10 @@ const config: IConfig = {
     '_react_native_npm_jest',
     '_react_native_npm_library_install',
     '_react_native_yarn_library_install',
+    '_flutter_yarn_install',
+    '_flutter_jest',
+    '_flutter_lint',
+    '_flutter_prettier',
     '_ios_setup_file_type',
     '_ios_setup_build_number',
     '_ios_setup_certificate_install',

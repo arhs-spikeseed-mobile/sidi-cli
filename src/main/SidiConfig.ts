@@ -26,7 +26,7 @@ export const sidiConfigUnwantedKeys = [
 
 export class SidiConfig {
   version: string;
-  projectType: 'ios' | 'android' | 'react-native';
+  projectType: 'ios' | 'android' | 'react-native' | 'flutter';
   appOrLib: 'app' | 'library';
   cicd: 'bitrise' | 'codemagic';
   libOrApp: 'library' | 'application';

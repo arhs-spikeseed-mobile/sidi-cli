@@ -1,0 +1,6 @@
+steps:
+  - flutter-installer:
+      title: "[FLUTTER] - Install Flutter SDK"
+      inputs:
+      - version: stable
+      - is_update: false

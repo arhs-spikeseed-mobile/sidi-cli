@@ -8,6 +8,11 @@
 - [react_native_tsc](#react_native_tsc)
 - [react_native_prettier](#react_native_prettier)
 - [react_native_jest](#react_native_jest)
+- [flutter_pre_build](./steps.md#flutter_pre_build)
+- [flutter_yarn](./steps.md#flutter_yarn)
+- [flutter_jest](./steps.md#flutter_jest)
+- [flutter_prettier](./steps.md#flutter_prettier)
+- [flutter_lint](./steps.md#flutter_lint)
 - [android_set_manifest_version](#android_set_manifest_version)
 - [android_set_version_code_name](#android_set_version_code_name)
 - [android_run_lint](#android_run_lint)
@@ -639,6 +644,18 @@ Run unit tests on React-Native codes
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
+## flutter_jest
+Run unit tests on dart codes
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description              | Default value                        | Expected value                      |
+|---------|--------------------------|--------------------------------------|---|
+| PROJECT_LOCATION    | Location of your flutter project | `.` ||
+
 ## react_native_lint
 
 Run lint on React-Native codes
@@ -647,6 +664,19 @@ Run lint on React-Native codes
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
+
+## flutter_lint
+
+Run lint on dart codes
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description              | Default value                        | Expected value                      |
+|---------|--------------------------|--------------------------------------|---|
+| PROJECT_LOCATION    | Location of your flutter project | `.` ||
 
 ## react_native_pre_build
 
@@ -661,6 +691,19 @@ Install React-Native cli
 |---------|----------------------------|--------------------------------------|-----------------------------------------------------|
 | RN_CLI_VERSION    | React native cli's version | latest | *optional key - will use latest version if not set* |
 
+## flutter_pre_build
+
+Install React-Native cli
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description              | Default value                        | Expected value                      |
+|---------|--------------------------|--------------------------------------|---|
+| PROJECT_LOCATION    | Location of your flutter project | `.` ||
+
 ## react_native_prettier
 
 Run prettier on React-Native codes
@@ -669,6 +712,19 @@ Run prettier on React-Native codes
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
+
+## flutter_prettier
+
+Run prettier on React-Native codes
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description              | Default value                        | Expected value                      |
+|---------|--------------------------|--------------------------------------|---|
+| PROJECT_LOCATION    | Location of your flutter project | `.` ||
 
 ## react_native_tsc
 
@@ -681,12 +737,25 @@ Run tsc on React-Native codes
 
 ## react_native_yarn
 
-Install yarn
+Install dependencies with yarn
 
 | CICD    | ✅ Available         |
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
+
+## flutter_yarn
+
+Install dependencies
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description              | Default value                        | Expected value                      |
+|---------|--------------------------|--------------------------------------|---|
+| PROJECT_LOCATION    | Location of your flutter project | `.` ||
 
 ## send_slack_message
 

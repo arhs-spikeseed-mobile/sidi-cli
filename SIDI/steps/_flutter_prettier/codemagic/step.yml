@@ -1,0 +1,8 @@
+name: "[FLUTTER] - Run Prettier"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  cd $PROJECT_LOCATION
+
+  dart format
