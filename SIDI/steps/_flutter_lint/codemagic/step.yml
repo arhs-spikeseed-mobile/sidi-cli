@@ -1,0 +1,8 @@
+name: "[FLUTTER] - Run Lint"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  cd $PROJECT_LOCATION
+
+  flutter analyze

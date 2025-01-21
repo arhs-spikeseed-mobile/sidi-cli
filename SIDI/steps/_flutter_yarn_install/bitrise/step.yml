@@ -1,0 +1,9 @@
+steps:
+  - script@1.1.6:
+      title: "[FLUTTER] - Install dependencies"
+      inputs:
+       - content: |-
+          #!/bin/bash
+          
+          echo "Install dependencies"
+          flutter pub get

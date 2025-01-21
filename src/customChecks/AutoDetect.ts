@@ -19,6 +19,12 @@ export default async function autoDetectProjectType(toolbox: GluegunToolbox): Pr
     if (hasRN) return { projectType: 'react-native' };
   }
 
+  // flutter files
+  const flutterFiles = await FastGlob('**/pubspec.yaml', { ignore: ['**/node_modules/**'] });
+  if (arrayNotEmpty(flutterFiles)) {
+    return { projectType: 'flutter' };
+  }
+
   // Android files
   const gradleFiles = await FastGlob('**/build.gradle', { ignore: ['**/node_modules/**'] });
   const manifestFiles = await FastGlob('**/build.gradle', { ignore: ['**/node_modules/**'] });

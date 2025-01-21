@@ -1,0 +1,10 @@
+steps:
+ - script@1.1.6:
+    inputs:
+     - content: |-
+        #!/usr/bin/env bash
+        set -ex
+        
+        dart pub outdated 
+    title: "[AUDIT] - Search outdated packages"
+    is_always_run: true

@@ -40,10 +40,15 @@ module.exports = {
         'ios',
         'android',
         'react-native',
+        'flutter',
       ]);
     }
 
-    sidiConfig.libOrApp = await selectExtension(Translator.translate('sidiConfig.libOrApp'), ['library', 'application']);
+    if (sidiConfig.projectType !== 'flutter') {
+      sidiConfig.libOrApp = await selectExtension(Translator.translate('sidiConfig.libOrApp'), ['library', 'application']);
+    } else {
+      sidiConfig.libOrApp = 'application';
+    }
 
     sidiConfig.cicd = await selectExtension(Translator.translate('sidiConfig.whichCICD'), ['bitrise', 'codemagic']);
 
