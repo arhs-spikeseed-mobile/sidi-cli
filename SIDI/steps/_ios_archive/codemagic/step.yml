@@ -3,4 +3,4 @@ script: |
   #!/usr/bin/env bash
   set -ex
 
-  xcode-project build-ipa --workspace "$FCI_BUILD_DIR/$IOS_PROJECT_ROOT/$IOS_PROJECT_FILE_NAME$IOS_FILE_EXEC_TYPE" --scheme "$IOS_SCHEME"
+  xcode-project build-ipa --workspace "$FCI_BUILD_DIR/$IOS_PROJECT_ROOT/$IOS_PROJECT_FILE_NAME$IOS_FILE_EXEC_TYPE" --scheme "$IOS_SCHEME" --archive-flags="-destination 'generic/platform=iOS'"

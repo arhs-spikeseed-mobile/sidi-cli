@@ -1,0 +1,10 @@
+name: "[AUDIT] - Search outdated packages"
+ignore_failure: true
+script: |
+   #!/bin/sh
+   set -ex
+
+   # hack to fix yarn version issue (temporary!)
+   dart pub outdated 
+
+   echo "Audit outdated packages finished successfully"

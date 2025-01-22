@@ -1,0 +1,6 @@
+steps:
+  - flutter-test:
+      title: "[FLUTTER] - Run Unit Tests"
+      inputs:
+        - project_location: "$PROJECT_LOCATION"
+        - generate_code_coverage_files: 'yes'

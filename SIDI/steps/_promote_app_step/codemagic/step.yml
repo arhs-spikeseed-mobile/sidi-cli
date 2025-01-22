@@ -2,14 +2,105 @@ name: "[PROMOTE] - Promote app"
 script: |
   #!/bin/sh
   set -ex
-  
-  npm i -g devops-helper
-  if [[ "$INCREMENT_VERSION" != "" ]]; then
-    devops-helper promote-app $REPOSITORY_URL $BRANCHES $APP_VERSION
-  else
-    if [ ${IS_VERSIONED_BRANCH} == "true" ]; then
-      devops-helper promote-app $REPOSITORY_URL $BRANCHES $APP_VERSION
+
+  promoteapp() {
+    local REMOTE=$1
+    local BRANCHES=$2
+    local APP_VERSION=$3
+    local IS_VERSIONED_BRANCH=$4
+    local INCREMENT_VERSION=$5
+    local DRY_RUN=$6
+
+    # Function to join branch and version
+    join_branch_version() {
+      local branch=$1
+      local version=$2
+      if [ -z "$version" ]; then
+        echo "$branch"
+      else
+        echo "${branch}/${version}"
+      fi
+    }
+
+    if [ "$DRY_RUN" = "true" ]; then
+      DRY_RUN="echo"
     else
-      devops-helper promote-app $REPOSITORY_URL $BRANCHES --noVersionedBranch
+      DRY_RUN=""
     fi
-  fi
+
+    # Parse BRANCHES JSON into an array
+    BRANCH_ARRAY=$(echo "$BRANCHES" | jq -r '.[]')
+
+    # Determine whether to increment version
+    if [ -n "$INCREMENT_VERSION" ]; then
+      echo "ℹ️ Incrementing version and promoting"
+      for CURRENT_BRANCH in $BRANCH_ARRAY; do
+        local BRANCH_AND_VERSION=$(join_branch_version "$CURRENT_BRANCH" "$APP_VERSION")
+
+        echo "ℹ️ Checking out and pulling $BRANCH_AND_VERSION"
+        $DRY_RUN git checkout "$BRANCH_AND_VERSION" || $DRY_RUN git checkout -b "$BRANCH_AND_VERSION"
+        $DRY_RUN git pull "$REMOTE" "$BRANCH_AND_VERSION"
+
+        if [ "$PREVIOUS_BRANCH" ]; then
+          local PREVIOUS_BRANCH_AND_VERSION=$(join_branch_version "$PREVIOUS_BRANCH" "$APP_VERSION")
+          echo "ℹ️ Merging $PREVIOUS_BRANCH_AND_VERSION into $BRANCH_AND_VERSION"
+          $DRY_RUN git merge "$PREVIOUS_BRANCH_AND_VERSION" --commit --no-edit
+        fi
+
+        echo "ℹ️ Pushing $REMOTE $BRANCH_AND_VERSION"
+        $DRY_RUN git push "$REMOTE" "$BRANCH_AND_VERSION"
+
+        PREVIOUS_BRANCH=$CURRENT_BRANCH
+      done
+    else
+      if [ "$IS_VERSIONED_BRANCH" = "true" ]; then
+        echo "ℹ️ Promoting versioned branch"
+        for CURRENT_BRANCH in $BRANCH_ARRAY; do
+          local BRANCH_AND_VERSION=$(join_branch_version "$CURRENT_BRANCH" "$APP_VERSION")
+
+          echo "ℹ️ Checking out and pulling $BRANCH_AND_VERSION"
+          $DRY_RUN git checkout "$BRANCH_AND_VERSION" || $DRY_RUN git checkout -b "$BRANCH_AND_VERSION"
+          $DRY_RUN git pull "$REMOTE" "$BRANCH_AND_VERSION"
+
+          if [ "$PREVIOUS_BRANCH" ]; then
+            local PREVIOUS_BRANCH_AND_VERSION=$(join_branch_version "$PREVIOUS_BRANCH" "$APP_VERSION")
+            echo "ℹ️ Merging $PREVIOUS_BRANCH_AND_VERSION into $BRANCH_AND_VERSION"
+            $DRY_RUN git merge "$PREVIOUS_BRANCH_AND_VERSION" --commit --no-edit
+          fi
+
+          echo "ℹ️ Pushing $REMOTE $BRANCH_AND_VERSION"
+          $DRY_RUN git push "$REMOTE" "$BRANCH_AND_VERSION"
+
+          PREVIOUS_BRANCH=$CURRENT_BRANCH
+        done
+      else
+        echo "ℹ️ Promoting non-versioned branch"
+        for CURRENT_BRANCH in $BRANCH_ARRAY; do
+          echo "ℹ️ Checking out and pulling $CURRENT_BRANCH"
+          $DRY_RUN git checkout "$CURRENT_BRANCH" || $DRY_RUN git checkout -b "$CURRENT_BRANCH"
+          $DRY_RUN git pull "$REMOTE" "$CURRENT_BRANCH"
+
+          if [ "$PREVIOUS_BRANCH" ]; then
+            echo "ℹ️ Merging $PREVIOUS_BRANCH into $CURRENT_BRANCH"
+            $DRY_RUN git merge "$PREVIOUS_BRANCH" --commit --no-edit
+          fi
+
+          echo "ℹ️ Pushing $REMOTE $CURRENT_BRANCH"
+          $DRY_RUN git push "$REMOTE" "$CURRENT_BRANCH"
+
+          PREVIOUS_BRANCH=$CURRENT_BRANCH
+        done
+      fi
+    fi
+  }
+
+  # Define variables
+  REMOTE="$REPOSITORY_URL"
+  BRANCHES="$BRANCHES"
+  VERSION="$APP_VERSION"
+  IS_VERSIONED_BRANCH="$IS_VERSIONED_BRANCH"
+  INCREMENT_VERSION="$INCREMENT_VERSION"
+  DRY_RUN="false"
+
+  # Call the function
+  promoteapp "$REMOTE" "$BRANCHES" "$VERSION" "$IS_VERSIONED_BRANCH" "$INCREMENT_VERSION" "$DRY_RUN"

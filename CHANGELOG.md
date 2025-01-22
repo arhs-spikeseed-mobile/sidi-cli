@@ -1,9 +1,14 @@
-# Changelog (Current version: 3.0.5)
+# Changelog (Current version: 3.1.0)
 
 ## Unreleased
 
+## Version 3.1.0
+
 Features
 - support react-native library to check library's code and build application for the sample application
+- support flutter
+- update bitrise stacks
+- update codemagic stacks
 
 Fixes
 - Fix: Installing provising profile for the project based on IOS_PROJECT_ROOT key
@@ -22,6 +27,12 @@ Fixes
 
 Fixes
 - Fix #4: Add missing files (*.json) to npm package
+
+### Version 3.0.1
+
+News
+- Fix #94: Remove deprecated method EventEmitter.removeListener
+- Update dependencies according to Snyk reports
 
 ### Version 3.0.0
 - Library created

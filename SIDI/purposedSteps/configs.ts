@@ -32,12 +32,16 @@ export const commonConfig: IConditionalStep[] = [
     stepsNames: ['_send_teams_message'],
   },
   {
-    conditions: [{ key: 'projectType', expectedValues: ['ios', 'react-native'], choices: ['true', 'false'] }],
+    conditions: [{ key: 'projectType', expectedValues: ['ios', 'react-native', 'flutter'], choices: ['true', 'false'] }],
     stepsNames: ['_setup_ios_default_values'],
   },
   {
-    conditions: [{ key: 'projectType', expectedValues: ['android', 'react-native'], choices: ['true', 'false'] }],
+    conditions: [{ key: 'projectType', expectedValues: ['android', 'react-native', 'flutter'], choices: ['true', 'false'] }],
     stepsNames: ['_setup_android_default_values'],
+  },
+  {
+    conditions: [{ key: 'projectType', expectedValues: ['flutter'] }],
+    stepsNames: ['_flutter_pre_build'],
   },
   {
     conditions: [{ key: 'projectType', expectedValues: ['react-native'] }],
@@ -166,6 +170,50 @@ export const rnConfig: IConditionalStep[] = [
     stepsNames: [
       '_audit_packages_yarn',
       '_audit_packages_outdated',
+      '_audit_packages_urls',
+      '_audit_packages_third_parties',
+      '_audit_export_report',
+      '_audit_app_quality',
+      '_audit_conditional_fail',
+    ],
+  },
+];
+
+export const flutterConfig: IConditionalStep[] = [
+  {
+    conditions: [
+      { key: 'projectType', expectedValues: ['flutter'] },
+    ],
+    stepsNames: ['_flutter_yarn_install'],
+  },
+  {
+    conditions: [
+      { key: 'projectType', expectedValues: ['flutter'] },
+      { key: '_flutter_lint', expectedValues: ['true'], choices: ['true', 'false'] },
+    ],
+    stepsNames: ['_flutter_lint'],
+  },
+  {
+    conditions: [
+      { key: 'projectType', expectedValues: ['flutter'] },
+      { key: '_flutter_prettier', expectedValues: ['true'], choices: ['true', 'false'] },
+    ],
+    stepsNames: ['_flutter_prettier'],
+  },
+  {
+    conditions: [
+      { key: 'projectType', expectedValues: ['flutter'] },
+      { key: '_flutter_jest', expectedValues: ['true'], choices: ['true', 'false'] },
+    ],
+    stepsNames: ['_flutter_jest'],
+  },
+  {
+    conditions: [
+      { key: 'projectType', expectedValues: ['flutter'] },
+      { key: 'auditPackages', expectedValues: ['true'], choices: ['true', 'false'] },
+    ],
+    stepsNames: [
+      '_audit_packages_outdated_dart',
       '_audit_packages_urls',
       '_audit_packages_third_parties',
       '_audit_export_report',

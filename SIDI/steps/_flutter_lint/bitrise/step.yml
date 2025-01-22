@@ -1,0 +1,6 @@
+steps:
+  - flutter-analyze:
+      title: "[FLUTTER] - Run Lint"
+      inputs:
+        - project_location: "$PROJECT_LOCATION"
+        - fail_severity: error

@@ -1,0 +1,7 @@
+name: "[PRE] - Pre build steps"
+script: |
+  #!/usr/bin/env bash
+  set -ex
+
+  echo "[FLUTTER] - Install FLUTTER SDK"
+  brew install flutter

@@ -1,66 +1,98 @@
-## Git workflow
+# 🌱 **Versioned Branching Strategy**
 
-In order to ensure consistency at the Git level, a first strategy was suggested concerning branch names, workflow… This solution is similar to the principle used here: https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow
+A consistent branching strategy is key for collaborative development, version control, and seamless CI/CD pipelines. This document explains a **versioned Git branching workflow** supported by images for clarity.
 
-—— Main branches ——
+---
 
-The main branches available are :
+## 🌟 **Main Branches**
 
-- « develop » for the development environment, to test new features in development, …
+The workflow relies on five key branches:
 
-- « test » for the « QA » team, to ensure there is no regression, all the new features meet the expectations
+1. **feature/x.x.x** – For feature development.
+2. **develop/x.x.x** – Main development branch for integration.
+3. **uat/x.x.x** – For User Acceptance Testing (UAT).
+4. **prodlike/x.x.x** – Pre-production (PRODLIKE) environment for validation.
+5. **master/x.x.x** – The production branch.
 
-- « master » for the production.
+---
 
-These three branches must be « protected » and prevent any commits to be pushed directly.
+## 🏷️ **Branch Versioning**
 
-—— Branch versioning ——
+Branch versioning follows **semantic versioning** (`x.y.z`):
+- `x` = Major version (breaking changes)
+- `y` = Minor version (new features)
+- `z` = Patch (bug fixes)
 
-The current strategy involves versioning each branch. The goal is to easily distinguish all versions made / in progress and to easily modify a version. This strategy has also been designed to integrate easily with the current CI/CD implementation.
+---
 
-So, for example, we will have :
+## 🚀 **Workflow with Images**
 
-develop/1.0.0
+### 1️⃣ **Feature Development**  
 
-test/1.0.0
+- All features are developed in **feature branches**.
+- A `feature/x.x.x` branch is created from `develop/x.x.x` to isolate changes.  
+- Once tested, the branch is merged back to `develop`.
 
-master/1.0.0
+![Feature Development Workflow](../assets/branching_strategy_merge_feat_fix.png)
 
-And in progress something like develop/2.0.0
+---
 
-We follow the standard semantics : X.Y.Z. (X = stands for a major version, Y = minor version, Z = patch version).
+### 2️⃣ **Multi-Version Support**  
 
-—— Branch feature/fix name ——
+In multi-version scenarios:  
+- Features and fixes are applied to specific versions.
+- Cherry-picking ensures that hotfixes and features propagate to the right branches.
 
-A specific convention has been defined to facilitate the follow-up of the branches.
-[typeOfTask]/[version]/[jiraTaskID]/[description]
+![Multi-Version Workflow](../assets/branching_strategy_merge%20feat_fix_multi_version.png)
 
-- typeOfTask = "feat" or "fix"
+---
 
-- version = the version of the application concerned by this branch
+### 3️⃣ **New Application Versions**  
 
-- jiraTaskID = the ID of the Jira task associated to this branch
+When creating new versions:  
+1. A new `develop/x.y.z` branch is started.  
+2. Updates flow from `develop → uat → prodlike → master`.  
+3. Tags ensure clear milestones.
 
-- description = a brief task description
+![New Version Workflow](../assets/branching_strategy_new_app_version.png)
 
-Example :
+---
 
-"feat/7.0.0/TEAM-13/add-new-fature"
+## 🛠️ **Branch Naming Conventions**
 
-—— Features ——
+Branches adhere to the following format:  
 
-Each feature to achieve, should be done through a branch. The strategy is quiet simple, each developer should create a branch from the corresponding develop version branch.
+```
+[type]/[version]/[task-id]/[description]
+```
 
-For example, we have to create a new feature for the next release 8.0.0, we should create a branch from develop/8.0.0 as we know this is the target of the next release.
+### **Examples:**
+- `feat/1.0.1/TEAM-123/implement-login`
+- `fix/1.0.2/BUG-456/resolve-api-error`
 
-To merge the branch in « develop », you must create a pull request.
+---
 
-— Fix ——
+## 🔧 **Workflow Steps**
 
-As for features, each fix should be done from a branch.
+### 1. **Feature Development**  
+   - Develop in `feature/x.x.x`.
+   - Merge into `develop/x.x.x`.
 
-If there is a hotfix to achieve in the version master 7.0.0 for example, we can easily investigate and create a branch from develop/7.0.0 as we know that all the new features are already based on develop/8.0.0 there is no risk to deploy something not validated yet.
+### 2. **UAT Validation**  
+   - From `develop/x.x.x`, create a `uat/x.x.x` branch for testing.
 
-When the fix is done, we can create a branch develop/7.0.1, merge it, and do the same process for test and master.
+### 3. **Pre-Production**  
+   - Merge UAT changes to `prodlike/x.x.x`.
 
-With this workflow we can easily see which version is concerned and easily distinguish all the current version work in progress.
+### 4. **Release to Production**  
+   - Final changes are merged into `master/x.x.x`.
+
+---
+
+## 🔍 **Benefits of this Workflow**
+
+- **Clear isolation** of features and fixes.
+- **Multi-version support** for production and upcoming releases.
+- Simplifies tracking, testing, and deploying changes.
+
+---
