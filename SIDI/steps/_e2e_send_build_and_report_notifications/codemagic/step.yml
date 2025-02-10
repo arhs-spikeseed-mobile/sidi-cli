@@ -3,7 +3,6 @@ script: |
   #!/usr/bin/env bash
   # fail if any commands fails
   set -ex
-
   # Send a message to Slack using a webhook URL
   sendToSlack() {
       local webhookUrl="$1"
@@ -248,12 +247,27 @@ script: |
       exit 1
     fi
 
-    res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.config_name == $key) | .config_title' "$END_TO_END_CONFIG_PATH")
+    res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.key == $key) | .title' "$END_TO_END_CONFIG_PATH")
     if [[ -z "$res" ]]; then
       echo "🚨 Configuration title for key $END_TO_END_CONFIG_KEY not found."
       exit 1
     fi
     echo "ℹ️ Configuration title: $res"
+
+    END_TO_END_WEBHOOCKS_TEAMS=$(jq -r --arg key "$END_TO_END_CONFIG_KEY" '
+      .[] | 
+      select(.key == $key) | 
+      .configuration.reports_webhook_url_teams
+    ' "$END_TO_END_CONFIG_PATH")
+
+    END_TO_END_WEBHOOCKS_SLACK=$(jq -r --arg key "$END_TO_END_CONFIG_KEY" '
+      .[] | 
+      select(.key == $key) | 
+      .configuration.reports_webhook_url_slack
+    ' "$END_TO_END_CONFIG_PATH")
+
+    echo "ℹ️ Teams Webhook URL: $END_TO_END_WEBHOOCKS_TEAMS"
+    echo "ℹ️ Slack Webhook URL: $END_TO_END_WEBHOOCKS_SLACK"
 
     # Navigate to the end-to-end directory
     echo "ℹ️ Navigating to the end-to-end directory..."
@@ -270,27 +284,45 @@ script: |
         local build_url="https://codemagic.io/app/$CM_PROJECT_ID/build/$CM_BUILD_ID"
         local invalid_json_count_msg=""
         local invalid_builds_count_msg=""
+        local failed_builds_list_msg=""
 
+        # Add message about invalid JSON count if applicable
         if [[ $INVALID_JSON_COUNT -gt 0 ]]; then
-            invalid_json_count_msg="⚠️ $INVALID_JSON_COUNT files removed due to invalid JSON"
+            invalid_json_count_msg="⚠️ $INVALID_JSON_COUNT files removed due to invalid JSON."
         fi
 
+        # Add message about invalid builds count if applicable
         if [[ $INVALID_BUILDS_COUNT -gt 0 ]]; then
-          invalid_builds_count_msg="⚠️ Number of invalid builds: $INVALID_BUILDS_COUNT"
+            invalid_builds_count_msg="⚠️ Number of invalid builds: $INVALID_BUILDS_COUNT."
+
+            # Format failed builds list
+            local failed_builds_urls=()
+            for build_id in ${FAILED_BUILDS_LIST}; do
+                failed_builds_urls+=("${build_id}")
+            done
+
+            # Separate builds for Teams and Slack with proper formatting
+            if [[ $platform == "teams" ]]; then
+                failed_builds_list_msg="🚨 Failed builds:<br>$(printf '%s<br>' "${failed_builds_urls[@]}")"
+            elif [[ $platform == "slack" ]]; then
+                failed_builds_list_msg="🚨 Failed builds:\n$(printf '%s\n' "${failed_builds_urls[@]}")"
+            fi
         fi
 
+        # Construct message based on platform
         if [[ $platform == "teams" ]]; then
-            local message="Execution of **$res** is done on branch $branch. <br>[Build URL]($build_url)<br>$invalid_json_count_msg<br>$invalid_builds_count_msg"
+            local message="Execution of **$res** is done on branch $branch.<br>[Build URL]($build_url)<br><br>$invalid_json_count_msg<br>$invalid_builds_count_msg<br>$failed_builds_list_msg"
         elif [[ $platform == "slack" ]]; then
-            local message="Execution of **$res** is done on branch \`$branch\`. <$build_url|Build URL>. $invalid_json_count_msg. $invalid_builds_count_msg"
+            local message="Execution of **$res** is done on branch \`$branch\`.\n<$build_url|Build URL>\n\n$invalid_json_count_msg\n$invalid_builds_count_msg\n$failed_builds_list_msg"
         else
             echo "🚨 Unsupported platform: $platform" 1>&2
             return 1
         fi
 
+        # Send the notification
         send_webhook_notification "$platform" "$webhook_url" "$message"
     }
-    
+            
     if [[ $INVALID_JSON_COUNT -gt 0 ]]; then
       echo "⚠️ Number of invalid JSON files: $INVALID_JSON_COUNT"
     else

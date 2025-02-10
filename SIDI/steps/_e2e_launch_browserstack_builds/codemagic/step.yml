@@ -8,23 +8,23 @@ script: |
   # Run end-to-end tests if required
   if [[ -n "$RUN_END_TO_END" ]]; then
 
-    # Navigate to the end-to-end directory
-    echo "ℹ️ Navigating to the end-to-end directory..."
-    if ! cd ./end-to-end/; then
-      echo "🚨 Failed to navigate to the end-to-end directory."
-      exit 1
-    fi
+        # Navigate to the end-to-end directory
+        echo "ℹ️ Navigating to the end-to-end directory..."
+        if ! cd ./end-to-end/; then
+        echo "🚨 Failed to navigate to the end-to-end directory."
+        exit 1
+        fi
 
-    # Determine WDIO config path
-    WDIO_CONFIG_PATH="${WDIO_CONFIG_PATH_IOS:-$WDIO_CONFIG_PATH_ANDROID}"
+        # Determine WDIO config path
+        WDIO_CONFIG_PATH="${WDIO_CONFIG_PATH_IOS:-$WDIO_CONFIG_PATH_ANDROID}"
 
-    if [[ "$END_TO_END_BROWSERSTACK_LOCAL_MODE" == "true" ]]; then
+        if [[ "$END_TO_END_BROWSERSTACK_LOCAL_MODE" == "true" ]]; then
         # Setup BrowserStack Local
         BROWSERSTACK_LOCAL_PATH="./build/BrowserStackLocal"
         if [[ ! -f "$BROWSERSTACK_LOCAL_PATH" ]]; then
-          curl -o ./build/BrowserStackLocal.zip "https://www.browserstack.com/browserstack-local/BrowserStackLocal-darwin-x64.zip"
-          unzip -q ./build/BrowserStackLocal.zip -d "build"
-          rm -f ./build/BrowserStackLocal.zip
+              curl -o ./build/BrowserStackLocal.zip "https://www.browserstack.com/browserstack-local/BrowserStackLocal-darwin-x64.zip"
+              unzip -q ./build/BrowserStackLocal.zip -d "build"
+              rm -f ./build/BrowserStackLocal.zip
         fi
 
         # Ensure BrowserStack Local is running
@@ -35,34 +35,51 @@ script: |
         sleep 2
         rm -rf build/temp.command
         echo "✅ BrowserStackLocal is launched."
-    fi
-
-    # Ensure required variables are set
-    required_vars=("WDIO_CONFIG_SPECS" "WDIO_CONFIG_PATH" "BROWSERSTACK_APP_URL" "WDIO_CONFIG_REPORT_NAME")
-    for var in "${required_vars[@]}"; do
-        if [ -z "${!var}" ]; then
-            echo "🚨 Error: Environment variable $var is not set."
-            exit 1
         fi
-    done
 
-    # Process WDIO_CONFIG_SPECS
-    WDIO_CONFIG_SPECS_CORRECT_PATH=$(echo "$WDIO_CONFIG_SPECS" | sed "s/'\\(\\*\\*\\/[^']*\\)'/path.resolve(cleanedPath, '\\1')/g")
+        # Ensure required variables are set
+        required_vars=("WDIO_CONFIG_SPECS" "WDIO_CONFIG_PATH" "BROWSERSTACK_APP_URL" "WDIO_CONFIG_REPORT_NAME" "END_TO_END_CONFIG_KEY" "WDIO_CONFIG_WAIT_FOR_TIMEOUT" "WDIO_CONFIG_CONNECTION_RETRY_TIMEOUT" "WDIO_CONFIG_CONNECTION_RETRY_COUNT" "WDIO_CONFIG_MAX_INSTANCES")
+        for var in "${required_vars[@]}"; do
+        if [ -z "${!var}" ]; then
+              echo "🚨 Error: Environment variable $var is not set."
+              exit 1
+        fi
+        done
 
-    # Determine PLATFORM
-    PLATFORM=${WDIO_CONFIG_PATH_IOS:+ios}
-    PLATFORM=${PLATFORM:-android}
+        # Process WDIO_CONFIG_SPECS
+        WDIO_CONFIG_SPECS_CORRECT_PATH=$(echo "$WDIO_CONFIG_SPECS" | sed "s/'\\(\\*\\*\\/[^']*\\)'/path.resolve(cleanedPath, '\\1')/g")
 
-    # Update WDIO_CONFIG_PATH
-    if [[ -f "$WDIO_CONFIG_PATH" ]]; then
+        # Determine PLATFORM
+        PLATFORM=${WDIO_CONFIG_PATH_IOS:+ios}
+        PLATFORM=${PLATFORM:-android}
+
+        # Handle BrowserStack credentials based on PLATFORM
+        if [[ "$PLATFORM" == "ios" ]]; then
+        if [[ -n "$END_TO_END_BROWSERSTACK_IOS_USER_NAME" ]]; then
+        END_TO_END_BROWSERSTACK_USER_NAME="$END_TO_END_BROWSERSTACK_IOS_USER_NAME"
+        fi
+        if [[ -n "$END_TO_END_BROWSERSTACK_IOS_API_TOKEN" ]]; then
+        END_TO_END_BROWSERSTACK_API_TOKEN="$END_TO_END_BROWSERSTACK_IOS_API_TOKEN"
+        fi
+        elif [[ "$PLATFORM" == "android" ]]; then
+        if [[ -n "$END_TO_END_BROWSERSTACK_ANDROID_USER_NAME" ]]; then
+        END_TO_END_BROWSERSTACK_USER_NAME="$END_TO_END_BROWSERSTACK_ANDROID_USER_NAME"
+        fi
+        if [[ -n "$END_TO_END_BROWSERSTACK_ANDROID_API_TOKEN" ]]; then
+        END_TO_END_BROWSERSTACK_API_TOKEN="$END_TO_END_BROWSERSTACK_ANDROID_API_TOKEN"
+        fi
+        fi
+
+        # Update WDIO_CONFIG_PATH
+        if [[ -f "$WDIO_CONFIG_PATH" ]]; then
         sed "s#process.env.E2E_SPECS_PATTERN#$WDIO_CONFIG_SPECS_CORRECT_PATH#g" "$WDIO_CONFIG_PATH" > "${WDIO_CONFIG_PATH}.tmp" && mv "${WDIO_CONFIG_PATH}.tmp" "$WDIO_CONFIG_PATH"
-    else
+        else
         echo "🚨 Error: WDIO_CONFIG_PATH ($WDIO_CONFIG_PATH) not found."
         exit 1
-    fi
+        fi
 
-    # Define updates for .env.remote
-    env_updates=(
+        # Define updates for .env.remote
+        env_updates=(
         "BS_PATH=$BROWSERSTACK_APP_URL"
         "BUILD_URL=https://codemagic.io/app/$CM_PROJECT_ID/build/$CM_BUILD_ID"
         "BUILD_BRANCH=$CM_BRANCH"
@@ -74,32 +91,36 @@ script: |
         "BS_KEY=$END_TO_END_BROWSERSTACK_API_TOKEN"
         "PROJECT_NAME=$CM_REPO_SLUG"
         "LOCAL_MODE=$END_TO_END_BROWSERSTACK_LOCAL_MODE"
-    )
+        "WAIT_FOR_TIMEOUT=$WDIO_CONFIG_WAIT_FOR_TIMEOUT"
+        "CONNECTION_RETRY_TIMEOUT=$WDIO_CONFIG_CONNECTION_RETRY_TIMEOUT"
+        "CONNECTION_RETRY_COUNT=$WDIO_CONFIG_CONNECTION_RETRY_COUNT"
+        "MAX_INSTANCES=$WDIO_CONFIG_MAX_INSTANCES"
+        )
 
-    # Update configs/.env.remote
-    for update in "${env_updates[@]}"; do
+        # Update configs/.env.remote
+        for update in "${env_updates[@]}"; do
         key=$(echo "$update" | cut -d '=' -f 1)
         value=$(echo "$update" | cut -d '=' -f 2-)
         sed -i.bak -e "s#${key}=#${key}=${value}#g" configs/.env.remote
-    done
+        done
 
-    # Cleanup backup files (optional)
-    rm -f configs/.env.remote.bak
+        # Cleanup backup files (optional)
+        rm -f configs/.env.remote.bak
 
-    echo "✅ Configuration updated successfully."
+        echo "✅ Configuration updated successfully."
 
-    # Export and execute tests
-    cp "$WDIO_CONFIG_PATH" "$CM_EXPORT_DIR"
-    cp configs/.env.remote "$CM_EXPORT_DIR"
-    set -a
-    source configs/.env.remote
-    set +a
+        # Export and execute tests
+        cp "$WDIO_CONFIG_PATH" "$CM_EXPORT_DIR"
+        cp configs/.env.remote "$CM_EXPORT_DIR"
+        set -a
+        source configs/.env.remote
+        set +a
 
-    MAX_RETRIES=3
-    RETRY_DELAY=60
-    attempt=0
+        MAX_RETRIES=3
+        RETRY_DELAY=60
+        attempt=0
 
-    while [[ $attempt -lt $MAX_RETRIES ]]; do
+        while [[ $attempt -lt $MAX_RETRIES ]]; do
         ((attempt++))
         echo "ℹ️ Attempt $attempt of $MAX_RETRIES: Running npx wdio $WDIO_CONFIG_PATH..."
         
@@ -107,32 +128,36 @@ script: |
         output=$(npx wdio "$WDIO_CONFIG_PATH" 2>&1)
         exit_code=$?
 
+        # Failed to create session
+
         # Check for the specific timeout error and startWebDriverSession in the logs
-        if echo "$output" | grep -q "WebDriverError: The operation was aborted due to timeout" && echo "$output" | grep -q "startWebDriverSession"; then
-            echo "⚠️ Timeout detected in logs (startWebDriverSession). Retrying in $RETRY_DELAY seconds..."
-            
-            RESULTS_DIR="./build/reports/wdio-html-nice-reporter-results"
+        if (echo "$output" | grep -q "WebDriverError: The operation was aborted due to timeout" && echo "$output" | grep -q "startWebDriverSession") || 
+              (echo "$output" | grep -q "Error: Failed to create session" && echo "$output" | grep -q "startWebDriverSession"); then
+              echo "⚠️ Timeout or session creation error detected in logs (startWebDriverSession). Retrying in $RETRY_DELAY seconds..."
 
-            # Check if the directory exists
-            if [[ -d "$RESULTS_DIR" ]]; then
-                echo "ℹ️ Deleting all files in $RESULTS_DIR..."
-                rm -f "$RESULTS_DIR"/*
-                echo "✅ All files in $RESULTS_DIR have been deleted."
-            else
-                echo "⚠️ Directory $RESULTS_DIR does not exist. No files to delete."
-            fi
-            sleep $RETRY_DELAY
+              
+              RESULTS_DIR="./build/reports/wdio-html-nice-reporter-results"
+
+              # Check if the directory exists
+              if [[ -d "$RESULTS_DIR" ]]; then
+                    echo "ℹ️ Deleting all files in $RESULTS_DIR..."
+                    rm -f "$RESULTS_DIR"/*
+                    echo "✅ All files in $RESULTS_DIR have been deleted."
+              else
+                    echo "⚠️ Directory $RESULTS_DIR does not exist. No files to delete."
+              fi
+              sleep $RETRY_DELAY
         else
-            # Exit the loop if no specific error was detected (success or other errors)
-            break
+              # Exit the loop if no specific error was detected (success or other errors)
+              break
         fi
-    done
+        done
 
-    if [[ $exit_code -ne 0 ]]; then
+        if [[ $exit_code -ne 0 ]]; then
         echo "🚨 Failed after $MAX_RETRIES attempts. Please check logs for details."
         exit $exit_code
-    else
+        else
         echo "✅ Success on attempt $attempt."
         exit 0
-    fi
+        fi
   fi

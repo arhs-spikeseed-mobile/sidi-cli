@@ -24,7 +24,9 @@ script: |
                       \"IOS_BUILD_SLUG_3\": \"$IOS_BUILD_SLUG_3\",
                       \"ANDROID_BUILD_SLUG_1\": \"$ANDROID_BUILD_SLUG_1\",
                       \"ANDROID_BUILD_SLUG_2\": \"$ANDROID_BUILD_SLUG_2\",
-                      \"ANDROID_BUILD_SLUG_3\": \"$ANDROID_BUILD_SLUG_3\"
+                      \"ANDROID_BUILD_SLUG_3\": \"$ANDROID_BUILD_SLUG_3\",
+                      \"END_TO_END_CONFIG_PATH\": \"$END_TO_END_CONFIG_PATH\",
+                      \"END_TO_END_CONFIG_KEY\": \"$END_TO_END_CONFIG_KEY\"
                   }
               }
           }" https://api.codemagic.io/builds

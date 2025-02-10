@@ -2,7 +2,7 @@ name: "[END-TO-END] Trigger E2E sessions"
 script: |
   #!/usr/bin/env bash
   # fail if any commands fails
-
+  
   # Avoid usage of run_if
   if [ "$RETRIGGER_WAITING_PREVIOUS_BUILDS" == "true" ]
         then
@@ -39,8 +39,8 @@ script: |
         previous_index=1
   fi
 
-  res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.config_name == $key) | .config_content' "$END_TO_END_CONFIG_PATH")
-  max_index=$(echo "$res" | jq '.config | length')
+  res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.key == $key) | .configuration' "$END_TO_END_CONFIG_PATH")
+  max_index=$(echo "$res" | jq '.execution | length')
   ((max_index=max_index+1))
 
   # Check first where we are in the loop and if it's over
@@ -51,28 +51,28 @@ script: |
               END_TO_END_COLLECT_ARTIFACTS="true"
               echo "END_TO_END_COLLECT_ARTIFACTS=$END_TO_END_COLLECT_ARTIFACTS" >> $CM_ENV
   else
-        res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.config_name == $key) | .config_content' "$END_TO_END_CONFIG_PATH")
+        res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.key == $key) | .configuration' "$END_TO_END_CONFIG_PATH")
         export last_index=1
         loop_index=1
 
         # Set path to wdio config files
-        WDIO_CONFIG_PATH_IOS="$(echo "$res" | jq -c -r '.config_path_ios')"
+        WDIO_CONFIG_PATH_IOS="$(echo "$res" | jq -c -r '.path_ios')"
         echo "WDIO_CONFIG_PATH_IOS=$WDIO_CONFIG_PATH_IOS" >> $CM_ENV
-        WDIO_CONFIG_PATH_ANDROID="$(echo "$res" | jq -c -r '.config_path_android')"
+        WDIO_CONFIG_PATH_ANDROID="$(echo "$res" | jq -c -r '.path_android')"
         echo "WDIO_CONFIG_PATH_ANDROID=$WDIO_CONFIG_PATH_ANDROID" >> $CM_ENV
 
         # Navigate to the end-to-end directory
         echo "ℹ️ Navigating to the end-to-end directory..."
         if ! cd ./end-to-end/; then
-          echo "🚨 Failed to navigate to the end-to-end directory."
-          exit 1
+              echo "🚨 Failed to navigate to the end-to-end directory."
+              exit 1
         fi
         chmod u+x "$WDIO_CONFIG_PATH_IOS"
         chmod u+x "$WDIO_CONFIG_PATH_ANDROID"
 
         # Parse json files
-        echo "$res" | jq -c -r '.config_path_android'
-        echo "$res" | jq -c -r '.config[]' | while read item;
+        echo "$res" | jq -c -r '.path_android'
+        echo "$res" | jq -c -r '.execution[]' | while read item;
         do
               # Load right config based on the index
               if [ $previous_index -le $loop_index ]

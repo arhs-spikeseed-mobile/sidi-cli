@@ -8,36 +8,57 @@ script: |
   # Run end-to-end tests if required
   if [[ -n "$RUN_END_TO_END" ]]; then
 
-      res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.config_name == $key) | .config_content' "$END_TO_END_CONFIG_PATH")
+        res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.key == $key) | .configuration' "$END_TO_END_CONFIG_PATH")
 
-      # Navigate to the end-to-end directory
-      echo "ℹ️ Navigating to the end-to-end directory..."
-      if ! cd ./end-to-end/; then
+        # Determine PLATFORM
+        PLATFORM=${WDIO_CONFIG_PATH_IOS:+ios}
+        PLATFORM=${PLATFORM:-android}
+
+        # Handle BrowserStack credentials based on PLATFORM
+        if [[ "$PLATFORM" == "ios" ]]; then
+        if [[ -n "$END_TO_END_BROWSERSTACK_IOS_USER_NAME" ]]; then
+              END_TO_END_BROWSERSTACK_USER_NAME="$END_TO_END_BROWSERSTACK_IOS_USER_NAME"
+        fi
+        if [[ -n "$END_TO_END_BROWSERSTACK_IOS_API_TOKEN" ]]; then
+              END_TO_END_BROWSERSTACK_API_TOKEN="$END_TO_END_BROWSERSTACK_IOS_API_TOKEN"
+        fi
+        elif [[ "$PLATFORM" == "android" ]]; then
+        if [[ -n "$END_TO_END_BROWSERSTACK_ANDROID_USER_NAME" ]]; then
+              END_TO_END_BROWSERSTACK_USER_NAME="$END_TO_END_BROWSERSTACK_ANDROID_USER_NAME"
+        fi
+        if [[ -n "$END_TO_END_BROWSERSTACK_ANDROID_API_TOKEN" ]]; then
+              END_TO_END_BROWSERSTACK_API_TOKEN="$END_TO_END_BROWSERSTACK_ANDROID_API_TOKEN"
+        fi
+        fi
+
+        # Navigate to the end-to-end directory
+        echo "ℹ️ Navigating to the end-to-end directory..."
+        if ! cd ./end-to-end/; then
         echo "🚨 Failed to navigate to the end-to-end directory."
         exit 1
-      fi
+        fi
 
-      # Upload app to BrowserStack
-      upload_to_browserstack() {
+        # Upload app to BrowserStack
+        upload_to_browserstack() {
         local file_path=$1
         local result
         result=$(curl -u "$END_TO_END_BROWSERSTACK_USER_NAME:$END_TO_END_BROWSERSTACK_API_TOKEN" -X POST "https://api-cloud.browserstack.com/app-automate/upload" -F "file=@$file_path")
         echo "$result" | jq -r '.app_url'
-      }
+        }
 
-      if [[ -n "$WDIO_CONFIG_PATH_IOS" ]]; then
+        if [[ "$PLATFORM" == "ios" ]]; then
         CODEMAGIC_APP_PATH=$(echo "$res" | jq -r '.config_name_ipa // empty')
         CODEMAGIC_APP_PATH=${CODEMAGIC_APP_PATH:-$(find ./build -type f -name "*.ipa" | head -n 1)}
-      else
+        else
         CODEMAGIC_APP_PATH=$(echo "$res" | jq -r '.config_name_apk // empty')
         CODEMAGIC_APP_PATH=${CODEMAGIC_APP_PATH:-$(find ./build -type f \( -name "*.aab" -o -name "*.apk" \) | head -n 1)}
-      fi
+        fi
 
-      if [[ -z "$CODEMAGIC_APP_PATH" ]]; then
+        if [[ -z "$CODEMAGIC_APP_PATH" ]]; then
         echo "🚨 No app file found for upload."
         exit 1
-      fi
+        fi
 
-      BROWSERSTACK_APP_URL=$(upload_to_browserstack "$CODEMAGIC_APP_PATH")
-      echo "BROWSERSTACK_APP_URL=$BROWSERSTACK_APP_URL" >> "$CM_ENV"
+        BROWSERSTACK_APP_URL=$(upload_to_browserstack "$CODEMAGIC_APP_PATH")
+        echo "BROWSERSTACK_APP_URL=$BROWSERSTACK_APP_URL" >> "$CM_ENV"
   fi
