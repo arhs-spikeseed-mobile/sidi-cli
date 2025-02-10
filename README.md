@@ -79,7 +79,7 @@ With SIDI, you can:
 
 ### End-to-End orchestrator extension
 
-[Local project](https://github.com/arhs-spikeseed-mobile/sidi-cli-extension-end-to-end/tree/main/end-to-end)
+[(Working only with) End-to-End testing starter pack](https://github.com/arhs-spikeseed-mobile/sidi-cli-extension-end-to-end/tree/main/end-to-end)
 
 [CI/CD configuration](./docs/end-to-end-setup.md)
 
