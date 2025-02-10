@@ -1,0 +1,340 @@
+name: "[END-TO-END] Notifications"
+script: |
+  #!/usr/bin/env bash
+  # fail if any commands fails
+  set -ex
+  # Send a message to Slack using a webhook URL
+  sendToSlack() {
+      local webhookUrl="$1"
+      local message="$2"
+
+      echo "🚨🚨🚨🚨🚨 $message"
+
+      # Check if required parameters are provided
+      if [ -z "$webhookUrl" ] || [ -z "$message" ]; then
+          echo "🚨 Error: Both Slack Webhook URL and message are required." 1>&2
+          echo "Usage: sendToSlack <webhook-url> <message>" 1>&2
+          return 1
+      fi
+
+      # Create JSON payload
+      local payload
+      payload=$(jq -n --arg text "$message" '{text: $text}')
+
+      # Send POST request to Slack webhook
+      local response
+      response=$(curl -s -o /dev/null -w "%{http_code}" -H "Content-Type: application/json" \
+          -d "$payload" "$webhookUrl")
+
+      # Check the response status
+      if [ "$response" -eq 200 ]; then
+          echo "✅ Message sent to Slack successfully." 1>&2
+      else
+          echo "🚨 Failed to send message to Slack: HTTP $response." 1>&2
+          return 1
+      fi
+  }
+
+  # Send a message to Microsoft Teams using a webhook URL
+  sendToTeams() {
+      local webhookUrl="$1"
+      local message="$2"
+
+      # Check if required parameters are provided
+      if [ -z "$webhookUrl" ] || [ -z "$message" ]; then
+          echo "🚨 Error: Both Teams Webhook URL and message are required." 1>&2
+          echo "Usage: sendToTeams <webhook-url> <message>" 1>&2
+          return 1
+      fi
+
+      # Create JSON payload
+      local payload
+      payload=$(jq -n --arg text "$message" '{text: $text}')
+
+      # Send POST request to Microsoft Teams webhook
+      local response
+      response=$(curl -s -o /dev/null -w "%{http_code}" -H "Content-Type: application/json" \
+          -d "$payload" "$webhookUrl")
+
+      # Check the response status
+      if [ "$response" -eq 200 ]; then
+          echo "✅ Message sent to Microsoft Teams successfully." 1>&2
+      else
+          echo "🚨 Failed to send message to Microsoft Teams: HTTP $response." 1>&2
+          return 1
+      fi
+  }
+
+  # Send a short report by message to Slack using a webhook URL
+  sendReportToSlack() {
+      local webhook_url=$1
+
+      if [[ -z "$webhook_url" ]]; then
+          echo "🚨 Error: Slack Webhook URL is required." >&2
+          return 1
+      fi
+
+      local base_path="build/reports/wdio-html-nice-reporter-reports"
+      local rows=("| *Team*          | *Suites* | *Tests* | *Passes* | *Failures* | *% Success* |")
+
+      process_folder() {
+          local folder_path=$1
+
+          for dir in "$folder_path"/*; do
+              if [ -d "$dir" ]; then
+                  local dir_name=$(basename "$dir")
+                  [[ "$dir_name" == "teams" ]] && continue
+
+                  local team_name=$(echo "$dir_name" | tr '[:lower:]' '[:upper:]')
+                  local json_file="$dir/merged-report.json"
+
+                  if [[ -f "$json_file" ]]; then
+                      local file_content=$(cat "$json_file")
+                      local suites_count=$(jq '.suites | length' <<< "$file_content" 2>/dev/null || echo 0)
+                      local passed=$(jq '.metrics.passed // 0' <<< "$file_content" 2>/dev/null)
+                      local failed=$(jq '.metrics.failed // 0' <<< "$file_content" 2>/dev/null)
+                      local total_tests=$((passed + failed))
+                      local perc_success="0.00"
+                      if [[ "$total_tests" -gt 0 ]]; then
+                          perc_success=$(awk "BEGIN {printf \"%.2f\", ($passed / $total_tests) * 100}")
+                      fi
+                      rows+=("| $(printf "%-18s" "$team_name") | $(printf "%-6s" "$suites_count") | $(printf "%-5s" "$total_tests") | $(printf "%-6s" "$passed") | $(printf "%-8s" "$failed") | $(printf "%-9s" "$perc_success%") |")
+                  else
+                      rows+=("| $(printf "%-18s" "$team_name") | ❌     | ❌     | ❌     | ❌       | FILE NOT FOUND |")
+                  fi
+              fi
+          done
+      }
+
+      echo "ℹ️ Processing folders..." >&2
+      process_folder "$base_path"
+      process_folder "$base_path/teams"
+
+      join_by() {
+        local IFS="$1"; shift
+        echo "$*"
+      }
+
+      local message=$(join_by $'\n' "${rows[@]}")
+      # local payload=$(jq -n --arg text "$message```" '{\"text\": \"$text\"}')
+
+      sendToSlack "$webhook_url" "$message"
+      # response=$(curl -s -w "%{http_code}" -o /dev/null -X POST -H 'Content-type: application/json' --data "$payload" "$webhook_url")
+      # if [[ "$response" -ne 200 ]]; then
+      #     echo "🚨 Error: Failed to send message to Slack. HTTP Status: $response" >&2
+      #     return 1
+      # fi
+
+      echo "✅ Message sent to Slack successfully."
+  }
+
+  # Send a short report by message to Microsoft Teams using a webhook URL
+  sendReportToTeams() {
+      local webhook_url=$1
+
+      # Constants for HTML structure
+      local base_path="build/reports/wdio-html-nice-reporter-reports"
+      local html_result_temp="$base_path/result_reports_temp.html"
+      local html_result_final="$base_path/result_reports.html"
+      local html_top="<table bordercolor='black' border='2'><thead><tr style='background-color:#f0f0f0;color:#000;text-align:center'><th>Team</th><th>Suites</th><th>Tests</th><th>Passes</th><th>Failures</th><th>% success</th></tr></thead><tbody>"
+      local html_bottom="</tbody></table>"
+
+      # Helper to write to a file
+      write_to_file() {
+          local file_path=$1
+          local content=$2
+          local append=$3
+
+          if [ "$append" = true ]; then
+              echo "$content" >> "$file_path"
+          else
+              echo "$content" > "$file_path"
+          fi
+      }
+
+      # Process a folder and generate HTML rows
+      process_folder() {
+          local folder_path=$1
+          local html_path=$2
+
+          for dir in "$folder_path"/*; do
+              if [ -d "$dir" ]; then
+                  local dir_name=$(basename "$dir")
+                  if [ "$dir_name" = "teams" ]; then
+                      continue
+                  fi
+
+                  local team_name=$(echo "$dir_name" | tr '[:lower:]' '[:upper:]')
+                  local json_file="$dir/merged-report.json"
+
+                  if [ -f "$json_file" ]; then
+                      local file_content=$(cat "$json_file")
+                      local suites_count=$(jq '.suites | length' <<< "$file_content" 2>/dev/null || echo 0)
+                      local passed=$(jq '.metrics.passed // 0' <<< "$file_content" 2>/dev/null)
+                      local failed=$(jq '.metrics.failed // 0' <<< "$file_content" 2>/dev/null)
+                      local total_tests=$((passed + failed))
+                      # Avoid division by zero
+                      local perc_success="0.00"
+                      if [[ "$total_tests" -gt 0 ]]; then
+                        perc_success=$(awk "BEGIN {printf \"%.2f\", ($passed / $total_tests) * 100}")
+                      fi
+
+                      local perc_success_emoji="❌ ${perc_success}"
+                      if (( $(echo "$perc_success == 100" | bc -l) )); then
+                          perc_success_emoji="✅ ${perc_success}"
+                      elif (( $(echo "$perc_success >= 70" | bc -l) )); then
+                          perc_success_emoji="⚠️ ${perc_success}"
+                      fi
+
+                      local html_row="<tr><th style='text-align:center'>$team_name</th><td style='text-align:center'>$suites_count</td><td style='text-align:center'>$total_tests</td><td style='text-align:center'>$passed</td><td style='text-align:center'>$failed</td><td style='text-align:center'>$perc_success_emoji%</td></tr>"
+                      write_to_file "$html_path" "$html_row" true
+                  else
+                      local html_row="<tr><th style='text-align:center'>$team_name</th><td style='text-align:center'>❌</td><td style='text-align:center'>❌</td><td style='text-align:center'>❌</td><td style='text-align:center'>❌</td><td style='text-align:center'>FILE NOT FOUND</td></tr>"
+                      write_to_file "$html_path" "$html_row" true
+                  fi
+              fi
+          done
+      }
+
+      # Main workflow
+      write_to_file "$html_result_temp" "$html_top"
+      echo "ℹ️ Processing main folders..." 1>&2
+      process_folder "$base_path" "$html_result_temp"
+      echo "ℹ️ Processing team folders..." 1>&2
+      process_folder "$base_path/teams" "$html_result_temp"
+      write_to_file "$html_result_temp" "$html_bottom" true
+
+      # Create single-line HTML file
+      local html_content=$(tr -d '\n' < "$html_result_temp")
+      write_to_file "$html_result_final" "$html_content"
+
+      echo "✅ HTML report generated successfully at: $html_result_final" 1>&2
+
+      # Send to webhook
+      sendToTeams "$webhook_url" "$html_content"
+  }
+
+  # Send webhook notifications using a webhook URL
+  send_webhook_notification() {
+    local webhook_type=$1
+    local webhook_url=$2
+    local message=$3
+
+    if [[ -n "$webhook_url" ]]; then
+      echo "ℹ️ Sending $webhook_type notification..." 1>&2
+      if [[ "$webhook_type" == "slack" ]]; then
+        sendToSlack "$webhook_url" "$message"
+        sendReportToSlack "$webhook_url"
+      elif [[ "$webhook_type" == "teams" ]]; then
+        sendToTeams "$webhook_url" "$message"
+        sendReportToTeams "$webhook_url"
+      else
+        echo "🚨 Unsupported webhook type: $webhook_type" 1>&2
+        return 1
+      fi
+    else
+      echo "⚠️ No webhook URL provided for $webhook_type." 1>&2
+    fi
+  }
+
+  # Check if artifacts collection is enabled
+  if [[ "$END_TO_END_COLLECT_ARTIFACTS" == "true" ]]; then
+
+    # Read config title
+    echo "ℹ️ Reading configuration..."
+    if [[ ! -f "$END_TO_END_CONFIG_PATH" ]]; then
+      echo "🚨 Configuration file $END_TO_END_CONFIG_PATH not found."
+      exit 1
+    fi
+
+    res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.key == $key) | .title' "$END_TO_END_CONFIG_PATH")
+    if [[ -z "$res" ]]; then
+      echo "🚨 Configuration title for key $END_TO_END_CONFIG_KEY not found."
+      exit 1
+    fi
+    echo "ℹ️ Configuration title: $res"
+
+    END_TO_END_WEBHOOCKS_TEAMS=$(jq -r --arg key "$END_TO_END_CONFIG_KEY" '
+      .[] | 
+      select(.key == $key) | 
+      .configuration.reports_webhook_url_teams
+    ' "$END_TO_END_CONFIG_PATH")
+
+    END_TO_END_WEBHOOCKS_SLACK=$(jq -r --arg key "$END_TO_END_CONFIG_KEY" '
+      .[] | 
+      select(.key == $key) | 
+      .configuration.reports_webhook_url_slack
+    ' "$END_TO_END_CONFIG_PATH")
+
+    echo "ℹ️ Teams Webhook URL: $END_TO_END_WEBHOOCKS_TEAMS"
+    echo "ℹ️ Slack Webhook URL: $END_TO_END_WEBHOOCKS_SLACK"
+
+    # Navigate to the end-to-end directory
+    echo "ℹ️ Navigating to the end-to-end directory..."
+    if ! cd ./end-to-end/; then
+      echo "🚨 Failed to navigate to the end-to-end directory."
+      exit 1
+    fi
+
+    # Prepare the message
+    send_notification() {
+        local platform="$1"
+        local webhook_url="$2"
+        local branch="$CM_BRANCH"
+        local build_url="https://codemagic.io/app/$CM_PROJECT_ID/build/$CM_BUILD_ID"
+        local invalid_json_count_msg=""
+        local invalid_builds_count_msg=""
+        local failed_builds_list_msg=""
+
+        # Add message about invalid JSON count if applicable
+        if [[ $INVALID_JSON_COUNT -gt 0 ]]; then
+            invalid_json_count_msg="⚠️ $INVALID_JSON_COUNT files removed due to invalid JSON."
+        fi
+
+        # Add message about invalid builds count if applicable
+        if [[ $INVALID_BUILDS_COUNT -gt 0 ]]; then
+            invalid_builds_count_msg="⚠️ Number of invalid builds: $INVALID_BUILDS_COUNT."
+
+            # Format failed builds list
+            local failed_builds_urls=()
+            for build_id in ${FAILED_BUILDS_LIST}; do
+                failed_builds_urls+=("${build_id}")
+            done
+
+            # Separate builds for Teams and Slack with proper formatting
+            if [[ $platform == "teams" ]]; then
+                failed_builds_list_msg="🚨 Failed builds:<br>$(printf '%s<br>' "${failed_builds_urls[@]}")"
+            elif [[ $platform == "slack" ]]; then
+                failed_builds_list_msg="🚨 Failed builds:\n$(printf '%s\n' "${failed_builds_urls[@]}")"
+            fi
+        fi
+
+        # Construct message based on platform
+        if [[ $platform == "teams" ]]; then
+            local message="Execution of **$res** is done on branch $branch.<br>[Build URL]($build_url)<br><br>$invalid_json_count_msg<br>$invalid_builds_count_msg<br>$failed_builds_list_msg"
+        elif [[ $platform == "slack" ]]; then
+            local message="Execution of **$res** is done on branch \`$branch\`.\n<$build_url|Build URL>\n\n$invalid_json_count_msg\n$invalid_builds_count_msg\n$failed_builds_list_msg"
+        else
+            echo "🚨 Unsupported platform: $platform" 1>&2
+            return 1
+        fi
+
+        # Send the notification
+        send_webhook_notification "$platform" "$webhook_url" "$message"
+    }
+            
+    if [[ $INVALID_JSON_COUNT -gt 0 ]]; then
+      echo "⚠️ Number of invalid JSON files: $INVALID_JSON_COUNT"
+    else
+      echo "ℹ️ No invalid JSON reported"
+    fi
+    
+
+    # Send notifications (if webhooks are provided)
+    send_notification "teams" "$END_TO_END_WEBHOOCKS_TEAMS"
+    send_notification "slack" "$END_TO_END_WEBHOOCKS_SLACK"
+  else
+    echo "❎ Artifact collection is not enabled. Skipping artifact collection."
+  fi
+
+  echo "✅ Script execution completed."

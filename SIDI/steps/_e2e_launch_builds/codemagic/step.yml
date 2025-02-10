@@ -1,0 +1,105 @@
+name: "[END-TO-END] Launch builds"
+script: |
+  #!/usr/bin/env bash
+  # fail if any commands fails
+  set -ex
+  # Extract configuration
+  res=$(jq -c --arg key "$END_TO_END_CONFIG_KEY" '.[] | select(.key == $key) | .configuration' "$END_TO_END_CONFIG_PATH")
+  WDIO_CONFIG_BACKWARD=$(echo "$res" | jq -r '.config_backward_compatibility')
+  WDIO_CONFIG_WAIT_FOR_TIMEOUT=$(echo "$res" | jq -r '.wait_for_timeout')
+  WDIO_CONFIG_CONNECTION_RETRY_TIMEOUT=$(echo "$res" | jq -r '.connection_retry_timeout')
+  WDIO_CONFIG_CONNECTION_RETRY_COUNT=$(echo "$res" | jq -r '.connection_retry_count')
+  WDIO_CONFIG_MAX_INSTANCES=$(echo "$res" | jq -r '.max_instances')
+
+  # Determine app version
+  if [[ "$WDIO_CONFIG_BACKWARD" != "null" ]]; then
+  echo "🕰️  Backward compatibility mode detected"
+  APP_VERSION="$WDIO_CONFIG_BACKWARD"
+  else
+  echo "🚀 Regular mode detected"
+  APP_VERSION="${CM_BRANCH##*/}"
+  fi
+  echo "APP_VERSION=$APP_VERSION" >> $CM_ENV
+
+  SLEEP_BTW_LAUNCH=60
+  BUILD_IDS=()  # Store all build IDs in an array
+
+  # Function to trigger builds
+  trigger_build() {
+  local platform=$1
+  local lane_index=$2
+  local build_var_name="WDIO_CONFIG_${lane_index}_REPORT_NAME"
+  local specs_var_name="WDIO_CONFIG_${lane_index}_SPECS_NAME"
+  local platform_upper=$(echo "$platform" | tr '[:lower:]' '[:upper:]')  # Fix for Bash compatibility
+  local config_path_var="WDIO_CONFIG_PATH_${platform_upper}"
+  local workflow="build_e2e_${platform}"
+
+  local report_name="${!build_var_name:-}"
+  local specs_name="${!specs_var_name:-}"
+  local config_path="${!config_path_var:-}"
+
+  if [[ -z "$config_path" ]]; then
+        echo "⚠️ Missing configuration path for ${platform_upper}, skipping lane $lane_index"
+        return
+  fi
+
+  if [[ -n "$report_name" ]]; then
+        echo "========================================="
+        echo "🚦 Starting ${platform_upper} lane $lane_index..."
+        echo "========================================="
+
+        # Avoid API spam
+        sleep $SLEEP_BTW_LAUNCH
+
+        build_id=$(curl -s -H "Content-Type: application/json" \
+              -H "x-auth-token: $CODE_MAGIC_TOKEN" \
+              --data "{
+              \"appId\": \"$CM_PROJECT_ID\",
+              \"workflowId\": \"$workflow\",
+              \"branch\": \"$CM_BRANCH\",
+              \"environment\": {
+                    \"variables\": {
+                          \"RUN_END_TO_END\": \"$RUN_END_TO_END\",
+                          \"END_TO_END_CONFIG_KEY\": \"$END_TO_END_CONFIG_KEY\",
+                          \"WDIO_CONFIG_WAIT_FOR_TIMEOUT\": \"$WDIO_CONFIG_WAIT_FOR_TIMEOUT\",
+                          \"WDIO_CONFIG_CONNECTION_RETRY_TIMEOUT\": \"$WDIO_CONFIG_CONNECTION_RETRY_TIMEOUT\",
+                          \"WDIO_CONFIG_CONNECTION_RETRY_COUNT\": \"$WDIO_CONFIG_CONNECTION_RETRY_COUNT\",
+                          \"WDIO_CONFIG_MAX_INSTANCES\": \"$WDIO_CONFIG_MAX_INSTANCES\",
+                          \"E2E_APP_VERSION\": \"$APP_VERSION\",
+                          \"$build_var_name\": \"$report_name\",
+                          \"$specs_var_name\": \"$specs_name\",
+                          \"WDIO_CONFIG_PATH_${platform_upper}\": \"$config_path\"
+                    }
+              }
+              }" https://api.codemagic.io/builds | jq -r '.buildId')
+
+        if [[ "$build_id" != "null" && -n "$build_id" ]]; then
+              echo "✅ ${platform_upper} Build (Lane $lane_index) Triggered: $build_id"
+              echo "${platform_upper}_BUILD_SLUG_${lane_index}=$build_id" >> $CM_ENV
+              BUILD_IDS+=("$build_id")
+        else
+              echo "❌ Failed to trigger ${platform_upper} build for lane $lane_index"
+        fi
+  fi
+  }
+
+  # Trigger builds for lanes 1 to 3 for both platforms
+  for i in {1..3}; do
+  trigger_build "ios" $i
+  trigger_build "android" $i
+  done
+
+  # Finalize build list
+  if [[ ${#BUILD_IDS[@]} -gt 0 ]]; then
+  echo "========================================="
+  echo "📋 Completing build list variable..."
+  echo "========================================="
+
+  if [[ "$RETRIGGER_WAITING_PREVIOUS_BUILDS" == "true" ]]; then
+        echo "⏳ Waiting for previous builds before triggering new ones..."
+        exit 0
+  fi
+
+  END_TO_END_BUILD_LIST=$(IFS=+; echo "${BUILD_IDS[*]}")  # Join array elements with "+"
+  echo "END_TO_END_BUILD_LIST=$END_TO_END_BUILD_LIST" >> $CM_ENV
+  fi
