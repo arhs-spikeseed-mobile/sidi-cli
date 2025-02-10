@@ -33,11 +33,17 @@ script: |
 
   # Prefixes and maximum index for build slugs
   PREFIXES=("IOS_BUILD_SLUG" "ANDROID_BUILD_SLUG")
-  MAX_INDEX="${END_TO_END_MAX_IN_PARALLEL:3}"
+  MAX_INDEX=$((END_TO_END_MAX_IN_PARALLEL + 0)) 
+
+  # Validate MAX_INDEX
+  if [[ -z "$MAX_INDEX" || "$MAX_INDEX" -lt 1 ]]; then
+        echo "🚨 Error: MAX_INDEX is not correctly set or too low"
+        exit 1
+  fi
 
   # Loop through prefixes and indices to construct the list
   for prefix in "${PREFIXES[@]}"; do
-        for i in $(seq 1 $MAX_INDEX); do
+        for i in $(seq 1 "$MAX_INDEX"); do
         var_name="${prefix}_${i}"
         build_id=${!var_name} # Indirect reference to the variable
         if [ -n "$build_id" ]; then
