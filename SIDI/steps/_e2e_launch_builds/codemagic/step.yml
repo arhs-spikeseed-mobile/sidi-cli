@@ -85,31 +85,31 @@ script: |
 
   # Trigger builds for lanes 1 to 3 for both platforms
   for i in {1..3}; do
-  trigger_build "ios" $i
-  trigger_build "android" $i
+    trigger_build "ios" $i
+    trigger_build "android" $i
   done
 
   # Finalize build list
   if [[ ${#BUILD_IDS[@]} -gt 0 ]]; then
-      echo "========================================="
-      echo "📋 Completing build list variable..."
-      echo "========================================="
+     echo "========================================="
+     echo "📋 Completing build list variable..."
+     echo "========================================="
 
-      if [[ "$RETRIGGER_WAITING_PREVIOUS_BUILDS" == "true" ]]; then
+     if [[ "$RETRIGGER_WAITING_PREVIOUS_BUILDS" == "true" ]]; then
           echo "⏳ Waiting for previous builds before triggering new ones..."
           exit 0
-      fi
+     fi
 
-      # Load previous value if it exists (compatible with macOS and Linux)
-      PREVIOUS_BUILDS=$(grep '^END_TO_END_BUILD_LIST=' "$CM_ENV" | sed -E 's/^END_TO_END_BUILD_LIST=//')
+     # Load previous value if it exists (compatible with macOS and Linux)
+     PREVIOUS_BUILDS=$END_TO_END_BUILD_LIST
 
-      # Append new values if PREVIOUS_BUILDS is not empty
-        if [[ -n "$PREVIOUS_BUILDS" ]]; then
+     # Append new values if PREVIOUS_BUILDS is not empty
+     if [[ -n "$PREVIOUS_BUILDS" ]]; then
           END_TO_END_BUILD_LIST="${PREVIOUS_BUILDS}+$(IFS=+; echo "${BUILD_IDS[*]}")"
-        else
+     else
           END_TO_END_BUILD_LIST=$(IFS=+; echo "${BUILD_IDS[*]}")
-        fi
+     fi
 
       # Save the updated list
       echo "END_TO_END_BUILD_LIST=$END_TO_END_BUILD_LIST" >> "$CM_ENV"
- fi
+  fi
