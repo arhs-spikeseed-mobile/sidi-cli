@@ -72,8 +72,6 @@ script: |
       PACKAGE_NAME=$(echo "$FILE" | sed 's#./##' | sed 's#/#-#g' | sed 's#package.json##' | sed 's#-$##')
       if [ -z "$PACKAGE_NAME" ]; then PACKAGE_NAME="root-package"; fi
 
-      echo "ici+$PACKAGE_NAME"
-      
       cp "$DIR/yarn-audit.html" "$AUDIT_EXPORT_DIR/yarn-audit-${PACKAGE_NAME}.html"
       cp "$DIR/yarn-audit.json" "$AUDIT_EXPORT_DIR/yarn-audit-${PACKAGE_NAME}.json"
       
