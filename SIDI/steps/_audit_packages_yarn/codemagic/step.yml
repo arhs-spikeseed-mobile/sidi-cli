@@ -3,53 +3,275 @@ ignore_failure: true
 script: |
    #!/bin/sh
    set -ex
-   
-   # hack to fix yarn version issue (temporary!)
+
+   # 🚀 Hack to fix yarn version issue (temporary!)
    brew upgrade yarn || true
-   
-   # install html report too
+
+   # 📦 Install HTML report tool
    yarn global add yarn-audit-html
-   
-   # create JSON report
-   rm -f yarn-audit.json
-   yarn audit --groups dependencies --json > yarn-audit.json || true # ignore return code
-   
-   # create HTML report
-   rm -f yarn-audit.html
-   cat yarn-audit.json | yarn-audit-html -o yarn-audit.html
-   
-   AUDIT_RESUME=$(tail -1 yarn-audit.json)
-   
-   LOW_REGEX="\"low\":([0-9]+)"
-   if [[ ${AUDIT_RESUME} =~ ${LOW_REGEX} ]]; then
-      LOW_COUNT=${BASH_REMATCH[1]}
+
+   # 📂 Define the export directory for all reports
+   export CM_EXPORT_DIR="build/reports"
+   AUDIT_EXPORT_DIR="$CM_EXPORT_DIR/yarn-audit-reports"
+   mkdir -p "$AUDIT_EXPORT_DIR"
+
+   # 📂 Define aggregated JSON file
+   AGGREGATED_JSON="$AUDIT_EXPORT_DIR/yarn-audit.json"
+   TEMP_JSON="$AUDIT_EXPORT_DIR/temp-audit.json"
+
+   # Initialize the temp JSON file
+   echo "" > "$TEMP_JSON"
+
+   # 🔍 Function to perform audit in a given directory
+   auditing() {
+      local FILE="$1"
+      local DIR=$(dirname "$FILE")
+      local FOLDER_NAME=$(basename "$DIR")
+
+      [ "$DIR" = "." ] && FOLDER_NAME="package"
+
+      echo "📂 Auditing package in: $DIR ($FILE)" 1>&2
+
+      DIR=$(realpath "$DIR" 2>/dev/null || (cd "$DIR" && pwd))
+
+      if [ ! -d "$DIR" ]; then
+         echo "⚠️ Warning: Directory $DIR is invalid. Skipping..." 1>&2
+         return
+      fi
+
+      echo "🛠️ Running yarn audit in $DIR..." 1>&2
+      (
+         cd "$DIR" &&
+         rm -f yarn-audit.json &&
+         yarn audit --groups dependencies --json > yarn-audit.json || true
+      )
+
+      echo "📊 Generating HTML report..." 1>&2
+      (
+         cd "$DIR" &&
+         rm -f yarn-audit.html &&
+         cat yarn-audit.json | yarn-audit-html -o yarn-audit.html || true
+      )
+
+      AUDIT_RESUME=$(jq -c 'select(.type == "auditSummary")' "$DIR/yarn-audit.json" | tail -n 1)
+      if [ -z "$AUDIT_RESUME" ]; then
+         echo "⚠️ Warning: No audit summary found. Skipping..." 1>&2
+         return
+      fi
+
+      LOW_COUNT=$(echo "$AUDIT_RESUME" | jq -r '.data.vulnerabilities.low // 0')
+      MODERATE_COUNT=$(echo "$AUDIT_RESUME" | jq -r '.data.vulnerabilities.moderate // 0')
+      HIGH_COUNT=$(echo "$AUDIT_RESUME" | jq -r '.data.vulnerabilities.high // 0')
+      CRITICAL_COUNT=$(echo "$AUDIT_RESUME" | jq -r '.data.vulnerabilities.critical // 0')
+
+      LOW_COUNT=$(echo "$LOW_COUNT" | tr -d -c '0-9')
+      MODERATE_COUNT=$(echo "$MODERATE_COUNT" | tr -d -c '0-9')
+      HIGH_COUNT=$(echo "$HIGH_COUNT" | tr -d -c '0-9')
+      CRITICAL_COUNT=$(echo "$CRITICAL_COUNT" | tr -d -c '0-9')
+
+      PACKAGE_NAME=$(echo "$FILE" | sed 's#./##' | sed 's#/#-#g' | sed 's#package.json##' | sed 's#-$##')
+      if [ -z "$PACKAGE_NAME" ]; then PACKAGE_NAME="root-package"; fi
+
+      cp "$DIR/yarn-audit.html" "$AUDIT_EXPORT_DIR/yarn-audit-${PACKAGE_NAME}.html"
+      cp "$DIR/yarn-audit.json" "$AUDIT_EXPORT_DIR/yarn-audit-${PACKAGE_NAME}.json"
+      
+      echo "   {" >> "$TEMP_JSON"
+      echo "     \"package\": \"$PACKAGE_NAME\"," >> "$TEMP_JSON"
+      echo "     \"package_json_path\": \"$FILE\"," >> "$TEMP_JSON"
+      echo "     \"low\": ${LOW_COUNT:-0}," >> "$TEMP_JSON"
+      echo "     \"moderate\": ${MODERATE_COUNT:-0}," >> "$TEMP_JSON"
+      echo "     \"high\": ${HIGH_COUNT:-0}," >> "$TEMP_JSON"
+      echo "     \"critical\": ${CRITICAL_COUNT:-0}" >> "$TEMP_JSON"
+      echo "   }," >> "$TEMP_JSON"
+   }
+
+   echo "🔎 Find and audit all package.json files in subdirectories"
+   find . -type f -name "package.json" ! -path "*/node_modules/*" | while read -r FILE; do
+      auditing "$FILE"
+   done
+
+   echo "✅ Fix trailing comma issue and properly format JSON"
+   temp_fixed="$TEMP_JSON.fixed"
+   echo "[" > "$temp_fixed"
+   sed '$ s/,$//' "$TEMP_JSON" >> "$temp_fixed"  # Remove last comma
+   echo "]" >> "$temp_fixed"
+   mv "$temp_fixed" "$TEMP_JSON"
+
+   if [ ! -s "$TEMP_JSON" ]; then
+      echo "[]" > "$TEMP_JSON"  # Ensure it's at least an empty JSON array
    fi
 
-   MODERATE_REGEX="\"moderate\":([0-9]+)"
-   if [[ ${AUDIT_RESUME} =~ ${MODERATE_REGEX} ]]; then
-      MODERATE_COUNT=${BASH_REMATCH[1]}
-   fi
+   echo "🔢 Compute totals using jq"
+   TOTALS=$(jq '
+      reduce .[] as $pkg 
+         ({"low": 0, "moderate": 0, "high": 0, "critical": 0}; 
+         {
+            "low": (.low + ($pkg.low // 0)),
+            "moderate": (.moderate + ($pkg.moderate // 0)),
+            "high": (.high + ($pkg.high // 0)),
+            "critical": (.critical + ($pkg.critical // 0))
+         })' $TEMP_JSON)
 
-   HIGH_REGEX="\"high\":([0-9]+)"
-   if [[ ${AUDIT_RESUME} =~ ${HIGH_REGEX} ]]; then
-      HIGH_COUNT=${BASH_REMATCH[1]}
-   fi
+   echo "📂 Write aggregated JSON report"
+   echo "{" > "$AGGREGATED_JSON"
+   echo "  \"type\": \"yarn audit\"," >> "$AGGREGATED_JSON"
+   echo "  \"total\": $TOTALS," >> "$AGGREGATED_JSON"
+   echo "  \"details\": " >> "$AGGREGATED_JSON"
 
-   CRITICAL_REGEX="\"critical\":([0-9]+)"
-   if [[ ${AUDIT_RESUME} =~ ${CRITICAL_REGEX} ]]; then
-      CRITICAL_COUNT=${BASH_REMATCH[1]}
-   fi
+   jq '.' "$TEMP_JSON" >> "$AGGREGATED_JSON"
 
-   rm -f yarn-audit.txt
-   echo -e "Audit - vulnerabilities: \n\tlow: ${LOW_COUNT}\n\tmoderate: ${MODERATE_COUNT}\n\thigh: ${HIGH_COUNT}\n\tcritical: ${CRITICAL_COUNT}" > yarn-audit.txt
-   
-   cat yarn-audit.txt
-   
-   cp ./yarn-audit.html "$CM_EXPORT_DIR/yarn-audit.html"
-   cp ./yarn-audit.txt "$CM_EXPORT_DIR/yarn-audit.txt"
-   
-   # export vulnerability count for further use
-   echo "HIGH_COUNT=$HIGH_COUNT" >> $CM_ENV
-   echo "CRITICAL_COUNT=$CRITICAL_COUNT" >> $CM_ENV
+   echo "}" >> "$AGGREGATED_JSON"
 
-   echo "Audit yarn packages finished successfully"
+   rm "$TEMP_JSON"
+
+   echo "🎉 Audit of all yarn packages completed successfully"
+
+   # Extract high and critical vulnerability counts
+   LOW_COUNT=$(jq -r '.total.low' $AGGREGATED_JSON)
+   MODERATE_COUNT=$(jq -r '.total.moderate' $AGGREGATED_JSON)
+   HIGH_COUNT=$(jq -r '.total.high' $AGGREGATED_JSON)
+   CRITICAL_COUNT=$(jq -r '.total.critical' $AGGREGATED_JSON)
+
+   # Export vulnerability count for further use
+   echo "LOW_COUNT=$LOW_COUNT" #>> $CM_ENV
+   echo "MODERATE_COUNT=$MODERATE_COUNT" #>> $CM_ENV
+   echo "HIGH_COUNT=$HIGH_COUNT" #>> $CM_ENV
+   echo "CRITICAL_COUNT=$CRITICAL_COUNT" #>> $CM_ENV
+
+   #!/bin/bash
+
+   # Define color codes
+   RESET="\033[0m"
+   BOLD="\033[1m"
+   RED="\033[31m"
+   YELLOW="\033[33m"
+   BLUE="\033[34m"
+   GREEN="\033[32m"
+
+   # Function to truncate long package names
+   truncate_package_name() {
+      local name="$1"
+      local max_length=50  # Maximum allowed length before truncating
+      if [ ${#name} -gt $max_length ]; then
+         echo "${name:0:$((max_length-3))}..."  # Truncate and add "..."
+      else
+         echo "$name"
+      fi
+   }
+
+   # Function to display formatted table
+   print_table() {
+      local headers=("$@")  # Get headers as array
+      printf "${BOLD}%-55s %-10s %-10s %-10s %-10s${RESET}\n" "${headers[@]}"
+      printf -- "----------------------------------------------------------------------\n"
+
+      while read -r line; do
+         IFS=$'\t' read -r package low moderate high critical <<< "$line"
+         package=$(truncate_package_name "$package")  # Truncate if necessary
+         printf "%-55s ${GREEN}%-10s${RESET} ${BLUE}%-10s${RESET} ${YELLOW}%-10s${RESET} ${RED}%-10s${RESET}\n" "$package" "$low" "$moderate" "$high" "$critical"
+      done
+   }
+
+   # Read JSON and extract totals
+   TOTALS=$(jq -r '.total | ["Total", .low, .moderate, .high, .critical] | @tsv' "$AGGREGATED_JSON")
+
+   # Display vulnerability summary
+   echo "${BOLD}Vulnerability Summary:${RESET}"
+   print_table "Package" "Low" "Moderate" "High" "Critical" <<< "$TOTALS"
+
+   # Read JSON details and extract vulnerabilities per package
+   DETAILS=$(jq -r '.details[] | [.package, .low, .moderate, .high, .critical] | @tsv' "$AGGREGATED_JSON")
+
+   # Display detailed report
+   echo "\n${BOLD}Detailed Vulnerability Report:${RESET}"
+   print_table "Package" "Low" "Moderate" "High" "Critical" <<< "$DETAILS"
+
+   # Send a message to Microsoft Teams using a webhook URL
+   sendToTeams() {
+      local webhookUrl="$1"
+      local message="$2"
+
+      # Check if required parameters are provided
+      if [ -z "$webhookUrl" ] || [ -z "$message" ]; then
+         echo "🚨 Error: Both Teams Webhook URL and message are required." 1>&2
+         echo "Usage: sendToTeams <webhook-url> <message>" 1>&2
+         return 1
+      fi
+
+      # Create JSON payload
+      local payload
+      payload=$(jq -n --arg text "$message" '{text: $text}')
+
+      # Send POST request to Microsoft Teams webhook
+      local response
+      response=$(curl -s -o /dev/null -w "%{http_code}" -H "Content-Type: application/json" \
+         -d "$payload" "$webhookUrl")
+
+      # Check the response status
+      if [ "$response" -eq 200 ]; then
+         echo "✅ Message sent to Microsoft Teams successfully." 1>&2
+      else
+         echo "🚨 Failed to send message to Microsoft Teams: HTTP $response." 1>&2
+         return 1
+      fi
+   }
+   # Function to send vulnerability report to Teams
+   sendVulnerabilityReportToTeams() {
+      local webhook_url=$1
+
+      # File paths
+      local base_path="build/reports/html-security-reports"
+      local html_result_temp="$base_path/security_report_temp.html"
+      local html_result_final="$base_path/yarn_audits.html"
+
+      # Ensure base directory exists
+      mkdir -p "$base_path"
+      mkdir -p "$base_path/source"
+
+      # HTML Table Structure
+      local html_top="<table bordercolor='black' border='2'><thead><tr style='background-color:#f0f0f0;color:#000;text-align:center'><th>Yarn audit - Package</th><th>Low</th><th>Moderate</th><th>High</th><th>Critical</th></tr></thead><tbody>"
+      local html_bottom="</tbody></table>"
+
+      # Helper function to write to a file
+      write_to_file() {
+         local file_path=$1
+         local content=$2
+         local append=$3
+
+         if [ "$append" = true ]; then
+            echo "$content" >> "$file_path"
+         else
+            echo "$content" > "$file_path"
+         fi
+      }
+
+      # Start HTML file
+      write_to_file "$html_result_temp" "$html_top"
+
+      # Extract total vulnerabilities
+      HIGH_COUNT=$(jq -r '.total.high' $AGGREGATED_JSON)
+      CRITICAL_COUNT=$(jq -r '.total.critical' $AGGREGATED_JSON)
+
+      # Add total vulnerabilities as a summary row
+      local total_row="<tr style='font-weight:bold;background-color:#ffcccc'><td style='text-align:center'>TOTAL</td><td style='text-align:center'>$(jq -r '.total.low' $AGGREGATED_JSON)</td><td style='text-align:center'>$(jq -r '.total.moderate' $AGGREGATED_JSON)</td><td style='text-align:center'>$HIGH_COUNT</td><td style='text-align:center'>$CRITICAL_COUNT</td></tr>"
+      write_to_file "$html_result_temp" "$total_row" true
+
+      # Extract each package's vulnerabilities and add them to the table
+      jq -r '.details[] | "<tr><td style=\"text-align:center\">" + .package + "</td><td style=\"text-align:center\">" + (.low|tostring) + "</td><td style=\"text-align:center\">" + (.moderate|tostring) + "</td><td style=\"text-align:center\">" + (.high|tostring) + "</td><td style=\"text-align:center\">" + (.critical|tostring) + "</td></tr>"' $AGGREGATED_JSON >> "$html_result_temp"
+
+      # Close the HTML table
+      write_to_file "$html_result_temp" "$html_bottom" true
+
+      # Convert HTML to single-line format
+      local html_content=$(tr -d '\n' < "$html_result_temp")
+      write_to_file "$html_result_final" "$html_content"
+
+      echo "✅ Security report generated successfully at: $html_result_final" 1>&2
+      rm -f "$html_result_temp"
+      mv "$AGGREGATED_JSON" "$base_path/source"
+
+      # Send to Teams
+      sendToTeams "$webhook_url" "$html_content"
+   }
+
+   sendVulnerabilityReportToTeams "$TEAMS_SECURITY_WEBHOOCKS"
