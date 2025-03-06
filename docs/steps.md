@@ -8,6 +8,11 @@
 - [react_native_tsc](#react_native_tsc)
 - [react_native_prettier](#react_native_prettier)
 - [react_native_jest](#react_native_jest)
+- [react_native_npm_install](./steps.md#react_native_npm_install)
+- [react_native_npm_lint](./steps.md#react_native_npm_lint)
+- [react_native_npm_tsc](./steps.md#react_native_npm_tsc)
+- [react_native_npm_prettier](./steps.md#react_native_npm_prettier)
+- [react_native_npm_jest](./steps.md#react_native_npm_jest)
 - [flutter_pre_build](./steps.md#flutter_pre_build)
 - [flutter_yarn](./steps.md#flutter_yarn)
 - [flutter_jest](./steps.md#flutter_jest)
@@ -637,7 +642,7 @@ To register and be able to install private npm packages
 | NPM_TOKEN    | Npm token to login |  ||
 
 ## react_native_jest
-Run unit tests on React-Native codes
+Run unit tests on React-Native codes with yarn
 
 | CICD    | ✅ Available         |
 |---------|-------------------|
@@ -658,7 +663,7 @@ Run unit tests on dart codes
 
 ## react_native_lint
 
-Run lint on React-Native codes
+Run lint on React-Native codes with yarn
 
 | CICD    | ✅ Available         |
 |---------|-------------------|
@@ -706,7 +711,7 @@ Install React-Native cli
 
 ## react_native_prettier
 
-Run prettier on React-Native codes
+Run prettier on React-Native codes with yarn
 
 | CICD    | ✅ Available         |
 |---------|-------------------|
@@ -728,7 +733,7 @@ Run prettier on React-Native codes
 
 ## react_native_tsc
 
-Run tsc on React-Native codes
+Run tsc on React-Native codes with yarn
 
 | CICD    | ✅ Available         |
 |---------|-------------------|
@@ -743,6 +748,70 @@ Install dependencies with yarn
 |---------|-------------------|
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
+
+## react_native_npm_install
+
+Install dependencies with npm
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description                | Default value                        | Expected value                                      |
+|---------|----------------------------|--------------------------------------|-----------------------------------------------------|
+| NPM_VERSION    | NPM version to use, that will override system's version if not same |  | *optional key - will use system's version if empty* |
+
+## react_native_tsc
+
+Run tsc on React-Native codes
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description                | Default value                        | Expected value                                      |
+|---------|----------------------------|--------------------------------------|-----------------------------------------------------|
+| NPM_VERSION    | NPM version to use, that will override system's version if not same |  | *optional key - will use system's version if empty* |
+
+## react_native_prettier
+
+Run prettier on React-Native codes with npm
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description                | Default value                        | Expected value                                      |
+|---------|----------------------------|--------------------------------------|-----------------------------------------------------|
+| NPM_VERSION    | NPM version to use, that will override system's version if not same |  | *optional key - will use system's version if empty* |
+
+## react_native_lint
+
+Run lint on React-Native codes with npm
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description                | Default value                        | Expected value                                      |
+|---------|----------------------------|--------------------------------------|-----------------------------------------------------|
+| NPM_VERSION    | NPM version to use, that will override system's version if not same |  | *optional key - will use system's version if empty* |
+
+## react_native_jest
+Run unit tests on React-Native codes with npm
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description                | Default value                        | Expected value                                      |
+|---------|----------------------------|--------------------------------------|-----------------------------------------------------|
+| NPM_VERSION    | NPM version to use, that will override system's version if not same |  | *optional key - will use system's version if empty* |
 
 ## flutter_yarn
 
@@ -831,6 +900,7 @@ To promote (merge it & push) your source branch (first branch of BRANCH_LIST) to
 | 🔑 Variable                                                 | 📝 Description                                                                                                                                      | Default value | Expected value                           |
 |----------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------|--------------|------------------------------------------|
 | REPOSITORY_URL                             | You have to set your repository url with the ci-token [More info](https://docs.gitlab.com/ee/ci/jobs/ci_job_token.html)                          |              ||
+    
 | BRANCHES                                | Your branch list, to know which branch have to be merged into which - Should be a valid json array                                               |              | [\"branch_1\",\"branch_2\",\"branch_3\"] |
 | APP_VERSION                               | App version - optional key if you're using versioned branch                                                                                      |              | Your version (eg. 2.1.1)                 |
 | IS_VERSIONED_BRANCH        | This step automatically checking the version in branch name, to turn it off, set this key to false and the step will only merge branch set into `BRANCHES` |        | true/false                               |

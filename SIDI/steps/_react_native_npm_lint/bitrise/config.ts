@@ -3,7 +3,7 @@ import { GluegunToolbox } from 'gluegun';
 import checkCommand from '../../../../src/customChecks/CheckCommand';
 
 const config: IConfig = {
-  mandatoryKeys: [],
+  mandatoryKeys: [{ key: 'NPM_VERSION', globalValue: true }],
   checks: [
     {
       check: (toolbox: GluegunToolbox) => checkCommand(toolbox, 'lint'),

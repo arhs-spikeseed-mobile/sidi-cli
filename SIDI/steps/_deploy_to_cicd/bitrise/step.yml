@@ -1,5 +1,5 @@
 steps:
-  - deploy-to-bitrise-io@1.10.0:
+  - deploy-to-bitrise-io@2.11.0:
       title: "[POST] - Deploy to Bitrise (no public link)"
       inputs:
         - notify_email_list: "$EMAILS_TO_NOTIFY"
