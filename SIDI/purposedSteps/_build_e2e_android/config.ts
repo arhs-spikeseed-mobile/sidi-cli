@@ -29,7 +29,7 @@ const config: IConfig = {
     '_e2e_upload_apps_artifacts',
     '_e2e_launch_browserstack_builds',
     '_e2e_zip_artifacts',
-  ]
+  ],
 };
 
 export default config;
