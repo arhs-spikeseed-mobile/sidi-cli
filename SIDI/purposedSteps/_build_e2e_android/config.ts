@@ -1,7 +1,6 @@
 import { IConfig } from '../../../src/models/SidiModel';
 import androidManifest from '../../../src/customChecks/AndroidManifest';
 import { GluegunToolbox } from 'gluegun';
-import { androidConfig, commonConfig, rnConfig } from '../configs';
 
 const config: IConfig = {
   mandatoryKeys: [

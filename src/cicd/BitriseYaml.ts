@@ -43,8 +43,9 @@ export class BitriseYaml {
       this.workflows[workflowName] = {};
       this.workflows[workflowName].after_run = [...workflowSetByUser.stepsNames];
       this.workflows[workflowName].envs = this.getEnvs(workflowName, preparedSteps);
-      if (workflowSetByUser.meta && workflowSetByUser.meta != 'NONE')
-        this.workflows[workflowName].meta = workflowSetByUser.meta;
+      if (workflowSetByUser.meta && workflowSetByUser.meta != 'NONE') this.workflows[workflowName].meta = {};
+      this.workflows[workflowName].meta['bitrise.io'] = {};
+      this.workflows[workflowName].meta['bitrise.io'].stack = workflowSetByUser.meta;
     }
 
     if (arrayNotEmpty(sidiConfig.appEnvs)) {
