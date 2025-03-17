@@ -1,11 +1,12 @@
 import { IConfig } from '../../../src/models/SidiModel';
-import { commonConfig, qualityConfig, rnConfig } from '../configs';
+import { commonConfig, flutterConfig, qualityConfig, rnConfig } from '../configs';
 
 const config: IConfig = {
   mandatoryKeys: [],
-  conditionalSteps: [...commonConfig, ...rnConfig, ...qualityConfig],
+  conditionalSteps: [...commonConfig, ...rnConfig, ...flutterConfig, ...qualityConfig],
   stepsFamily: [
     '_react_native_pre_build',
+    '_flutter_pre_build',
     '_npm_private_login',
     '_react_native_yarn_install',
     '_react_native_lint',
@@ -19,6 +20,10 @@ const config: IConfig = {
     '_react_native_npm_jest',
     '_react_native_npm_library_install',
     '_react_native_yarn_library_install',
+    '_flutter_yarn_install',
+    '_flutter_jest',
+    '_flutter_lint',
+    '_flutter_prettier',
     '_audit_packages_yarn',
     '_audit_packages_outdated',
     '_audit_packages_urls',

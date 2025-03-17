@@ -1,5 +1,5 @@
 steps:
-  - script@1.1.6:
+  - script@1.2.1:
       title: "[POST] - Generate changelog"
       inputs:
         - content: |-

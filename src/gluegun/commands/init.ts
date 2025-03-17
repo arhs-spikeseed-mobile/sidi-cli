@@ -45,7 +45,10 @@ module.exports = {
     }
 
     if (sidiConfig.projectType !== 'flutter') {
-      sidiConfig.libOrApp = await selectExtension(Translator.translate('sidiConfig.libOrApp'), ['library', 'application']);
+      sidiConfig.libOrApp = await selectExtension(Translator.translate('sidiConfig.libOrApp'), [
+        'library',
+        'application',
+      ]);
     } else {
       sidiConfig.libOrApp = 'application';
     }

@@ -1,5 +1,5 @@
 steps:
-  - set-xcode-build-number@1.0.11:
+  - set-xcode-build-number@2.0.6:
       title: "[iOS] - Set build number"
       inputs:
         - plist_path: "$IOS_PLIST_PATH"

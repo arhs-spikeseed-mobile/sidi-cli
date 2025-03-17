@@ -1,5 +1,5 @@
 steps:
-  - change-android-versioncode-and-versionname@1.3.0:
+  - change-android-versioncode-and-versionname@1.3.1:
       title: "[ANDROID] - Set version code and name"
       inputs:
         - new_version_code: "$BITRISE_BUILD_NUMBER"

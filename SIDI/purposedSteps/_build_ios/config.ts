@@ -1,9 +1,9 @@
 import { IConfig } from '../../../src/models/SidiModel';
-import { commonConfig, rnConfig, iosConfig } from '../configs';
+import { commonConfig, rnConfig, iosConfig, flutterConfig } from '../configs';
 
 const config: IConfig = {
   mandatoryKeys: [],
-  conditionalSteps: [...commonConfig, ...rnConfig, ...iosConfig],
+  conditionalSteps: [...commonConfig, ...rnConfig, ...flutterConfig, ...iosConfig],
   stepsFamily: [
     '_setup_app_assets',
     '_react_native_pre_build',
