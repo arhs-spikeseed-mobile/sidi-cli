@@ -1,4 +1,4 @@
-# Changelog (Current version: 3.1.0)
+# Changelog (Current version: 3.2.0)
 
 ## Unreleased
 
