@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## Version 3.2.0
+
+Features
+- Update all versions for bitrise steps
+
+Fixes
+- Bitrise meta settings not in expected format
+- Improve the way that we inject flutter steps
+
 ## Version 3.1.0
 
 Features
