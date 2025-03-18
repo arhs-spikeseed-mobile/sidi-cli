@@ -1,0 +1,79 @@
+name: "[END-TO-END] Waiting previous builds"
+script: |
+  #!/usr/bin/env bash
+  # Fail if any command fails
+  set -e
+  # Function to check the status of a build
+  check_build_status() {
+        local build_id=$1
+        local status
+
+        # Call the API to get the build status
+        status=$(curl -s -H "Content-Type: application/json" \
+                    -H "x-auth-token: $CODE_MAGIC_TOKEN" \
+                    "https://api.codemagic.io/builds/$build_id" | jq -r '.build.status' || echo "error")
+
+        # Check if API call was successful
+        if [ "$status" == "error" ]; then
+        echo "🚨 Error: Unable to fetch status for build $build_id"
+        exit 1
+        fi
+
+        echo "$status"
+  }
+
+  # Check if we need to wait for previous builds
+  if [ -z "$IOS_BUILD_SLUG_1" ]; then
+        echo "ℹ️ Nothing to wait for..."
+        exit 0
+  fi
+
+  # Initialize an empty array for builds
+  ALL_BUILDS=()
+
+  # Prefixes and maximum index for build slugs
+  PREFIXES=("IOS_BUILD_SLUG" "ANDROID_BUILD_SLUG")
+  MAX_INDEX=$((END_TO_END_MAX_IN_PARALLEL + 0)) 
+
+  # Validate MAX_INDEX
+  if [[ -z "$MAX_INDEX" || "$MAX_INDEX" -lt 1 ]]; then
+        echo "🚨 Error: MAX_INDEX is not correctly set or too low"
+        exit 1
+  fi
+
+  # Loop through prefixes and indices to construct the list
+  for prefix in "${PREFIXES[@]}"; do
+        for i in $(seq 1 "$MAX_INDEX"); do
+        var_name="${prefix}_${i}"
+        build_id=${!var_name} # Indirect reference to the variable
+        if [ -n "$build_id" ]; then
+        ALL_BUILDS+=("$build_id") # Add non-empty build slugs to the array
+        fi
+        done
+  done
+
+  # Loop through each build ID and check status
+  for build_id in "${ALL_BUILDS[@]}"; do
+        if [ -n "$build_id" ]; then
+        echo "ℹ️ Checking status of build https://codemagic.io/app/$CM_PROJECT_ID/build/$build_id..."
+
+        BUILD_STATUS=$(check_build_status "$build_id")
+
+        if [ "$BUILD_STATUS" == "building" ] || [ "$BUILD_STATUS" == "queued" ]; then
+        echo "ℹ️ Build $build_id is still running or queued. Retrying after waiting..."
+        RETRIGGER_WAITING_PREVIOUS_BUILDS="true"
+        echo "RETRIGGER_WAITING_PREVIOUS_BUILDS=$RETRIGGER_WAITING_PREVIOUS_BUILDS" >> "$CM_ENV"
+        
+        # Sleep for the configured waiting time
+        sleep "${END_TO_END_WAITING_BUILDS_TIME:-720}" # Default wait time is 12 minutes
+        exit 0
+        else
+        echo "✅ Build $build_id has finished with status: $BUILD_STATUS"
+        fi
+        fi
+  done
+
+  # All builds are finished
+  RETRIGGER_WAITING_PREVIOUS_BUILDS="false"
+  echo "RETRIGGER_WAITING_PREVIOUS_BUILDS=$RETRIGGER_WAITING_PREVIOUS_BUILDS" >> "$CM_ENV"
+  echo "✅ All builds have completed successfully."

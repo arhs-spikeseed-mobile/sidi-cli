@@ -6,4 +6,4 @@ script: |
   cd $GRADLEW_PATH
   chmod 777 gradlew
   
-  ./gradlew "assemble$ANDROID_BUILD_VARIANT"
+  ./gradlew "assemble${ANDROID_BUILD_VARIANT}Release" -Dorg.gradle.jvmargs="-Xmx4096m"

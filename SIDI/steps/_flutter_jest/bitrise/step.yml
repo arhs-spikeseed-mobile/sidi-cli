@@ -1,5 +1,5 @@
 steps:
-  - flutter-test:
+  - flutter-test@1.0.2:
       title: "[FLUTTER] - Run Unit Tests"
       inputs:
         - project_location: "$PROJECT_LOCATION"

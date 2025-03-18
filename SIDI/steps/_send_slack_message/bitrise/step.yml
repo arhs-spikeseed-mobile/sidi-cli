@@ -1,5 +1,5 @@
 steps:
- - slack@3.2.1:
+ - slack@4.2.1:
     title: "[POST] - Sending slack notification"
     inputs:
      - is_debug_mode: "yes"

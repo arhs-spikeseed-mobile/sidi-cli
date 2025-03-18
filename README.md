@@ -77,6 +77,19 @@ With SIDI, you can:
 | Native iOS      | ✅ Supported         |
 | Native Android  | ✅ Supported         |
 
+### End-to-End orchestrator extension
+
+[(Working only with) End-to-End testing starter pack](https://github.com/arhs-spikeseed-mobile/sidi-cli-extension-end-to-end/tree/main/end-to-end)
+
+[CI/CD configuration](./docs/end-to-end-setup.md)
+
+
+| CI/CD      | Status               |
+|------------|----------------------|
+| Bitrise    | ❌ Unsupported       |
+| Codemagic  | ✅ Supported         |
+
+
 ---
 
 ## 📥 Installation
