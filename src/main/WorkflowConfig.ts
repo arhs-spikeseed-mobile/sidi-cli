@@ -142,7 +142,7 @@ export class WorkflowConfig {
   }
 
   setCancelPreviousBuilds(cancelPreviousBuild: string) {
-    this.cancelPreviousBuild = cancelPreviousBuild == "true";
+    this.cancelPreviousBuild = cancelPreviousBuild == 'true';
   }
 
   /**

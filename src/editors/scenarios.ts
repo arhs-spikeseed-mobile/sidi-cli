@@ -53,8 +53,10 @@ export async function editScenario(
 
   // Custom push event pattern
   if (sidiConfig.cicd === 'codemagic') {
-    stepChoices.push(
-      { key: 'editCancelPreviousBuild', choice: Translator.translate('edit.updateWorkflow.editCancelPreviousBuild') });
+    stepChoices.push({
+      key: 'editCancelPreviousBuild',
+      choice: Translator.translate('edit.updateWorkflow.editCancelPreviousBuild'),
+    });
     stepChoices.push({ key: 'editPushTrigger', choice: Translator.translate('edit.updateWorkflow.editPushTrigger') });
     stepChoices.push({
       key: 'editAndroidSigning',
@@ -131,7 +133,7 @@ export async function editScenario(
     // EDIT cancel_previous_builds value
     const cancelPreviousBuild = await selectExtension(
       Translator.translate('edit.step.cancelPreviousBuildValue', { workflowName: selectedWorkflowName }),
-      ["true", "false"]
+      ['true', 'false']
     );
     sidiConfig._workflowConfigs[selectedWorkflowName].setCancelPreviousBuilds(cancelPreviousBuild);
   } else {
