@@ -21,12 +21,14 @@
             "pushTriggerPattern": "Entrez le pattern de branche pour détecter l'événement push et lancer le workflow {{workflowName}}  [Plus d'info](https://github.com/imranMnts/sidi-cli/blob/master/docs/buildTriggers.md)",
             "androidSigningName": "Entrez le nom de reference du fichier de keystore enregistrer sur CodeMagic pour le workflow {{workflowName}}",
             "maxDuration": "Entrez la durée maximum du build pour {{workflowName}} (minutes)",
+            "cancelPreviousBuildValue": "Voulez vous arretez tous les builds en cours lors d'un nouveau build ?",
             "add": "Quelle étape voulez-vous ajouter?"
         },
         "updateWorkflow": {
             "title": "Modifier un Workflow existant",
             "question": "Quel workflow voulez-vous modifier ?",
             "addStep": "Ajouter une nouvelle étape",
+            "editCancelPreviousBuild": "Editer la propriété cancel_previous_builds",
             "deleteStep": "Supprimer une nouvelle étape",
             "editPushTrigger": "Modifier le modèle de branche du déclencheur d'événement push du workflow",
             "editAndroidSigning": "Paramétrer la clé de signature Android [More info](https://docs.codemagic.io/yaml-code-signing/signing-android/#set-up-code-signing-with-user-specified-keys)",
