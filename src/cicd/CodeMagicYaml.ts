@@ -59,7 +59,7 @@ export class CodeMagicYaml {
         if (!workflowSetByUser.triggerPattern.includes('NONE')) {
           this.workflows[workflowName].triggering = {
             events: ['push'],
-            cancel_previous_builds: true,
+            cancel_previous_builds: workflowSetByUser.cancelPreviousBuild || false,
             branch_patterns: [],
           };
           workflowSetByUser.triggerPattern.forEach((item) => {
@@ -69,7 +69,7 @@ export class CodeMagicYaml {
       } else {
         this.workflows[workflowName].triggering = {
           events: ['push'],
-          cancel_previous_builds: true,
+          cancel_previous_builds: workflowSetByUser.cancelPreviousBuild || false,
           branch_patterns: [
             {
               pattern: `${workflowName}/*`,

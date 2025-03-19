@@ -62,6 +62,7 @@ Edits the YAML configuration file based on the config file created during the `I
   - 🗑️ Delete a step
   - 🗑️ Remove a custom step
   - 🔄 Edit push event triggers (Codemagic only)
+  - 🔄 Edit the cancel_previous_builds property (Codemagic only)
   - 🔑 Set Android signing key (Codemagic only)
   - ⏳ Edit max build duration (default: 120 min, Codemagic only)
   - 🔀 Switch CI/CD provider (Codemagic ↔ Bitrise)
