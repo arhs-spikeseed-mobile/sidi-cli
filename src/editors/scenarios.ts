@@ -53,6 +53,10 @@ export async function editScenario(
 
   // Custom push event pattern
   if (sidiConfig.cicd === 'codemagic') {
+    stepChoices.push({
+      key: 'editCancelPreviousBuild',
+      choice: Translator.translate('edit.updateWorkflow.editCancelPreviousBuild'),
+    });
     stepChoices.push({ key: 'editPushTrigger', choice: Translator.translate('edit.updateWorkflow.editPushTrigger') });
     stepChoices.push({
       key: 'editAndroidSigning',
@@ -125,8 +129,15 @@ export async function editScenario(
       Translator.translate('edit.step.maxDuration', { workflowName: selectedWorkflowName })
     );
     sidiConfig._workflowConfigs[selectedWorkflowName].setBuildDurationTime(maxDuration);
+  } else if (userStepChoice.key === 'editCancelPreviousBuild') {
+    // EDIT cancel_previous_builds value
+    const cancelPreviousBuild = await selectExtension(
+      Translator.translate('edit.step.cancelPreviousBuildValue', { workflowName: selectedWorkflowName }),
+      ['true', 'false']
+    );
+    sidiConfig._workflowConfigs[selectedWorkflowName].setCancelPreviousBuilds(cancelPreviousBuild);
   } else {
-    // DEFAULT - JUST UPDATE
+    // DEFAULT - ADD NEW STEP
     await sidiConfig.updateWorkflow(toolbox, selectedWorkflowName);
   }
   return sidiConfig;

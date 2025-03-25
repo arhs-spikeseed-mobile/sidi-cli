@@ -23,6 +23,7 @@ export class WorkflowConfig {
   codemagicPublishingSteps: string[]; // to add a step in publishing section
   publishingCustomSteps: ICustomSteps[]; // to add a custom step in publishing section
   maxDurationTime?: number;
+  cancelPreviousBuild: boolean = false;
 
   requiredKeys?: IKey[]; // List of envs need to be set by user for this workflow -> will be in final secret file
   envs: Array<IEnv>; // List of envs which ill be set for the workflow
@@ -138,6 +139,10 @@ export class WorkflowConfig {
 
   setBuildDurationTime(duration: string) {
     this.maxDurationTime = parseInt(duration);
+  }
+
+  setCancelPreviousBuilds(cancelPreviousBuild: string) {
+    this.cancelPreviousBuild = cancelPreviousBuild == 'true';
   }
 
   /**
