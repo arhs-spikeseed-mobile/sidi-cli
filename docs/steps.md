@@ -313,6 +313,10 @@ Audit yarn packages
 | Bitrise | :white_check_mark:|
 | Codemagic|:white_check_mark:|
 
+| 🔑 Variable | 📝 Description                              | Default value | Expected value                      |
+|---------|------------------------------------------|---------------|---|
+| TEAMS_SECURITY_WEBHOOCKS      | Url of the webhook on Team's side        |               ||
+
 ## audit_export_report
 
 Will export generated files generated during audit packages steps
