@@ -147,6 +147,7 @@
         "_deploy_to_firebase_ios": "Do you want to deploy the iOS app to Firebase?",
         "_audit_app_decompile": "Do you want launch native app quality checks?",
         "_audit_app_permissions": "Do you want check applications permissions?",
+        "_audit_app_mobsf": "Do you want run MobSF static code analyser?",
         "_audit_app_sizes": "Do you want check applications size?",
         "_audit_app_logs": "Do you want check if you have any logs in your final application?",
         "_deploy_to_play_store": "Do you want to deploy the app to PlayStore?",

@@ -1,0 +1,60 @@
+name: "[AUDIT] - Install and run MobSF"
+ignore_failure: true
+script: |
+ #!/bin/bash
+ set -ex
+
+ REPORT_FILE="mobsf-report.json"
+ UPPER_THRESHOLD=$(echo "$MOBSF_THRESHOLD" | tr '[:lower:]' '[:upper:]')
+ 
+ case "$UPPER_THRESHOLD" in
+ "INFO")
+     THRESHOLD_LEVEL=1
+     ;;
+ "WARNING")
+     THRESHOLD_LEVEL=2
+     ;;
+ "ERROR")
+     THRESHOLD_LEVEL=3
+     ;;
+ *)
+     echo "Unknown threshold: $UPPER_THRESHOLD"
+     exit 1
+     ;;
+ esac
+ 
+ mobsfscan "$MOBSF_CHECK_PATH" --json -o "$CM_EXPORT_DIR/mobsf-report.json"
+ mobsfscan "$MOBSF_CHECK_PATH" --html -o "$CM_EXPORT_DIR/mobsf-report.html"
+ 
+ # -------- Check file --------
+ if [[ ! -f "$REPORT_FILE" ]]; then
+ echo "Error: Report file not found: $REPORT_FILE"
+ exit 1
+ fi
+ 
+ # -------- Parse and Check JSON --------
+ # Loop through all items in the "results" object
+ SEVERITIES=$(jq -r '.results[]?.metadata.severity' "$REPORT_FILE")
+ 
+ if [[ -z "$SEVERITIES" ]]; then
+ echo "Error: No results found in the report"
+ exit 1
+ fi
+ 
+ # Check for ERROR severity
+ for severity in $SEVERITIES; do
+ if [[ "$severity" == "ERROR" ]]; then
+     echo "Report contains Error CVEs, please check the report file to see more details"
+     exit 1
+ fi
+ if [[ "$severity" == "WARNING" && $THRESHOLD_LEVEL > 1 ]]; then
+     echo "Report contains Warning CVEs, please check the report file to see more details"
+     exit 1
+ fi
+ if [[ "$severity" == "INFO" && $THRESHOLD_LEVEL > 0 ]]; then
+     echo "Report contains Info CVEs, please check the report file to see more details"
+     exit 1
+ fi
+ done
+ 
+ echo "No ERROR severity found in report"

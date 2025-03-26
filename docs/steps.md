@@ -48,6 +48,7 @@
 - [audit_export_report](#audit_export_report)
 - [audit_app_decompile](#audit_app_decompile)
 - [audit_app_logs](#audit_app_logs)
+- [_audit_app_mobsf](#_audit_app_mobsf)
 - [audit_app_permissions](#audit_app_permissions)
 - [audit_app_sizes](#audit_app_sizes)
 - [audit_conditional_fail](#audit_conditional_fail)
@@ -169,6 +170,24 @@ Set application code and build number in the gradle file
 | 🔑 Variable | 📝 Description                      | Default value | Expected value                   |
 |---------|-------------------------------------------------------------------|------------|----------------------------------|
 | TARGET_ANDROID    | Path of the module |    android/app      |  |
+
+## _audit_app_mobsf
+
+To run [MobSF scan](https://github.com/MobSF/mobsfscan) tool on your mobile project to find insecure code patterns in your Android and iOS source code. 
+Supports Java, Kotlin, Android XML, Swift and Objective C Code.
+
+| CICD    | ✅ Available         |
+|---------|-------------------|
+| Bitrise | :white_check_mark:|
+| Codemagic|:white_check_mark:|
+
+| 🔑 Variable | 📝 Description                                                                                 | Default value  | Expected value |
+|---------|---------------------------------------------------------------------------------------------|----------------|----------------|
+| MOBSF_CHECK_PATH    | The path to your mobile project. If you choose the root, the tool will check all folders to find mobile projects (iOS and/or Android) and run checks| .              |                |
+| MOBSF_THRESHOLD    | **INFO**: Will raise an error when the tool detects at least one **info**, **warning** or **error** item.<br>**WARNING**: Will raise an error when the tool detects at least one **warning** or **error** item.<br>**ERROR**: Will raise an error when the tool detects at least one **error** item.   | WARNING |    INFO / WARNING / ERROR            |
+
+📤 Outputs:
+- `quality_report.json`: This step will create/update this file where you can build's informations
 
 ## _audit_app_decompile
 

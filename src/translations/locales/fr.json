@@ -145,6 +145,7 @@
         "_deploy_to_firebase_ios": "Voulez-vous déployer l'application iOS sur Firebase ?",
         "_audit_app_decompile": "Voulez-vous lancer des vérifications des archives natives?",
         "_audit_app_permissions": "Voulez-vous vérifier le compte des permissions utilisés par les applications?",
+        "_audit_app_mobsf": "Voulez-vous exécuter l'analyseur de code statique MobSF ?",
         "_audit_app_sizes": "Voulez-vous vérifier la taille des applications?",
         "_audit_app_logs": "Voulez-vous vérifier si votre application contient quelconque log?",
         "_deploy_to_play_store": "Voulez-vous déployer l'application Android sur PlayStore ?",
