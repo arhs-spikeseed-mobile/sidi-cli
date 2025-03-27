@@ -2,65 +2,78 @@ name: "[AUDIT] - Install and run MobSF"
 ignore_failure: true
 script: |
  #!/bin/bash
- set -e
+ set -ex
+
+ install_dependencies() {
+   echo ":snake: Installing Python dependencies (mobsfscan)..."
+   pip3 install --upgrade mobsfscan
+ }
  
- echo "🐍 Installing Python dependencies (mobsfscan)..."
- pip3 install --upgrade mobsfscan
+ set_threshold_level() {
+   UPPER_THRESHOLD=$(echo "$MOBSF_THRESHOLD" | tr '[:lower:]' '[:upper:]')
+   echo ":hammer_and_wrench:  Setting threshold level: $UPPER_THRESHOLD"
+   case "$UPPER_THRESHOLD" in
+     "INFO") THRESHOLD_LEVEL=1 ;;
+     "WARNING") THRESHOLD_LEVEL=2 ;;
+     "ERROR") THRESHOLD_LEVEL=3 ;;
+     *)
+       echo ":x: Unknown threshold level: $UPPER_THRESHOLD"
+       exit 1
+       ;;
+   esac
+ }
  
- JSON_REPORT_FILE_PATH="$CM_EXPORT_DIR/mobsf-report.json"
- UPPER_THRESHOLD=$(echo "$MOBSF_THRESHOLD" | tr '[:lower:]' '[:upper:]')
+ run_scan() {
+   echo ":mag: Scanning project at $MOBSF_CHECK_PATH ..."
+   mobsfscan "$MOBSF_CHECK_PATH" --json -o "$CM_EXPORT_DIR/mobsf-report.json" --no-fail
+   mobsfscan "$MOBSF_CHECK_PATH" --html -o "$CM_EXPORT_DIR/mobsf-report.html" --no-fail
+ }
  
- echo "🛠️  Setting threshold level: $UPPER_THRESHOLD"
- case "$UPPER_THRESHOLD" in
-   "INFO")
-     THRESHOLD_LEVEL=1
-     ;;
-   "WARNING")
-     THRESHOLD_LEVEL=2
-     ;;
-   "ERROR")
-     THRESHOLD_LEVEL=3
-     ;;
-   *)
-     echo "❌ Unknown threshold level: $UPPER_THRESHOLD"
-     exit 1
-     ;;
- esac
- 
- echo "🔍 Scanning project at $MOBSF_CHECK_PATH"
- mobsfscan "$MOBSF_CHECK_PATH" --json -o "$CM_EXPORT_DIR/mobsf-report.json" --no-fail
- mobsfscan "$MOBSF_CHECK_PATH" --html -o "$CM_EXPORT_DIR/mobsf-report.html" --no-fail
- 
- # -------- Check if report file exists --------
- if [[ ! -f "$JSON_REPORT_FILE_PATH" ]]; then
-   echo "❌ Report file not found: $JSON_REPORT_FILE_PATH"
-   exit 1
- fi
- echo "📄 JSON report found: $JSON_REPORT_FILE_PATH"
- 
- # -------- Parse and Analyze Report --------
- SEVERITIES=$(jq -r '.results[]?.metadata.severity' "$JSON_REPORT_FILE_PATH")
- 
- if [[ -z "$SEVERITIES" ]]; then
-   echo "⚠️  No findings detected in the report."
-   exit 1
- fi
- 
- echo "🧪 Evaluating findings based on threshold..."
- 
- for severity in $SEVERITIES; do
-   if [[ "$severity" == "ERROR" ]]; then
-     echo "🚨 Report contains **ERROR** CVEs. Check $JSON_REPORT_FILE_PATH for details."
+ validate_report_file() {
+   REPORT_FILE="$CM_EXPORT_DIR/mobsf-report.json"
+   if [[ ! -f "$REPORT_FILE" ]]; then
+     echo ":x: Report file not found: $REPORT_FILE"
      exit 1
    fi
-   if [[ "$severity" == "WARNING" && $THRESHOLD_LEVEL -ge 2 ]]; then
-     echo "⚠️  Report contains **WARNING** CVEs. Check $JSON_REPORT_FILE_PATH for details."
-     exit 1
-   fi
-   if [[ "$severity" == "INFO" && $THRESHOLD_LEVEL -ge 1 ]]; then
-     echo "ℹ️  Report contains **INFO** CVEs. Check $JSON_REPORT_FILE_PATH for details."
-     exit 1
-   fi
- done
+   echo ":page_facing_up: JSON report found: $REPORT_FILE"
+ }
  
- echo "✅ No CVEs found that exceed the threshold: $UPPER_THRESHOLD"
+ evaluate_findings() {
+   local severities
+   severities=$(jq -r '.results[]?.metadata.severity' "$REPORT_FILE")
+ 
+   if [[ -z "$severities" ]]; then
+     echo ":warning:  No findings detected in the report."
+     exit 0
+   fi
+ 
+   echo ":test_tube: Evaluating findings based on threshold..."
+   for severity in $severities; do
+     case "$severity" in
+       "ERROR")
+         echo ":rotating_light: Report contains **ERROR** CVEs. Check $REPORT_FILE for details."
+         exit 1
+         ;;
+       "WARNING")
+         if [[ $THRESHOLD_LEVEL -ge 2 ]]; then
+           echo ":warning:  Report contains **WARNING** CVEs. Check $REPORT_FILE for details."
+           exit 1
+         fi
+         ;;
+       "INFO")
+         if [[ $THRESHOLD_LEVEL -ge 1 ]]; then
+           echo ":information_source:  Report contains **INFO** CVEs. Check $REPORT_FILE for details."
+           exit 1
+         fi
+         ;;
+     esac
+   done
+ 
+   echo ":white_check_mark: No CVEs found that exceed the threshold: $UPPER_THRESHOLD"
+ }
+
+ install_dependencies
+ set_threshold_level
+ run_scan
+ validate_report_file
+ evaluate_findings
