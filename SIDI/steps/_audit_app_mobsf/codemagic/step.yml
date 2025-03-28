@@ -2,17 +2,26 @@ name: "[AUDIT] - Install and run MobSF"
 ignore_failure: true
 script: |
  #!/bin/bash
- set -ex
+ set -e
 
- install_dependencies() {
-   echo ":snake: Installing Python dependencies (mobsfscan)..."
-   pip3 install --upgrade mobsfscan
- }
+ # Variables
+ REPORTS_DIR="$CM_EXPORT_DIR/reports"
+ mkdir -p REPORTS_DIR
+ 
+ MOBSF_EXPORT_DIR="$REPORTS_DIR/mobsf"
+ mkdir -p "$MOBSF_EXPORT_DIR"
+ 
+ HTML_SECURITY_EXPORT_DIR="$CM_EXPORT_DIR/html-security-reports"
+ mkdir -p "$HTML_SECURITY_EXPORT_DIR"
+ 
+ JSON_REPORT_PATH="$MOBSF_EXPORT_DIR/mobsf-report.json"
+ HTML_REPORT_PATH="$MOBSF_EXPORT_DIR/mobsf-report.html"
+ HTML_BEAUTIFUL_PATH="$HTML_SECURITY_EXPORT_DIR/mobsf-beautiful-report.html"
  
  set_threshold_level() {
-   UPPER_THRESHOLD=$(echo "$MOBSF_THRESHOLD" | tr '[:lower:]' '[:upper:]')
-   echo ":hammer_and_wrench:  Setting threshold level: $UPPER_THRESHOLD"
-   case "$UPPER_THRESHOLD" in
+     UPPER_THRESHOLD=$(echo "$MOBSF_THRESHOLD" | tr '[:lower:]' '[:upper:]')
+     echo ":hammer_and_wrench:  Setting threshold level: $UPPER_THRESHOLD"
+     case "$UPPER_THRESHOLD" in
      "INFO") THRESHOLD_LEVEL=1 ;;
      "WARNING") THRESHOLD_LEVEL=2 ;;
      "ERROR") THRESHOLD_LEVEL=3 ;;
@@ -20,60 +29,152 @@ script: |
        echo ":x: Unknown threshold level: $UPPER_THRESHOLD"
        exit 1
        ;;
-   esac
+     esac
  }
  
  run_scan() {
-   echo ":mag: Scanning project at $MOBSF_CHECK_PATH ..."
-   mobsfscan "$MOBSF_CHECK_PATH" --json -o "$CM_EXPORT_DIR/mobsf-report.json" --no-fail
-   mobsfscan "$MOBSF_CHECK_PATH" --html -o "$CM_EXPORT_DIR/mobsf-report.html" --no-fail
+     echo ":mag: Scanning project at $MOBSF_CHECK_PATH ..."
+     mobsfscan "$MOBSF_CHECK_PATH" --json -o "$JSON_REPORT_PATH" --no-fail
+     mobsfscan "$MOBSF_CHECK_PATH" --html -o "HTML_REPORT_PATH" --no-fail
  }
  
  validate_report_file() {
-   REPORT_FILE="$CM_EXPORT_DIR/mobsf-report.json"
-   if [[ ! -f "$REPORT_FILE" ]]; then
-     echo ":x: Report file not found: $REPORT_FILE"
+     if [[ ! -f "$JSON_REPORT_PATH" ]]; then
+     echo ":x: Report file not found: $JSON_REPORT_PATH"
      exit 1
-   fi
-   echo ":page_facing_up: JSON report found: $REPORT_FILE"
+     fi
+     echo ":page_facing_up: JSON report found: $JSON_REPORT_PATH"
  }
  
  evaluate_findings() {
-   local severities
-   severities=$(jq -r '.results[]?.metadata.severity' "$REPORT_FILE")
+     local severities
+     severities=$(jq -r '.results[]?.metadata.severity' "$JSON_REPORT_PATH")
  
-   if [[ -z "$severities" ]]; then
+     if [[ -z "$severities" ]]; then
      echo ":warning:  No findings detected in the report."
      exit 0
-   fi
+     fi
  
-   echo ":test_tube: Evaluating findings based on threshold..."
-   for severity in $severities; do
+     echo ":test_tube: Evaluating findings based on threshold..."
+     for severity in $severities; do
      case "$severity" in
        "ERROR")
-         echo ":rotating_light: Report contains **ERROR** CVEs. Check $REPORT_FILE for details."
-         exit 1
-         ;;
+           echo ":rotating_light: Report contains **ERROR** CVEs. Check $JSON_REPORT_PATH for details."
+           exit 1
+           ;;
        "WARNING")
-         if [[ $THRESHOLD_LEVEL -ge 2 ]]; then
-           echo ":warning:  Report contains **WARNING** CVEs. Check $REPORT_FILE for details."
+           if [[ $THRESHOLD_LEVEL -ge 2 ]]; then
+           echo ":warning:  Report contains **WARNING** CVEs. Check $JSON_REPORT_PATH for details."
            exit 1
-         fi
-         ;;
+           fi
+           ;;
        "INFO")
-         if [[ $THRESHOLD_LEVEL -ge 1 ]]; then
-           echo ":information_source:  Report contains **INFO** CVEs. Check $REPORT_FILE for details."
+           if [[ $THRESHOLD_LEVEL -ge 1 ]]; then
+           echo ":information_source:  Report contains **INFO** CVEs. Check $JSON_REPORT_PATH for details."
            exit 1
-         fi
-         ;;
+           fi
+           ;;
      esac
-   done
+     done
  
-   echo ":white_check_mark: No CVEs found that exceed the threshold: $UPPER_THRESHOLD"
+     echo ":white_check_mark: No CVEs found that exceed the threshold: $UPPER_THRESHOLD"
  }
-
- install_dependencies
+ 
+ beautify_html() {                
+     # clean file if needed
+     sed 's/\\n/ /g' "$JSON_REPORT_PATH" > "$JSON_REPORT_PATH"
+ 
+     # Count per severity
+     ERROR_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "ERROR")] | length' "$JSON_REPORT_PATH")
+     WARNING_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "WARNING")] | length' "$JSON_REPORT_PATH")
+     INFO_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "INFO")] | length' "$JSON_REPORT_PATH")
+ 
+     # Step 1: HTML Header
+     cat <<EOF > "$HTML_BEAUTIFUL_PATH"
+     <!DOCTYPE html>
+     <html>
+     <head>
+     <meta charset="UTF-8">
+     <title>MobSF Findings Report</title>
+     <style>
+       body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+       h1 { text-align: center; }
+       .summary { text-align: center; font-size: 18px; margin-bottom: 30px; }
+       .summary span { margin: 0 15px; font-weight: bold; }
+       .error-count { color: red; }
+       .warning-count { color: orange; }
+       .info-count { color: dodgerblue; }
+       .card { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+       .INFO { border-left: 8px solid dodgerblue; }
+       .WARNING { border-left: 8px solid orange; }
+       .ERROR { border-left: 8px solid red; }
+     </style>
+     </head>
+     <body>
+     <h1>📱 MobSF Findings Report</h1>
+     <div class="summary">
+       <span class="error-count">❌ Errors: $ERROR_COUNT</span>
+       <span class="warning-count">⚠️ Warnings: $WARNING_COUNT</span>
+       <span class="info-count">ℹ️ Info: $INFO_COUNT</span>
+     </div>
+     EOF
+ 
+     # Step 2: Function to render a group by severity
+     render_group() {
+     local severity="$1"
+     jq -r --arg sev "$severity" '
+       .results | to_entries[] |
+       select(.value.metadata != null and .value.metadata.severity == $sev) |
+       {
+           name: .key,
+           severity: .value.metadata.severity,
+           description: (.value.metadata.description // "No description"),
+           files: (.value | if has("files") and (.files != null) then .files else [] end)
+       } |
+       @base64
+     ' "$JSON_REPORT_PATH" | while read -r encoded; do
+ 
+       decoded=$(echo "$encoded" | base64 --decode)
+       name=$(echo "$decoded" | jq -r '.name')
+       severity=$(echo "$decoded" | jq -r '.severity')
+       description=$(echo "$decoded" | jq -r '.description')
+       has_files=$(echo "$decoded" | jq 'has("files") and (.files != null and (.files | length) > 0)')
+       file_list=""
+       if [[ "$has_files" == "true" ]]; then
+           file_list=$(echo "$decoded" | jq -r '.files | map(.file_path) | join("<br>")')
+       fi
+ 
+       cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
+     <div class="card $severity">
+       <h2>$name</h2>
+       <p><strong>Severity:</strong> $severity</p>
+       <p><strong>Description:</strong> $description</p>
+     EOF
+     
+       if [[ -n "$file_list" ]]; then
+           echo "    <p><strong>Files:</strong><br>$file_list</p>" >> "$HTML_BEAUTIFUL_PATH"
+       fi
+ 
+       echo "  </div>" >> "$HTML_BEAUTIFUL_PATH"
+     done
+     }
+ 
+     # Step 3: Render in severity order
+     render_group "ERROR"
+     render_group "WARNING"
+     render_group "INFO"
+ 
+     # Step 4: Close HTML
+     cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
+     </body>
+     </html>
+     EOF
+     
+     echo "✅ Report generated: $HTML_BEAUTIFUL_PATH"
+ }
+ 
  set_threshold_level
  run_scan
  validate_report_file
  evaluate_findings
+ beautify_html
