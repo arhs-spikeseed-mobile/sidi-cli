@@ -16,10 +16,9 @@ script: |
    echo "[AUDIT] - Audit iOS 3rd parties dependencies"
    
    brew install dependency-check
-   
-   dependency-check --failOnCVSS=$fail_on_cvss_level --enableExperimental --project $CM_PROJECT_ID --out $CM_EXPORT_DIR --scan $podfile_lock_path
-   # Rename file to allow other dependency checker to be executed and stored in the artifact folder
-   mv $CM_EXPORT_DIR/dependency-check-report.html $CM_EXPORT_DIR/cocoapods-dependency-check-report.html
+
+   mkdir -p "$CM_EXPORT_DIR/reports/cocoapods"
+   dependency-check --failOnCVSS=$fail_on_cvss_level --enableExperimental --project $CM_PROJECT_ID --scan $podfile_lock_path --noupdate --format HTML --format JSON --out $CM_EXPORT_DIR/reports/cocoapods
 
    echo "Audit IOS dependencies done successfully"
    
