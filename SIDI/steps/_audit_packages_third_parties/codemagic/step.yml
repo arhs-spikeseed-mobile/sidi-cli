@@ -27,6 +27,7 @@ script: |
    
    cd $GRADLEW_PATH
    #Run analyze
+   mkdir -p "$CM_EXPORT_DIR/reports/gradle"
    ./gradlew $ANDROID_MODULE_NAME:dependencyCheckAggregate
    cd $CM_EXPORT_DIR
    # Rename file to allow other dependency checker to be executed and stored in the artifact folder
