@@ -11,170 +11,380 @@ script: |
  MOBSF_EXPORT_DIR="$REPORTS_DIR/mobsf"
  mkdir -p "$MOBSF_EXPORT_DIR"
  
- HTML_SECURITY_EXPORT_DIR="$CM_EXPORT_DIR/html-security-reports"
+ HTML_SECURITY_EXPORT_DIR="$REPORTS_DIR/html-security-reports"
  mkdir -p "$HTML_SECURITY_EXPORT_DIR"
  
  JSON_REPORT_PATH="$MOBSF_EXPORT_DIR/mobsf-report.json"
  HTML_REPORT_PATH="$MOBSF_EXPORT_DIR/mobsf-report.html"
  HTML_BEAUTIFUL_PATH="$HTML_SECURITY_EXPORT_DIR/mobsf-beautiful-report.html"
  
+ install_dependencies() {
+    echo "🐍 Installing Python dependencies (mobsfscan)..."
+    pip3 install --upgrade mobsfscan
+ }
+ 
+ install_pdf_dependencies() {
+    echo "🐍 Installing WeasyPrint dependencies..."
+    brew install pango cairo gdk-pixbuf libffi
+    pip3 install --upgrade weasyprint
+    pip install "pydyf<0.9"
+ }
+ 
  set_threshold_level() {
-     UPPER_THRESHOLD=$(echo "$MOBSF_THRESHOLD" | tr '[:lower:]' '[:upper:]')
-     echo ":hammer_and_wrench:  Setting threshold level: $UPPER_THRESHOLD"
-     case "$UPPER_THRESHOLD" in
-     "INFO") THRESHOLD_LEVEL=1 ;;
-     "WARNING") THRESHOLD_LEVEL=2 ;;
-     "ERROR") THRESHOLD_LEVEL=3 ;;
-     *)
-       echo ":x: Unknown threshold level: $UPPER_THRESHOLD"
-       exit 1
-       ;;
-     esac
+    UPPER_THRESHOLD=$(echo "$MOBSF_THRESHOLD" | tr '[:lower:]' '[:upper:]')
+    echo ":hammer_and_wrench:  Setting threshold level: $UPPER_THRESHOLD"
+    case "$UPPER_THRESHOLD" in
+    "INFO") THRESHOLD_LEVEL=1 ;;
+    "WARNING") THRESHOLD_LEVEL=2 ;;
+    "ERROR") THRESHOLD_LEVEL=3 ;;
+    *)
+        echo ":x: Unknown threshold level: $UPPER_THRESHOLD"
+        exit 1
+        ;;
+    esac
  }
  
  run_scan() {
-     echo ":mag: Scanning project at $MOBSF_CHECK_PATH ..."
-     mobsfscan "$MOBSF_CHECK_PATH" --json -o "$JSON_REPORT_PATH" --no-fail
-     mobsfscan "$MOBSF_CHECK_PATH" --html -o "HTML_REPORT_PATH" --no-fail
+    echo ":mag: Scanning project at $MOBSF_CHECK_PATH ..."
+    mobsfscan "$MOBSF_CHECK_PATH" --json -o "$JSON_REPORT_PATH" --no-fail
+    mobsfscan "$MOBSF_CHECK_PATH" --html -o "HTML_REPORT_PATH" --no-fail
  }
  
  validate_report_file() {
-     if [[ ! -f "$JSON_REPORT_PATH" ]]; then
-     echo ":x: Report file not found: $JSON_REPORT_PATH"
-     exit 1
-     fi
-     echo ":page_facing_up: JSON report found: $JSON_REPORT_PATH"
+    if [[ ! -f "$JSON_REPORT_PATH" ]]; then
+        echo ":x: Report file not found: $JSON_REPORT_PATH"
+        exit 1
+    fi
+    echo ":page_facing_up: JSON report found: $JSON_REPORT_PATH"
+ }
+ 
+ generate_pdf_report() {
+    if command -v weasyprint >/dev/null 2>&1; then
+        echo "🖨️  Converting HTML report to PDF with WeasyPrint..."
+        weasyprint "$HTML_BEAUTIFUL_PATH" "$MOBSF_EXPORT_DIR/mobsf-report.pdf"
+        echo "📄 PDF report generated: $MOBSF_EXPORT_DIR/mobsf-report.pdf"
+    else
+        echo "⚠️  WeasyPrint not available. Skipping PDF generation."
+    fi
  }
  
  evaluate_findings() {
-     local severities
-     severities=$(jq -r '.results[]?.metadata.severity' "$JSON_REPORT_PATH")
+    local severities
+    severities=$(jq -r '.results[]?.metadata.severity' "$JSON_REPORT_PATH")
+    
+    if [[ -z "$severities" ]]; then
+        echo ":warning:  No findings detected in the report."
+        exit 0
+    fi
+    
+    echo ":test_tube: Evaluating findings based on threshold..."
+    for severity in $severities; do
+    case "$severity" in
+        "ERROR")
+            echo ":rotating_light: Report contains **ERROR** CVEs. Check $JSON_REPORT_PATH for details."
+            exit 1
+            ;;
+        "WARNING")
+            if [[ $THRESHOLD_LEVEL -ge 2 ]]; then
+                echo ":warning:  Report contains **WARNING** CVEs. Check $JSON_REPORT_PATH for details."
+                exit 1
+            fi
+            ;;
+        "INFO")
+            if [[ $THRESHOLD_LEVEL -ge 1 ]]; then
+                echo ":information_source:  Report contains **INFO** CVEs. Check $JSON_REPORT_PATH for details."
+                exit 1
+            fi
+            ;;
+    esac
+    done
+    
+    echo ":white_check_mark: No CVEs found that exceed the threshold: $UPPER_THRESHOLD"
+ }
  
-     if [[ -z "$severities" ]]; then
-     echo ":warning:  No findings detected in the report."
-     exit 0
+ beautify_html() {               
+    # clean file if needed
+    
+    if [[ ! -f "$JSON_REPORT_PATH" ]]; then
+        echo "❌ JSON file not found: $JSON_REPORT_PATH"
+        exit 1
+    fi
+    
+    # clean file if needed
+    sed 's/\\n/ /g' mobsf-report.json > mobsf-report.json
+    
+    # Count per severity
+    ERROR_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "ERROR")] | length' "$JSON_REPORT_PATH")
+    WARNING_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "WARNING")] | length' "$JSON_REPORT_PATH")
+    INFO_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "INFO")] | length' "$JSON_REPORT_PATH")
+    
+    # Step 1: HTML Header
+    cat <<EOF > "$HTML_BEAUTIFUL_PATH"
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta charset="UTF-8">
+    <title>MobSF Findings Report</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        h1 { text-align: center; }
+        .summary { text-align: center; font-size: 18px; margin-bottom: 30px; }
+        .summary span { margin: 0 15px; font-weight: bold; }
+        .error-count { color: red; }
+        .warning-count { color: orange; }
+        .info-count { color: dodgerblue; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .INFO { border-left: 8px solid dodgerblue; }
+        .WARNING { border-left: 8px solid orange; }
+        .ERROR { border-left: 8px solid red; }
+    </style>
+    </head>
+    <body>
+    <h1>📱 MobSF Findings Report</h1>
+    <div class="summary">
+        <span class="error-count">❌ Errors: $ERROR_COUNT</span>
+        <span class="warning-count">⚠️ Warnings: $WARNING_COUNT</span>
+        <span class="info-count">ℹ️ Info: $INFO_COUNT</span>
+    </div>
+    EOF
+    
+    # Step 2: Function to render a group by severity
+    render_group() {
+        local severity="$1"
+        jq -r --arg sev "$severity" '
+            .results | to_entries[] |
+            select(.value.metadata != null and .value.metadata.severity == $sev) |
+            {
+                name: .key,
+                severity: .value.metadata.severity,
+                description: (.value.metadata.description // "No description"),
+                files: (.value | if has("files") and (.files != null) then .files else [] end)
+            } |
+            @base64
+        ' "$JSON_REPORT_PATH" | while read -r encoded; do
+        
+            decoded=$(echo "$encoded" | base64 --decode)
+            name=$(echo "$decoded" | jq -r '.name')
+            severity=$(echo "$decoded" | jq -r '.severity')
+            description=$(echo "$decoded" | jq -r '.description')
+            has_files=$(echo "$decoded" | jq 'has("files") and (.files != null and (.files | length) > 0)')
+            file_list=""
+            if [[ "$has_files" == "true" ]]; then
+                file_list=$(echo "$decoded" | jq -r '.files | map(.file_path) | join("<br>")')
+            fi
+        
+            cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
+        <div class="card $severity">
+            <h2>$name</h2>
+            <p><strong>Severity:</strong> $severity</p>
+            <p><strong>Description:</strong> $description</p>
+        EOF
+        
+            if [[ -n "$file_list" ]]; then
+                echo "    <p><strong>Files:</strong><br>$file_list</p>" >> "$HTML_BEAUTIFUL_PATH"
+            fi
+        
+            echo "  </div>" >> "$HTML_BEAUTIFUL_PATH"
+        done
+    }
+    
+    # Step 3: Render in severity order
+    render_group "ERROR"
+    render_group "WARNING"
+    render_group "INFO"
+    
+    # Step 4: Close HTML
+    cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
+    </body>
+    </html>
+    EOF
+    
+    echo "✅ Report generated: $HTML_BEAUTIFUL_PATH"
+ }
+ 
+ # Send a message to Microsoft Teams using a webhook URL
+ sendToTeams() {
+     local webhookUrl="$1"
+     local message="$2"
+ 
+     # Check if required parameters are provided
+     if [ -z "$webhookUrl" ] || [ -z "$message" ]; then
+         echo "🚨 Error: Both Teams Webhook URL and message are required." 1>&2
+         echo "Usage: sendToTeams <webhook-url> <message>" 1>&2
+         return 1
      fi
  
-     echo ":test_tube: Evaluating findings based on threshold..."
-     for severity in $severities; do
-     case "$severity" in
-       "ERROR")
-           echo ":rotating_light: Report contains **ERROR** CVEs. Check $JSON_REPORT_PATH for details."
-           exit 1
-           ;;
-       "WARNING")
-           if [[ $THRESHOLD_LEVEL -ge 2 ]]; then
-           echo ":warning:  Report contains **WARNING** CVEs. Check $JSON_REPORT_PATH for details."
-           exit 1
-           fi
-           ;;
-       "INFO")
-           if [[ $THRESHOLD_LEVEL -ge 1 ]]; then
-           echo ":information_source:  Report contains **INFO** CVEs. Check $JSON_REPORT_PATH for details."
-           exit 1
-           fi
-           ;;
-     esac
-     done
+     # Create JSON payload
+     local payload
+     payload=$(jq -n --arg text "$message" '{text: $text}')
  
-     echo ":white_check_mark: No CVEs found that exceed the threshold: $UPPER_THRESHOLD"
+     # Send POST request to Microsoft Teams webhook
+     local response
+     response=$(curl -s -o /dev/null -w "%{http_code}" -H "Content-Type: application/json" \
+         -d "$payload" "$webhookUrl")
+ 
+     # Check the response status
+     if [ "$response" -eq 200 ]; then
+         echo "✅ Message sent to Microsoft Teams successfully." 1>&2
+     else
+         echo "🚨 Failed to send message to Microsoft Teams: HTTP $response." 1>&2
+         return 1
+     fi
  }
  
- beautify_html() {                
-     # clean file if needed
-     sed 's/\\n/ /g' "$JSON_REPORT_PATH" > "$JSON_REPORT_PATH"
+ # Send a mobSF report to Teams using a webhook URL
+ sendMobSFReportToTeams() {
+     local webhook_url=$1
+     local json_path="$MOBSF_EXPORT_DIR/mobsf-report.json"
+     local html_temp="$MOBSF_EXPORT_DIR/mobsf-report_temp.html"
+     local html_final="$MOBSF_EXPORT_DIR/mobsf-report.html"
  
-     # Count per severity
-     ERROR_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "ERROR")] | length' "$JSON_REPORT_PATH")
-     WARNING_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "WARNING")] | length' "$JSON_REPORT_PATH")
-     INFO_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "INFO")] | length' "$JSON_REPORT_PATH")
+     local error_count=0
+     local warning_count=0
+     local info_count=0
  
-     # Step 1: HTML Header
-     cat <<EOF > "$HTML_BEAUTIFUL_PATH"
-     <!DOCTYPE html>
-     <html>
-     <head>
-     <meta charset="UTF-8">
-     <title>MobSF Findings Report</title>
-     <style>
-       body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
-       h1 { text-align: center; }
-       .summary { text-align: center; font-size: 18px; margin-bottom: 30px; }
-       .summary span { margin: 0 15px; font-weight: bold; }
-       .error-count { color: red; }
-       .warning-count { color: orange; }
-       .info-count { color: dodgerblue; }
-       .card { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-       .INFO { border-left: 8px solid dodgerblue; }
-       .WARNING { border-left: 8px solid orange; }
-       .ERROR { border-left: 8px solid red; }
-     </style>
-     </head>
-     <body>
-     <h1>📱 MobSF Findings Report</h1>
-     <div class="summary">
-       <span class="error-count">❌ Errors: $ERROR_COUNT</span>
-       <span class="warning-count">⚠️ Warnings: $WARNING_COUNT</span>
-       <span class="info-count">ℹ️ Info: $INFO_COUNT</span>
-     </div>
-     EOF
+     local rows_error=""
+     local rows_warning=""
+     local rows_info=""
  
-     # Step 2: Function to render a group by severity
-     render_group() {
-     local severity="$1"
-     jq -r --arg sev "$severity" '
-       .results | to_entries[] |
-       select(.value.metadata != null and .value.metadata.severity == $sev) |
-       {
-           name: .key,
-           severity: .value.metadata.severity,
-           description: (.value.metadata.description // "No description"),
-           files: (.value | if has("files") and (.files != null) then .files else [] end)
-       } |
-       @base64
-     ' "$JSON_REPORT_PATH" | while read -r encoded; do
+     while IFS='|' read -r key severity description; do
+         local emoji="⚪️"
+         local html_row=""
+         case "$severity" in
+             "ERROR")
+                 emoji="🔴"; ((error_count++))
+                 html_row="<tr><td style='text-align:left'>$key</td><td style='text-align:center'>$emoji</td><td style='text-align:left'>$description</td></tr>"
+                 rows_error="${rows_error}${html_row}"
+                 ;;
+             "WARNING")
+                 emoji="🟠"; ((warning_count++))
+                 html_row="<tr><td style='text-align:left'>$key</td><td style='text-align:center'>$emoji</td><td style='text-align:left'>$description</td></tr>"
+                 rows_warning="${rows_warning}${html_row}"
+                 ;;
+             "INFO")
+                 emoji="🟡"; ((info_count++))
+                 html_row="<tr><td style='text-align:left'>$key</td><td style='text-align:center'>$emoji</td><td style='text-align:left'>$description</td></tr>"
+                 rows_info="${rows_info}${html_row}"
+                 ;;
+         esac
+     done < <(jq -r '
+         .results | to_entries[] |
+         "\(.key)|\(.value.metadata.severity)|\(.value.metadata.description)"
+     ' "$json_path")
  
-       decoded=$(echo "$encoded" | base64 --decode)
-       name=$(echo "$decoded" | jq -r '.name')
-       severity=$(echo "$decoded" | jq -r '.severity')
-       description=$(echo "$decoded" | jq -r '.description')
-       has_files=$(echo "$decoded" | jq 'has("files") and (.files != null and (.files | length) > 0)')
-       file_list=""
-       if [[ "$has_files" == "true" ]]; then
-           file_list=$(echo "$decoded" | jq -r '.files | map(.file_path) | join("<br>")')
-       fi
+     local summary_row="<tr style='background-color:#fce4ec;color:#000;text-align:center;font-weight:bold'>
+     <td colspan='3'>🔴 ERROR: $error_count &nbsp;&nbsp;&nbsp; 🟠 WARNING: $warning_count &nbsp;&nbsp;&nbsp; 🟡 INFO: $info_count</td>
+     </tr>"
  
-       cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
-     <div class="card $severity">
-       <h2>$name</h2>
-       <p><strong>Severity:</strong> $severity</p>
-       <p><strong>Description:</strong> $description</p>
-     EOF
-     
-       if [[ -n "$file_list" ]]; then
-           echo "    <p><strong>Files:</strong><br>$file_list</p>" >> "$HTML_BEAUTIFUL_PATH"
-       fi
+     local html_top="<table bordercolor='black' border='2'>
+     <thead>
+     <tr style='background-color:#fce4ec;color:#000;text-align:center'>
+     <th colspan='3' style='font-size:16px'>MobSF Audit – Static Analysis</th>
+     </tr>
+     $summary_row
+     <tr style='background-color:#f0f0f0;color:#000;text-align:center'>
+     <th>Vulnerability</th><th>Severity</th><th>Description</th>
+     </tr>
+     </thead><tbody>"
  
-       echo "  </div>" >> "$HTML_BEAUTIFUL_PATH"
-     done
-     }
+     local html_bottom="</tbody></table>"
  
-     # Step 3: Render in severity order
-     render_group "ERROR"
-     render_group "WARNING"
-     render_group "INFO"
+     echo "$html_top" > "$html_temp"
+     echo "$rows_error" >> "$html_temp"
+     echo "$rows_warning" >> "$html_temp"
+     echo "$rows_info" >> "$html_temp"
+     echo "$html_bottom" >> "$html_temp"
  
-     # Step 4: Close HTML
-     cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
-     </body>
-     </html>
-     EOF
-     
-     echo "✅ Report generated: $HTML_BEAUTIFUL_PATH"
+     local html_content
+     html_content=$(tr -d '\n' < "$html_temp")
+     echo "$html_content" > "$html_final"
+ 
+     echo "✅ MobSF HTML report generated: $html_final" 1>&2
+     sendToTeams "$webhook_url" "$html_content"
  }
  
+ # Send a mobSF report to Slack using a webhook URL
+ sendMobSFReportToSlack() {
+     local webhook_url=$1
+     local json_path="$MOBSF_EXPORT_DIR/mobsf-report.json"
+ 
+     local error_count=0
+     local warning_count=0
+     local info_count=0
+ 
+     local rows=""
+ 
+     while IFS='|' read -r key severity description; do
+         local emoji="⚪️"
+ 
+         # Truncate vulnerability key to 32 characters
+         [[ ${#key} -gt 32 ]] && key="${key:0:29}..."
+ 
+         # Truncate description to 70 characters
+         [[ ${#description} -gt 70 ]] && description="${description:0:67}..."
+ 
+         case "$severity" in
+             "ERROR") emoji="🔴"; ((error_count++)) ;;
+             "WARNING") emoji="🟠"; ((warning_count++)) ;;
+             "INFO") emoji="🟡"; ((info_count++)) ;;
+         esac
+ 
+         # Add row with guaranteed newline
+         rows="${rows}"$'\n'"$(printf "%-35s %-10s %s" "$key" "$emoji $severity" "$description")"
+     done < <(jq -r '
+         .results | to_entries[] |
+         "\(.key)|\(.value.metadata.severity)|\(.value.metadata.description)"
+     ' "$json_path")
+ 
+     local summary="Summary: 🔴 $error_count  |  🟠 $warning_count  |  🟡 $info_count"
+     local header="🔍 MobSF Audit – Static Analysis
+ 
+     $summary
+ 
+     Vulnerability                        Severity   Description
+     ----------------------------------- ---------- --------------------------------------------------$rows"
+ 
+     local slack_message="\`\`\`$header\`\`\`"
+ 
+     local payload
+     payload=$(echo -e "$slack_message" | jq -Rs '{text: .}')
+ 
+     echo "ℹ️ Sending MobSF report to Slack..." 1>&2
+     curl -s -X POST -H 'Content-type: application/json' --data "$payload" "$webhook_url"
+ }
+ 
+ 
+ # Send webhook notifications using a webhook URL
+ send_webhook_notification() {
+    local webhook_type=$1
+    local webhook_url=$2
+    
+    if [[ -n "$webhook_url" ]]; then
+        echo "ℹ️ Sending $webhook_type notification..." 1>&2
+        if [[ "$webhook_type" == "slack" ]]; then
+            sendMobSFReportToSlack "$webhook_url"
+        elif [[ "$webhook_type" == "teams" ]]; then
+            sendMobSFReportToTeams "$webhook_url"
+        else
+            echo "🚨 Unsupported webhook type: $webhook_type" 1>&2
+            return 1
+        fi
+    else
+        echo "⚠️ No webhook URL provided for $webhook_type." 1>&2
+    fi
+ }
+ 
+ install_dependencies
  set_threshold_level
  run_scan
  validate_report_file
- evaluate_findings
  beautify_html
+ if [[ "$MOBSF_PDF_REPORT" == "true" ]]; then
+    install_pdf_dependencies
+    generate_pdf_report
+ fi
+ 
+ send_webhook_notification "teams" "$TEAMS_SECURITY_WEBHOOCKS"
+ send_webhook_notification "slack" "$SLACK_SECURITY_WEBHOOCKS"
+ 
+ evaluate_findings
