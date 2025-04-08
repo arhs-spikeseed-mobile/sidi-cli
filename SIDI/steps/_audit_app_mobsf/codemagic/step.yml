@@ -2,9 +2,11 @@ name: "[AUDIT] - Install and run MobSF"
 ignore_failure: true
 script: |
  #!/bin/bash
- set -e
-
+ set -ex
+ 
  # Variables
+ MOBSF_CHECK_PATH="."
+ MOBSF_THRESHOLD="WARNING"
  REPORTS_DIR="$CM_EXPORT_DIR/reports"
  mkdir -p REPORTS_DIR
  
@@ -19,187 +21,232 @@ script: |
  HTML_BEAUTIFUL_PATH="$HTML_SECURITY_EXPORT_DIR/mobsf-beautiful-report.html"
  
  install_dependencies() {
-    echo "🐍 Installing Python dependencies (mobsfscan)..."
-    pip3 install --upgrade mobsfscan
+   echo "🐍 Installing Python dependencies (mobsfscan)..."
+   pip3 install --upgrade mobsfscan
  }
  
  install_pdf_dependencies() {
-    echo "🐍 Installing WeasyPrint dependencies..."
-    brew install pango cairo gdk-pixbuf libffi
-    pip3 install --upgrade weasyprint
-    pip install "pydyf<0.9"
+   echo "🐍 Installing WeasyPrint dependencies..."
+   brew install pango cairo gdk-pixbuf libffi
+   pip3 install --upgrade weasyprint
+   pip install "pydyf<0.9"
  }
  
  set_threshold_level() {
-    UPPER_THRESHOLD=$(echo "$MOBSF_THRESHOLD" | tr '[:lower:]' '[:upper:]')
-    echo ":hammer_and_wrench:  Setting threshold level: $UPPER_THRESHOLD"
-    case "$UPPER_THRESHOLD" in
-    "INFO") THRESHOLD_LEVEL=1 ;;
-    "WARNING") THRESHOLD_LEVEL=2 ;;
-    "ERROR") THRESHOLD_LEVEL=3 ;;
-    *)
-        echo ":x: Unknown threshold level: $UPPER_THRESHOLD"
-        exit 1
-        ;;
-    esac
+   UPPER_THRESHOLD=$(echo "$MOBSF_THRESHOLD" | tr '[:lower:]' '[:upper:]')
+   echo ":hammer_and_wrench:  Setting threshold level: $UPPER_THRESHOLD"
+   case "$UPPER_THRESHOLD" in
+   "INFO") THRESHOLD_LEVEL=1 ;;
+   "WARNING") THRESHOLD_LEVEL=2 ;;
+   "ERROR") THRESHOLD_LEVEL=3 ;;
+   *)
+       echo ":x: Unknown threshold level: $UPPER_THRESHOLD"
+       exit 1
+       ;;
+   esac
  }
  
  run_scan() {
-    echo ":mag: Scanning project at $MOBSF_CHECK_PATH ..."
-    mobsfscan "$MOBSF_CHECK_PATH" --json -o "$JSON_REPORT_PATH" --no-fail
-    mobsfscan "$MOBSF_CHECK_PATH" --html -o "HTML_REPORT_PATH" --no-fail
+   echo ":mag: Scanning project at $MOBSF_CHECK_PATH ..."
+   mobsfscan "$MOBSF_CHECK_PATH" --json -o "$JSON_REPORT_PATH" --no-fail
+   mobsfscan "$MOBSF_CHECK_PATH" --html -o "HTML_REPORT_PATH" --no-fail
  }
  
  validate_report_file() {
-    if [[ ! -f "$JSON_REPORT_PATH" ]]; then
-        echo ":x: Report file not found: $JSON_REPORT_PATH"
-        exit 1
-    fi
-    echo ":page_facing_up: JSON report found: $JSON_REPORT_PATH"
+   if [[ ! -f "$JSON_REPORT_PATH" ]]; then
+     echo ":x: Report file not found: $JSON_REPORT_PATH"
+     exit 1
+   fi
+   echo ":page_facing_up: JSON report found: $JSON_REPORT_PATH"
  }
  
  generate_pdf_report() {
-    if command -v weasyprint >/dev/null 2>&1; then
-        echo "🖨️  Converting HTML report to PDF with WeasyPrint..."
-        weasyprint "$HTML_BEAUTIFUL_PATH" "$MOBSF_EXPORT_DIR/mobsf-report.pdf"
-        echo "📄 PDF report generated: $MOBSF_EXPORT_DIR/mobsf-report.pdf"
-    else
-        echo "⚠️  WeasyPrint not available. Skipping PDF generation."
-    fi
+   if command -v weasyprint >/dev/null 2>&1; then
+     echo "🖨️  Converting HTML report to PDF with WeasyPrint..."
+     weasyprint "$HTML_BEAUTIFUL_PATH" "$MOBSF_EXPORT_DIR/mobsf-report.pdf"
+     echo "📄 PDF report generated: $MOBSF_EXPORT_DIR/mobsf-report.pdf"
+   else
+     echo "⚠️  WeasyPrint not available. Skipping PDF generation."
+   fi
  }
  
  evaluate_findings() {
-    local severities
-    severities=$(jq -r '.results[]?.metadata.severity' "$JSON_REPORT_PATH")
-    
-    if [[ -z "$severities" ]]; then
-        echo ":warning:  No findings detected in the report."
-        exit 0
-    fi
-    
-    echo ":test_tube: Evaluating findings based on threshold..."
-    for severity in $severities; do
-    case "$severity" in
-        "ERROR")
-            echo ":rotating_light: Report contains **ERROR** CVEs. Check $JSON_REPORT_PATH for details."
-            exit 1
-            ;;
-        "WARNING")
-            if [[ $THRESHOLD_LEVEL -ge 2 ]]; then
-                echo ":warning:  Report contains **WARNING** CVEs. Check $JSON_REPORT_PATH for details."
-                exit 1
-            fi
-            ;;
-        "INFO")
-            if [[ $THRESHOLD_LEVEL -ge 1 ]]; then
-                echo ":information_source:  Report contains **INFO** CVEs. Check $JSON_REPORT_PATH for details."
-                exit 1
-            fi
-            ;;
-    esac
-    done
-    
-    echo ":white_check_mark: No CVEs found that exceed the threshold: $UPPER_THRESHOLD"
+   local severities
+   severities=$(jq -r '.results[]?.metadata.severity' "$JSON_REPORT_PATH")
+ 
+   if [[ -z "$severities" ]]; then
+     echo ":warning:  No findings detected in the report."
+     exit 0
+   fi
+ 
+   echo ":test_tube: Evaluating findings based on threshold..."
+   for severity in $severities; do
+   case "$severity" in
+       "ERROR")
+           echo ":rotating_light: Report contains **ERROR** CVEs. Check $JSON_REPORT_PATH for details."
+           exit 1
+           ;;
+       "WARNING")
+           if [[ $THRESHOLD_LEVEL -ge 2 ]]; then
+           echo ":warning:  Report contains **WARNING** CVEs. Check $JSON_REPORT_PATH for details."
+           exit 1
+           fi
+           ;;
+       "INFO")
+           if [[ $THRESHOLD_LEVEL -ge 1 ]]; then
+           echo ":information_source:  Report contains **INFO** CVEs. Check $JSON_REPORT_PATH for details."
+           exit 1
+           fi
+           ;;
+   esac
+   done
+ 
+   echo ":white_check_mark: No CVEs found that exceed the threshold: $UPPER_THRESHOLD"
  }
  
  beautify_html() {               
-    # clean file if needed
-    
-    if [[ ! -f "$JSON_REPORT_PATH" ]]; then
-        echo "❌ JSON file not found: $JSON_REPORT_PATH"
-        exit 1
-    fi
-    
-    # clean file if needed
-    sed 's/\\n/ /g' mobsf-report.json > mobsf-report.json
-    
-    # Count per severity
-    ERROR_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "ERROR")] | length' "$JSON_REPORT_PATH")
-    WARNING_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "WARNING")] | length' "$JSON_REPORT_PATH")
-    INFO_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "INFO")] | length' "$JSON_REPORT_PATH")
-    
-    # Step 1: HTML Header
-    cat <<EOF > "$HTML_BEAUTIFUL_PATH"
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="UTF-8">
-    <title>MobSF Findings Report</title>
-    <style>
-        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
-        h1 { text-align: center; }
-        .summary { text-align: center; font-size: 18px; margin-bottom: 30px; }
-        .summary span { margin: 0 15px; font-weight: bold; }
-        .error-count { color: red; }
-        .warning-count { color: orange; }
-        .info-count { color: dodgerblue; }
-        .card { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .INFO { border-left: 8px solid dodgerblue; }
-        .WARNING { border-left: 8px solid orange; }
-        .ERROR { border-left: 8px solid red; }
-    </style>
-    </head>
-    <body>
-    <h1>📱 MobSF Findings Report</h1>
-    <div class="summary">
-        <span class="error-count">❌ Errors: $ERROR_COUNT</span>
-        <span class="warning-count">⚠️ Warnings: $WARNING_COUNT</span>
-        <span class="info-count">ℹ️ Info: $INFO_COUNT</span>
-    </div>
-    EOF
-    
-    # Step 2: Function to render a group by severity
-    render_group() {
-        local severity="$1"
-        jq -r --arg sev "$severity" '
-            .results | to_entries[] |
-            select(.value.metadata != null and .value.metadata.severity == $sev) |
-            {
-                name: .key,
-                severity: .value.metadata.severity,
-                description: (.value.metadata.description // "No description"),
-                files: (.value | if has("files") and (.files != null) then .files else [] end)
-            } |
-            @base64
-        ' "$JSON_REPORT_PATH" | while read -r encoded; do
-        
-            decoded=$(echo "$encoded" | base64 --decode)
-            name=$(echo "$decoded" | jq -r '.name')
-            severity=$(echo "$decoded" | jq -r '.severity')
-            description=$(echo "$decoded" | jq -r '.description')
-            has_files=$(echo "$decoded" | jq 'has("files") and (.files != null and (.files | length) > 0)')
-            file_list=""
-            if [[ "$has_files" == "true" ]]; then
-                file_list=$(echo "$decoded" | jq -r '.files | map(.file_path) | join("<br>")')
-            fi
-        
-            cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
-        <div class="card $severity">
-            <h2>$name</h2>
-            <p><strong>Severity:</strong> $severity</p>
-            <p><strong>Description:</strong> $description</p>
-        EOF
-        
-            if [[ -n "$file_list" ]]; then
-                echo "    <p><strong>Files:</strong><br>$file_list</p>" >> "$HTML_BEAUTIFUL_PATH"
-            fi
-        
-            echo "  </div>" >> "$HTML_BEAUTIFUL_PATH"
-        done
-    }
-    
-    # Step 3: Render in severity order
-    render_group "ERROR"
-    render_group "WARNING"
-    render_group "INFO"
-    
-    # Step 4: Close HTML
-    cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
-    </body>
-    </html>
-    EOF
-    
-    echo "✅ Report generated: $HTML_BEAUTIFUL_PATH"
+ # clean file if needed
+ 
+ if [[ ! -f "$JSON_REPORT_PATH" ]]; then
+ echo "❌ JSON file not found: $JSON_REPORT_PATH"
+ exit 1
+ fi
+ 
+ # clean file if needed
+ sed 's/\\n/ /g' mobsf-report.json > mobsf-report.json
+ 
+ # Count per severity
+ ERROR_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "ERROR")] | length' "$JSON_REPORT_PATH")
+ WARNING_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "WARNING")] | length' "$JSON_REPORT_PATH")
+ INFO_COUNT=$(jq '[.results | to_entries[] | select(.value.metadata != null and .value.metadata.severity == "INFO")] | length' "$JSON_REPORT_PATH")
+ 
+ # Step 1: HTML Header
+ cat <<EOF > "$HTML_BEAUTIFUL_PATH"
+ <!DOCTYPE html>
+ <html>
+ <head>
+ <meta charset="UTF-8">
+ <title>MobSF Findings Report</title>
+ <style>
+     body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+     h1 { text-align: center; }
+     .summary { text-align: center; font-size: 18px; margin-bottom: 30px; }
+     .summary span { margin: 0 15px; font-weight: bold; }
+     .error-count { color: red; }
+     .warning-count { color: orange; }
+     .info-count { color: dodgerblue; }
+     .card { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+     .INFO { border-left: 8px solid dodgerblue; }
+     .WARNING { border-left: 8px solid orange; }
+     .ERROR { border-left: 8px solid red; }
+ </style>
+ </head>
+ <body>
+ <h1>📱 MobSF Findings Report</h1>
+ <div class="summary">
+     <span class="error-count">❌ Errors: $ERROR_COUNT</span>
+     <span class="warning-count">⚠️ Warnings: $WARNING_COUNT</span>
+     <span class="info-count">ℹ️ Info: $INFO_COUNT</span>
+ </div>
+ EOF
+ 
+ # Step 2: Function to render a group by severity
+ render_group() {
+   local severity="$1"
+   jq -r --arg sev "$severity" '
+     .results | to_entries[] |
+     select(.value.metadata != null and .value.metadata.severity == $sev) |
+     {
+       name: .key,
+       severity: .value.metadata.severity,
+       description: (.value.metadata.description // "No description"),
+       files: (.value.files // []),
+       cwe: .value.metadata.cwe,
+       masvs: .value.metadata.masvs,
+       owasp: .value.metadata["owasp-mobile"],
+       reference: .value.metadata.reference
+     } |
+     @base64
+   ' "$JSON_REPORT_PATH" | while read -r encoded; do
+ 
+     decoded=$(echo "$encoded" | base64 --decode)
+     name=$(echo "$decoded" | jq -r '.name')
+     severity=$(echo "$decoded" | jq -r '.severity')
+     description=$(echo "$decoded" | jq -r '.description')
+ 
+     cwe=$(echo "$decoded" | jq -r '.cwe // empty')
+     masvs=$(echo "$decoded" | jq -r '.masvs // empty')
+     owasp=$(echo "$decoded" | jq -r '.owasp // empty')
+     reference=$(echo "$decoded" | jq -r '.reference // empty')
+ 
+     file_list_array=()
+     while IFS=$'\t' read -r path start_line end_line; do
+       if [[ "$start_line" == "$end_line" ]]; then
+         line_info="+$start_line"
+       else
+         line_info="+$start_line-$end_line"
+       fi
+       file_list_array+=("${path}${line_info}")
+     done < <(echo "$decoded" | jq -r '.files[]? | "\(.file_path)\t\(.match_lines[0])\t\(.match_lines[1])"')
+ 
+     file_count=${#file_list_array[@]}
+     if [[ $file_count -gt 5 ]]; then
+       first_five=$(printf '%s<br>' "${file_list_array[@]:0:5}")
+       remaining=$(printf '%s<br>' "${file_list_array[@]:5}")
+       file_list="<div>
+         $first_five
+         <details><summary>Show more ($((file_count - 5)) file(s))</summary>
+         $remaining
+         </details>
+       </div>"
+     else
+       file_list=$(printf '%s<br>' "${file_list_array[@]}")
+     fi
+ 
+     cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
+     <div class="card $severity">
+       <h2>$name</h2>
+       <p><strong>Severity:</strong> $severity</p>
+       <p><strong>Description:</strong> $description</p>
+ EOF
+ 
+     if [[ -n "$file_list" ]]; then
+       echo "      <p><strong>Files:</strong><br>$file_list</p>" >> "$HTML_BEAUTIFUL_PATH"
+     fi
+ 
+     if [[ -n "$cwe$masvs$owasp$reference" ]]; then
+       cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
+       <details>
+         <summary>Show metadata</summary>
+         <ul>
+ EOF
+       [[ -n "$cwe" ]] && echo "          <li><strong>CWE:</strong> $cwe</li>" >> "$HTML_BEAUTIFUL_PATH"
+       [[ -n "$masvs" ]] && echo "          <li><strong>MASVS:</strong> $masvs</li>" >> "$HTML_BEAUTIFUL_PATH"
+       [[ -n "$owasp" ]] && echo "          <li><strong>OWASP Mobile:</strong> $owasp</li>" >> "$HTML_BEAUTIFUL_PATH"
+       [[ -n "$reference" ]] && echo "          <li><strong>Reference:</strong> <a href=\"$reference\" target=\"_blank\">Link</a></li>" >> "$HTML_BEAUTIFUL_PATH"
+ 
+       cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
+         </ul>
+       </details>
+ EOF
+     fi
+ 
+     echo "    </div>" >> "$HTML_BEAUTIFUL_PATH"
+   done
+ }
+ 
+ # Step 3: Render in severity order
+ render_group "ERROR"
+ render_group "WARNING"
+ render_group "INFO"
+ 
+ # Step 4: Close HTML
+ cat <<EOF >> "$HTML_BEAUTIFUL_PATH"
+ </body>
+ </html>
+ EOF
+ 
+ echo "✅ Report generated: $HTML_BEAUTIFUL_PATH"
  }
  
  # Send a message to Microsoft Teams using a webhook URL
@@ -273,19 +320,19 @@ script: |
      ' "$json_path")
  
      local summary_row="<tr style='background-color:#fce4ec;color:#000;text-align:center;font-weight:bold'>
-     <td colspan='3'>🔴 ERROR: $error_count &nbsp;&nbsp;&nbsp; 🟠 WARNING: $warning_count &nbsp;&nbsp;&nbsp; 🟡 INFO: $info_count</td>
-     </tr>"
+       <td colspan='3'>🔴 ERROR: $error_count &nbsp;&nbsp;&nbsp; 🟠 WARNING: $warning_count &nbsp;&nbsp;&nbsp; 🟡 INFO: $info_count</td>
+       </tr>"
  
      local html_top="<table bordercolor='black' border='2'>
-     <thead>
-     <tr style='background-color:#fce4ec;color:#000;text-align:center'>
-     <th colspan='3' style='font-size:16px'>MobSF Audit – Static Analysis</th>
-     </tr>
-     $summary_row
-     <tr style='background-color:#f0f0f0;color:#000;text-align:center'>
-     <th>Vulnerability</th><th>Severity</th><th>Description</th>
-     </tr>
-     </thead><tbody>"
+       <thead>
+       <tr style='background-color:#fce4ec;color:#000;text-align:center'>
+       <th colspan='3' style='font-size:16px'>MobSF Audit – Static Analysis</th>
+       </tr>
+       $summary_row
+       <tr style='background-color:#f0f0f0;color:#000;text-align:center'>
+       <th>Vulnerability</th><th>Severity</th><th>Description</th>
+       </tr>
+       </thead><tbody>"
  
      local html_bottom="</tbody></table>"
  
@@ -339,10 +386,10 @@ script: |
      local summary="Summary: 🔴 $error_count  |  🟠 $warning_count  |  🟡 $info_count"
      local header="🔍 MobSF Audit – Static Analysis
  
-     $summary
+       $summary
  
-     Vulnerability                        Severity   Description
-     ----------------------------------- ---------- --------------------------------------------------$rows"
+       Vulnerability                        Severity   Description
+       ----------------------------------- ---------- --------------------------------------------------$rows"
  
      local slack_message="\`\`\`$header\`\`\`"
  
@@ -356,22 +403,22 @@ script: |
  
  # Send webhook notifications using a webhook URL
  send_webhook_notification() {
-    local webhook_type=$1
-    local webhook_url=$2
-    
-    if [[ -n "$webhook_url" ]]; then
-        echo "ℹ️ Sending $webhook_type notification..." 1>&2
-        if [[ "$webhook_type" == "slack" ]]; then
-            sendMobSFReportToSlack "$webhook_url"
-        elif [[ "$webhook_type" == "teams" ]]; then
-            sendMobSFReportToTeams "$webhook_url"
-        else
-            echo "🚨 Unsupported webhook type: $webhook_type" 1>&2
-            return 1
-        fi
-    else
-        echo "⚠️ No webhook URL provided for $webhook_type." 1>&2
-    fi
+   local webhook_type=$1
+   local webhook_url=$2
+ 
+   if [[ -n "$webhook_url" ]]; then
+     echo "ℹ️ Sending $webhook_type notification..." 1>&2
+     if [[ "$webhook_type" == "slack" ]]; then
+       sendMobSFReportToSlack "$webhook_url"
+     elif [[ "$webhook_type" == "teams" ]]; then
+       sendMobSFReportToTeams "$webhook_url"
+     else
+       echo "🚨 Unsupported webhook type: $webhook_type" 1>&2
+       return 1
+     fi
+   else
+     echo "⚠️ No webhook URL provided for $webhook_type." 1>&2
+   fi
  }
  
  install_dependencies
@@ -380,8 +427,8 @@ script: |
  validate_report_file
  beautify_html
  if [[ "$MOBSF_PDF_REPORT" == "true" ]]; then
-    install_pdf_dependencies
-    generate_pdf_report
+   install_pdf_dependencies
+   generate_pdf_report
  fi
  
  send_webhook_notification "teams" "$TEAMS_SECURITY_WEBHOOCKS"
