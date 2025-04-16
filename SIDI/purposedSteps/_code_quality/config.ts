@@ -29,6 +29,7 @@ const config: IConfig = {
     '_audit_packages_urls',
     '_audit_packages_third_parties',
     '_audit_export_report',
+    '_audit_app_mobsf',
     '_audit_app_decompile',
     '_audit_app_permissions',
     '_audit_app_sizes',

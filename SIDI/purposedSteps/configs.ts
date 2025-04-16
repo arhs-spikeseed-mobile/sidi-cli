@@ -299,6 +299,10 @@ export const qualityConfig: IConditionalStep[] = [
     stepsNames: ['_audit_app_decompile'],
   },
   {
+    conditions: [{ key: '_audit_app_mobsf', expectedValues: ['true'], choices: ['true', 'false'] }],
+    stepsNames: ['_audit_app_mobsf'],
+  },
+  {
     conditions: [
       { key: '_audit_app_decompile', expectedValues: ['true'] },
       { key: '_audit_app_permissions', expectedValues: ['true'], choices: ['true', 'false'] },
