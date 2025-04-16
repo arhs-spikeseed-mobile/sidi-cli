@@ -1,5 +1,5 @@
 steps:
-  - flutter-installer:
+  - flutter-installer@0.13.1:
       title: "[FLUTTER] - Install Flutter SDK"
       inputs:
       - version: stable

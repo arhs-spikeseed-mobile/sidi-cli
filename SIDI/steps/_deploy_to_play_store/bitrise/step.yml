@@ -1,5 +1,5 @@
 steps:
- - google-play-deploy@3.7.2:
+ - google-play-deploy@3.8.0:
     title: "[ANDROID] - Deploy to google play"
     inputs:
      - package_name: "$ANDROID_PACKAGE_NAME"

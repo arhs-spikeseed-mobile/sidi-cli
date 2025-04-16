@@ -1,5 +1,5 @@
 steps:
-  - cocoapods-install@2.2.1:
+  - cocoapods-install@2.4.2:
       title: "[iOS] - Install pods"
       inputs:
         - source_root_path: "$IOS_PROJECT_ROOT"

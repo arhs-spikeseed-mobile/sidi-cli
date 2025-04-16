@@ -1,11 +1,12 @@
 steps:
-  - script@1.1.6:
+  - script@1.2.1:
       inputs:
         - content: |-
             #!/usr/bin/env bash
             cd "$SAMPLE_APP_PATH"
       title: "[REACT-NATIVE] - Go to sample app "
-  - npm@0.9.1:
+  - npm@1.1.6:
       inputs:
         - command: install
+        - npm_version: "$NPM_VERSION"
       title: "[REACT-NATIVE] - NPM install for sample app"

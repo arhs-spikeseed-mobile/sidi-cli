@@ -1,6 +1,19 @@
-# Changelog (Current version: 3.1.0)
+# Changelog (Current version: 3.2.0)
 
 ## Unreleased
+
+Features
+
+- #23: Allow user to configure cancel_previous_builds value for each workflow which is set to false per default
+
+## Version 3.2.0
+
+Features
+- Update all versions for bitrise steps
+
+Fixes
+- Bitrise meta settings not in expected format
+- Improve the way that we inject flutter steps
 
 ## Version 3.1.0
 

@@ -1,11 +1,11 @@
 import { IConfig } from '../../../src/models/SidiModel';
 import androidManifest from '../../../src/customChecks/AndroidManifest';
 import { GluegunToolbox } from 'gluegun';
-import { androidConfig, commonConfig, rnConfig } from '../configs';
+import { androidConfig, commonConfig, flutterConfig, rnConfig } from '../configs';
 
 const config: IConfig = {
   mandatoryKeys: [],
-  conditionalSteps: [...commonConfig, ...rnConfig, ...androidConfig],
+  conditionalSteps: [...commonConfig, ...rnConfig, ...flutterConfig, ...androidConfig],
   checks: [
     {
       check: (toolbox: GluegunToolbox) => androidManifest(toolbox),

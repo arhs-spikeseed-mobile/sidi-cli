@@ -1,5 +1,6 @@
 steps:
-  - npm@0.9.1:
+  - npm@1.1.6:
       inputs:
+        - npm_version: "$NPM_VERSION"
         - command: install
       title: "[REACT-NATIVE] - NPM install"

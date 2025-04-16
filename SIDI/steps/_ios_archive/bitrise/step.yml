@@ -1,5 +1,5 @@
 steps:
-  - xcode-archive@4.2.7:
+  - xcode-archive@5.4.0:
       title: "[iOS] - Create archive"
       inputs:
         - scheme: "$IOS_SCHEME"

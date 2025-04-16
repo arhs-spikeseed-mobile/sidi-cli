@@ -1,11 +1,11 @@
 steps:
-  - gradle-runner@2.0.1:
+  - gradle-runner@3.0.0:
       title: "[ANDROID] - Building the app (APK)"
       inputs:
         - gradle_file: "$ANDROID_GRADLE_PATH"
         - gradle_task: "$ANDROID_SCHEME_ASSEMBLEE"
         - gradlew_path: "$ANDROID_GRADLEW_PATH"
-        - apk_file_exclude_filter: "$ENV_ANDROID_APK_FILTER"
+        - app_file_exclude_filter: "$ENV_ANDROID_APK_FILTER"
 envs:
  - ANDROID_GRADLEW_PATH: "$GRADLEW_PATH/gradlew"
  - ANDROID_GRADLE_PATH: "$TARGET_ANDROID/build.gradle"

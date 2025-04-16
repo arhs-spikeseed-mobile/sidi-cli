@@ -1,5 +1,5 @@
 steps:
-  - firebase-app-distribution@0.10.0:
+  - firebase-app-distribution@0.11.0:
       title: "[POST] - Deploy iOS to Firebase (BETA)"
       inputs:
         - app: "$FIREBASE_IOS_APP_ID"

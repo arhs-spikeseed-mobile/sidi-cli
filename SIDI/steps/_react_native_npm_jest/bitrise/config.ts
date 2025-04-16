@@ -3,7 +3,7 @@ import { GluegunToolbox } from 'gluegun';
 import jest from '../../../../src/customChecks/Jest';
 
 const config: IConfig = {
-  mandatoryKeys: [],
+  mandatoryKeys: [{ key: 'NPM_VERSION', globalValue: true }],
   checks: [
     {
       check: (toolbox: GluegunToolbox) => jest(toolbox),

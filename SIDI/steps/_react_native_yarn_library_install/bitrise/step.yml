@@ -1,11 +1,11 @@
 steps:
-  - script@1.1.6:
+  - script@1.2.1:
       inputs:
         - content: |-
             #!/usr/bin/env bash
             cd "$SAMPLE_APP_PATH"
       title: "[REACT-NATIVE] - Go to sample app "
-  - yarn@0.1.1:
+  - yarn@0.1.3:
       title: "[REACT-NATIVE] - Yarn install"
       inputs:
         - command: install

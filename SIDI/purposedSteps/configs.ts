@@ -32,11 +32,15 @@ export const commonConfig: IConditionalStep[] = [
     stepsNames: ['_send_teams_message'],
   },
   {
-    conditions: [{ key: 'projectType', expectedValues: ['ios', 'react-native', 'flutter'], choices: ['true', 'false'] }],
+    conditions: [
+      { key: 'projectType', expectedValues: ['ios', 'react-native', 'flutter'], choices: ['true', 'false'] },
+    ],
     stepsNames: ['_setup_ios_default_values'],
   },
   {
-    conditions: [{ key: 'projectType', expectedValues: ['android', 'react-native', 'flutter'], choices: ['true', 'false'] }],
+    conditions: [
+      { key: 'projectType', expectedValues: ['android', 'react-native', 'flutter'], choices: ['true', 'false'] },
+    ],
     stepsNames: ['_setup_android_default_values'],
   },
   {
@@ -181,9 +185,7 @@ export const rnConfig: IConditionalStep[] = [
 
 export const flutterConfig: IConditionalStep[] = [
   {
-    conditions: [
-      { key: 'projectType', expectedValues: ['flutter'] },
-    ],
+    conditions: [{ key: 'projectType', expectedValues: ['flutter'] }],
     stepsNames: ['_flutter_yarn_install'],
   },
   {

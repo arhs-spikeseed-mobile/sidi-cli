@@ -1,5 +1,5 @@
 steps:
-  - xcode-test@4.0.4:
+  - xcode-test@6.0.0:
      title: "[iOS] - Run unit tests"
      inputs:
       - project_path: "$IOS_XCODEPROJ_PATH"

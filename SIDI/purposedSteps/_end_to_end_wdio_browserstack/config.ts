@@ -12,7 +12,7 @@ const config: IConfig = {
     '_e2e_send_build_and_report_notifications',
     '_e2e_launch_builds',
     '_e2e_launcher',
-  ]
+  ],
 };
 
 export default config;

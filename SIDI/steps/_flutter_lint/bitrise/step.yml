@@ -1,5 +1,5 @@
 steps:
-  - flutter-analyze:
+  - flutter-analyze@0.3.2:
       title: "[FLUTTER] - Run Lint"
       inputs:
         - project_location: "$PROJECT_LOCATION"

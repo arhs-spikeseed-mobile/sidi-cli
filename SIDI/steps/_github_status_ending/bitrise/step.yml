@@ -1,9 +1,10 @@
 steps:
- - github-status@2:
+ - github-status@3.0.1:
     title: "[PRE] - Github status - Update build status"
     inputs:
      - auth_token: "$GITHUB_TOKEN"
      - repository_url: "$REPOSITORY_URL"
+     - api_base_url: "$API_URL"
      - commit_hash: "$BITRISE_GIT_COMMIT"
      - build_url: "$BITRISE_BUILD_URL"
      - set_specific_status: "auto"
